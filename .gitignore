@@ -1,0 +1,21 @@
+# 虚拟环境与工具
+.venv/
+uv.exe
+uvw.exe
+uvx.exe
+__pycache__/
+*.pyc
+
+# 生成产物(本地运行脚本后自行生成)
+exports/
+renders/
+
+# 参赛相关材料(不上传)
+make_docs.py
+探秘火星*.txt
+
+# 本地参考与杂项
+cadquery-llm-skill-main/
+*.png
+*.lnk
+*.bin
