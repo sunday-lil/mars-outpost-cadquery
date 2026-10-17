@@ -7,23 +7,26 @@
 ====================================================================
   设计理念
   --------
-  以 2030 年代火星科考前哨站为蓝图，构建"一站多器"综合场景：
-  主居住穹顶、科研实验舱、加压廊道、太阳能翼阵、深空通讯塔、
-  六轮火星车、返回火箭着陆平台、气象观测站。
+  以 2030 年代火星科考前哨站为蓝图，按功能分区构建有机连通的综合基地：
+  核心科研区(穹顶+实验舱+廊道)、能源区(太阳能翼阵)、
+  通信区(深空通信塔+大口径抛物面天线)、发射区(着陆平台+火箭+离子推进器)、
+  探测区(六轮火星车)、环境监测区(综合气象站)。
+  连接道路贯穿各区域, 形成完整的基地运维生态。
 
-  ── 阶段一总装大通关: 离子推进器动力总成 ──
+  ── 阶段一: 离子推进器动力总成(集成于火箭动力段) ──
   24 槽全向辐射散热格栅(倾斜 15° 百叶窗式), 依据斯蒂芬-玻尔兹曼
   热辐射定律设计; CadQuery 批量布尔差集(cut)高效算法; 刀具两端
   预留 1mm 贯通容差修复 Z-Fighting, 100% 水密交付。
 
-  ── 阶段二: 深空通信系统 ──
+  ── 阶段二: 深空通信系统(集成于通信塔顶) ──
   旋转抛物面高增益天线, 严谨推导 z = r²/(4f) 微积分方程, 微积分
   点集离散采样生成壁厚 2mm 反射体, 外缘法兰圈加固; X 波段(8.4GHz)
   深空通信链路增益核算(dBi), 导出高精度 STL。
 
   核心算法：极坐标放置、三角函数定向斜杆、海伦公式求弧半径、
-  抛物线 z=r²/(4f) 旋转成天线、斯蒂芬-玻尔兹曼热辐射散热格栅、
-  CadQuery 批量布尔差集、Z-Fighting 贯通容差修复、
+  抛物线 z=r²/(4f) 微积分推导 + 旋转成抛物面天线、
+  斯蒂芬-玻尔兹曼热辐射定律 → 百叶窗散热格栅、
+  CadQuery 批量布尔差集 + Z-Fighting 贯通容差修复、
   随机数撒布岩石(固定种子可复现)、
   太阳能板倾角 = 90° − 太阳高度角(自动对日)。
 
@@ -56,7 +59,7 @@ BASE_R, BASE_H = 300, 14           # 火星基座半径 / 厚度
 DOME_R, DOME_H, DOME_RIBS = 80, 60, 10   # 穹顶半径 / 矢高 / 肋数
 LAB_R, LAB_L = 32, 120             # 实验舱半径 / 长度
 SUN_ELEV, PANEL_N = 35, 4          # 太阳高度角(度) / 太阳能板数
-TOWER_H, DISH_D, EARTH_ELEV = 190, 70, 40   # 塔高 / 天线口径 / 对地仰角
+TOWER_H, DISH_D, EARTH_ELEV = 190, 120, 40   # 塔高 / 大天线口径 / 对地仰角
 ROCKET_H = 210                     # 火箭总高
 ROCK_SEED, ROCK_N = 2026, 20       # 岩石随机种子 / 数量
 
@@ -70,22 +73,25 @@ GRILL_H = 60                        # 散热套高度
 GRILL_BLADE_W = 3                   # 单个切削刀片宽度
 GRILL_TOLERANCE = 1                 # Z-Fighting 容差: 刀片两端贯通预留(mm)
 
-# --- 阶段二: 旋转抛物面高增益天线 ---
+# --- 阶段二: 旋转抛物面高增益天线(集成于深空通信塔) ---
 DISH_F = 45                         # 抛物面焦距 f(mm), z = r²/(4f)
-DISH_APERTURE = 120                 # 天线口径直径(mm)
 DISH_WALL = 2                       # 反射体壁厚(mm)
 DISH_FLANGE_W = 6                   # 法兰圈宽度
 DISH_FLANGE_T = 4                   # 法兰圈厚度
 DISH_SAMPLE_N = 48                  # 微积分点集离散采样数
 X_BAND_FREQ = 8.4e9                 # X 波段中心频率(Hz)
 
-# 各系统落位(x, y)
+# 各系统落位(x, y) —— 按功能分区:
+#   核心科研区(穹顶+实验舱+廊道): 中央
+#   能源区(太阳能翼阵): 南侧
+#   通信区(深空通信塔+大天线): 东北
+#   发射区(着陆平台+火箭+离子推进器): 东南
+#   探测区(火星车): 西南
+#   环境监测区(气象站): 西北
 POS_DOME, POS_LAB = (-60, 0), (68, 0)
 POS_TOWER, POS_ROVER = (95, 150), (75, -120)
 POS_ROCKET, POS_WEATHER = (195, 105), (-160, 100)
 POS_SOLAR = (-156, -190)
-POS_ION = (-210, -80)               # 离子推进器动力总成落位
-POS_DISH = (130, -160)              # 高增益天线落位
 
 # =====================================================================
 # 二、材质表（glTF 2.0 PBR 参数, Blender 原生识别）
@@ -113,14 +119,16 @@ MATERIALS = {
     "返回火箭":   {"color": (0.85, 0.87, 0.90), "metal": 0.85, "rough": 0.20},
     "发动机喷管": {"color": (0.35, 0.33, 0.30), "metal": 0.95, "rough": 0.30},
     "气象站":     {"color": (0.93, 0.93, 0.91), "metal": 0.20, "rough": 0.40},
-    # 阶段一: 离子推进器动力总成
+    "环境传感器": {"color": (0.40, 0.55, 0.65), "metal": 0.50, "rough": 0.25},
+    # 离子推进器(集成于火箭动力段)
     "推进器机身": {"color": (0.78, 0.80, 0.83), "metal": 0.90, "rough": 0.25},
     "加速器喷管": {"color": (0.30, 0.28, 0.25), "metal": 0.95, "rough": 0.35},
     "散热格栅":   {"color": (0.65, 0.67, 0.70), "metal": 0.85, "rough": 0.30},
-    # 阶段二: 高增益抛物面天线
+    # 深空通信(集成于通信塔)
     "抛物面反射器": {"color": (0.95, 0.95, 0.97), "metal": 0.60, "rough": 0.12},
-    "天线法兰":   {"color": (0.55, 0.57, 0.60), "metal": 0.80, "rough": 0.35},
     "天线馈源臂": {"color": (0.70, 0.72, 0.75), "metal": 0.75, "rough": 0.30},
+    # 连接道路
+    "压痕路径":   {"color": (0.55, 0.28, 0.18), "metal": 0.00, "rough": 0.98},
 }
 M_DEFAULT = {"color": (0.7, 0.7, 0.7), "metal": 0.1, "rough": 0.5}
 
@@ -382,7 +390,11 @@ def build_solar():
 
 
 def build_tower():
-    """通讯塔: 三柱桁架(斜杆函数) + 环撑 + 抛物面天线(y=x²/4f) + 信标。"""
+    """深空通信塔: 三柱桁架 + 环撑 + 大口径抛物面高增益天线(阶段二集成) + 信标。
+
+    将阶段二的 ParabolicDishGenerator 大抛物面天线直接集成到塔顶,
+    替代原来小口径天线——一座塔, 一套天线, 通信逻辑清晰。
+    """
     H, top_r, bot_r = TOWER_H, 8, 26
     struts = [strut((bot_r * math.cos(math.radians(a)), bot_r * math.sin(math.radians(a)), 0),
                     (top_r * math.cos(math.radians(a)), top_r * math.sin(math.radians(a)), H), 3)
@@ -390,29 +402,27 @@ def build_tower():
     rings = [cq.Solid.makeTorus(bot_r + (top_r - bot_r) * f, 1.2)
              .translate((0, 0, H * f))
              for f in (0.15, 0.32, 0.5, 0.68, 0.85)]
-    # 抛物面天线: 内外抛物线夹薄壳 → 绕 Z 旋转; 馈源置于焦点 z=f
-    f_dish, rim_r = DISH_D * 0.35, DISH_D / 2
-    xs = [rim_r * i / 6 for i in range(7)]
-    dish = revolve_z(
-        cq.Workplane("XZ")
-        .moveTo(0, 0)
-        .spline([(x, x * x / (4 * f_dish)) for x in xs[1:]])          # 外表面
-        .lineTo(rim_r, rim_r * rim_r / (4 * f_dish) + 3)
-        .spline([(x, x * x / (4 * f_dish) + 3)
-                 for x in reversed(xs[:-1])])                          # 内表面
-        .close()
-    ).union(post(1.2, f_dish).union(
-        cq.Workplane("XY").workplane(offset=f_dish).sphere(3)))        # 馈源
-    dish = dish.rotate((0, 0, 0), (1, 0, 0), -EARTH_ELEV).translate((0, 0, H - 8))
-    # 桅杆警示灯: 桅杆从天线盘中心穿过后高出盘缘 15mm 以上,
-    # 红球置于杆顶(航空警示灯), 不会"糊"在盘面上
+
+    # ── 大口径抛物面天线(阶段二 ParabolicDishGenerator 集成) ──
+    # 微积分点集离散采样: z = r²/(4f), 壁厚 2mm, 外缘法兰圈加固
+    dish_reflector, feed_arms, feed = ParabolicDishGenerator()
+
+    # 天线整体倾斜对地(指向地球方向), 置于塔顶
+    earth_tilt = EARTH_ELEV
+    dish_reflector = dish_reflector.rotate((0, 0, 0), (1, 0, 0), -earth_tilt)
+    feed_arms = feed_arms.rotate((0, 0, 0), (1, 0, 0), -earth_tilt)
+    feed = feed.rotate((0, 0, 0), (1, 0, 0), -earth_tilt)
+
+    dish_group = compound_of([dish_reflector, feed_arms, feed]).translate((0, 0, H - 8))
+
+    # 桅杆警示灯: 桅杆从天线盘后方高出, 红球置于杆顶(航空警示灯)
     beacon = (post(1.5, 54).translate((0, 0, H - 20))
               .union(cq.Workplane("XY").workplane(offset=H + 34).sphere(4.5)))
 
-    # 桁架件互不融合, 直接打包复合体(避免多余布尔运算)
     dx, dy = POS_TOWER
     return [
-        ("塔架", compound_of(struts + rings + [dish]).translate((dx, dy, BASE_H))),
+        ("塔架", compound_of(struts + rings).translate((dx, dy, BASE_H))),
+        ("抛物面反射器", dish_group.translate((dx, dy, BASE_H))),
         ("天线信标", beacon.val().translate((dx, dy, BASE_H))),
     ]
 
@@ -457,7 +467,11 @@ def build_rover():
 
 
 def build_rocket():
-    """着陆平台(八角+边界灯) + 火箭(局部 z=0 为平台面: 喷管口/着陆脚踩面)。"""
+    """发射区: 着陆平台(八角+边界灯) + 返回火箭 + 离子推进器动力段(阶段一集成)。
+
+    将阶段一的 24 槽散热格栅 + 收敛-扩张喷管直接作为火箭下方的动力段,
+    替代原来重复的化学火箭喷管——一套推进系统, 动力逻辑清晰。
+    """
     H, r_b = ROCKET_H, 26
     pad = (
         cq.Workplane("XY").polygon(8, 130).extrude(8)
@@ -468,40 +482,87 @@ def build_rocket():
     for lamp in lamps:
         pad = pad.union(lamp)
 
-    nozzle = revolve_z(                                   # 喷管 z 0~26, 口朝下
-        cq.Workplane("XZ").polyline(
-            [(r_b * 0.35, 26), (r_b * 0.75, 0),
-             (r_b * 0.7, 0), (r_b * 0.4, 24)]).close())
-    hull = post(r_b, 130).translate((0, 0, 26))           # 机身 z 26~156
-    hull = hull.union(                                    # 推进剂段箍
-        cq.Workplane("XY").workplane(offset=89)
+    # ── 离子推进器动力段(阶段一集成) ──
+    # 24 槽散热格栅: 批量布尔差集, 倾斜 15° 百叶窗, Z-Fighting 1mm 容差
+    grill_outer_r, grill_inner_r, grill_h = GRILL_R_OUT, GRILL_R_IN, GRILL_H
+    grill_sleeve = (
+        cq.Workplane("XY").circle(grill_outer_r).circle(grill_inner_r)
+        .extrude(grill_h)
+    )
+    blade_length = (grill_outer_r - grill_inner_r) + 2 * GRILL_TOLERANCE
+    blade = (
+        cq.Workplane("XY")
+        .box(blade_length, GRILL_BLADE_W, grill_h + 2 * GRILL_TOLERANCE)
+        .translate(((grill_outer_r + grill_inner_r) / 2, 0, 0))
+    )
+    blade_tilted = blade.rotate((0, 0, 0), (1, 0, 0), GRILL_TILT)
+    cutters = [blade_tilted.rotate((0, 0, 0), (0, 0, 1), i * 360 / GRILL_SLOTS)
+               for i in range(GRILL_SLOTS)]
+    for cutter in cutters:
+        grill_sleeve = grill_sleeve.cut(cutter)
+    # 上下端环密封端口
+    grill_sleeve = grill_sleeve.union(
+        cq.Workplane("XY").circle(grill_outer_r).circle(grill_inner_r)
+        .extrude(3)).union(
+        cq.Workplane("XY").circle(grill_outer_r).circle(grill_inner_r)
+        .extrude(3).translate((0, 0, grill_h - 3)))
+    # 散热格栅环绕火箭下段
+    grill_sleeve = grill_sleeve.translate((0, 0, 20))
+
+    # 收敛-扩张离子加速器喷管(旋转体)
+    nozzle_profile = [
+        (ION_BODY_R * 0.35, 0),
+        (ION_NOZZLE_R * 0.55, ION_NOZZLE_L * 0.3),
+        (ION_NOZZLE_R * 0.40, ION_NOZZLE_L * 0.5),
+        (ION_NOZZLE_R * 0.75, ION_NOZZLE_L * 0.8),
+        (ION_NOZZLE_R, ION_NOZZLE_L),
+    ]
+    ion_nozzle = revolve_z(
+        cq.Workplane("XZ").polyline(nozzle_profile).close())
+    ion_nozzle = ion_nozzle.translate((0, 0, grill_h + 20))
+
+    # 推进器机身段(连接散热套与火箭主体)
+    ion_body = post(ION_BODY_R, ION_BODY_L).translate((0, 0, grill_h + 20 + ION_NOZZLE_L))
+
+    # 火箭主体(机身+段箍+整流罩), 叠加在推进器之上
+    z_ion_top = grill_h + 20 + ION_NOZZLE_L + ION_BODY_L
+    hull = post(r_b, 130).translate((0, 0, z_ion_top + 26))
+    hull = hull.union(
+        cq.Workplane("XY").workplane(offset=z_ion_top + 89)
         .circle(r_b + 2).circle(r_b).extrude(10))
-    # 整流罩: 椭圆弧加密采样折线从机身顶缘收到顶点 → 实心旋转体;
-    # 折线不过冲(样条起点陡升会内凹出"细脖子"), 基线嵌入机身破共面
     arc = [(x, 155 + z) for x, z in reversed(ell_arc(r_b, 63, 14))]
     nose = revolve_z(
         cq.Workplane("XZ").moveTo(0, 155).lineTo(r_b, 155)
         .polyline(arc[1:]).close())
     hull = hull.union(nose)
+
+    # 着陆腿
     legs = []
-    for ang in (45, 135, 225, 315):                       # 着陆腿踩平台面
+    for ang in (45, 135, 225, 315):
         a = math.radians(ang)
-        mount = (r_b * math.cos(a), r_b * math.sin(a), 100)
+        mount = (r_b * math.cos(a), r_b * math.sin(a), 100 + z_ion_top)
         foot = (60 * math.cos(a), 60 * math.sin(a), 0)
         legs.append(strut(mount, foot, 2.5))
         legs.append(post(7, 3).translate((foot[0], foot[1], 0)))
 
     dx, dy = POS_ROCKET
-    z0 = BASE_H + 10                                      # 平台顶面
+    z0 = BASE_H + 10
     return [
         ("着陆平台", pad.translate((dx, dy, BASE_H))),
+        ("散热格栅", grill_sleeve.translate((dx, dy, z0))),
+        ("加速器喷管", ion_nozzle.translate((dx, dy, z0))),
+        ("推进器机身", ion_body.translate((dx, dy, z0))),
         ("返回火箭", hull.translate((dx, dy, z0))),
-        ("发动机喷管", compound_of([nozzle] + legs).translate((dx, dy, z0))),
+        ("发动机喷管", compound_of(legs).translate((dx, dy, z0))),
     ]
 
 
 def build_weather():
-    """气象站: 三柱底张顶收格架 + 三杯风速计(120° 阵列) + 百叶箱。"""
+    """环境监测站: 三柱格架 + 三杯风速计 + 百叶箱 + 温湿压传感器阵列。
+
+    增强: 在塔身不同高度增设传感器球(温度/湿度/气压分层测量),
+    使气象站从单一风速计升级为综合环境监测平台。
+    """
     legs = []
     for ang in (90, 210, 330):                            # 柱底张开, 顶部收拢
         leg = (post(1.5, 66).translate((9, 0, 0))
@@ -522,140 +583,24 @@ def build_weather():
         station = station.union(cup.rotate((0, 0, 0), (0, 0, 1), ang))
     station = station.union(                              # 百叶箱挂塔身
         cq.Workplane("XY").workplane(offset=34).box(14, 14, 12).translate((16, 0, 0)))
+
+    # ── 温湿压传感器阵列: 不同高度传感器球(分层测量) ──
+    sensors = []
+    for z_sens, label in ((22, "温度"), (50, "湿度"), (72, "气压")):
+        s = (cq.Workplane("XY").workplane(offset=z_sens)
+             .box(4, 4, 4).translate((-16, 0, 0)))
+        sensors.append(s.val())
     dx, dy = POS_WEATHER
-    return [("气象站", station.val().translate((dx, dy, BASE_H)))]
-
-
-# =====================================================================
-# 四-B、阶段一总装大通关: 24 槽全向辐射散热格栅 + 离子推进器动力总成
-# =====================================================================
-# 📐 工程原理(斯蒂芬-玻尔兹曼热辐射定律)
-# ---------------------------------------------------------------
-#   P_rad = ε·σ·A·T⁴
-#   σ = 5.670×10⁻⁸ W/(m²·K⁴),  ε 为发射率, A 为有效辐射面积
-#
-#   真空环境无对流散热, 唯一散热途径为热辐射。百叶窗式倾斜格栅
-#   在不大幅增加体积的前提下, 将有效辐射表面积倍增:
-#
-#   对于 N=24 槽, 倾斜角 θ=15°, 每个槽壁的有效辐射面积因子为
-#   1/cos(θ) ≈ 1.035(法线偏转修正) + 内外双面 ≈ 2 倍面积
-#   总倍增效应 ≈ N_slots × 双面 / 单面积 ≈ 显著放大
-#
-#   百叶窗倾斜 15° 使散热面法线偏离天顶, 各槽互相不遮挡, 实现
-#   全向辐射; 24 槽圆周阵列确保 360° 无死角散热。
-#
-# 🔧 Z-Fighting 修复: 刀具体(布尔差集用)两端各预留 GRILL_TOLERANCE=1mm
-#   贯通容差, 确保切削后壁面端口干净, 杜绝微小坏面与缝隙 → 水密。
-
-
-def build_ion_thruster_assembly():
-    """阶段一"火星离子推进动力总成"完全体一键构建。
-
-    构建流程:
-    1. 推进器机身(圆柱) + 加速器喷管(旋转体)
-    2. 24 槽倾斜百叶窗散热格栅(CadQuery 批量布尔差集 cut)
-    3. 整合为水密单体, 100% 无坏面
-
-    返回: [(材质名, 实体), ...]
-    """
-    # ── 1. 推进器机身 ──
-    body = post(ION_BODY_R, ION_BODY_L)
-
-    # 推进剂储箱段箍(两道环形加强)
-    for z in (ION_BODY_L * 0.3, ION_BODY_L * 0.7):
-        body = body.union(
-            cq.Workplane("XY").workplane(offset=z)
-            .circle(ION_BODY_R + 2.5).circle(ION_BODY_R).extrude(5))
-
-    # ── 2. 加速器喷管(收敛-扩张旋转体) ──
-    nozzle_profile = [
-        (ION_BODY_R * 0.35, 0),                    # 喷管入口
-        (ION_NOZZLE_R * 0.55, ION_NOZZLE_L * 0.3), # 收敛段
-        (ION_NOZZLE_R * 0.40, ION_NOZZLE_L * 0.5), # 喉部(最窄)
-        (ION_NOZZLE_R * 0.75, ION_NOZZLE_L * 0.8), # 扩张段
-        (ION_NOZZLE_R, ION_NOZZLE_L),              # 喷管出口
-    ]
-    nozzle = revolve_z(
-        cq.Workplane("XZ").polyline(nozzle_profile).close())
-    nozzle = nozzle.translate((0, 0, ION_BODY_L))
-
-    # ── 3. 24 槽百叶窗式散热格栅(核心: 批量布尔差集) ──
-    # 散热套: 外壁圆筒, 内壁圆筒, 中间被 24 组倾斜刀片挖出百叶窗槽
-    grill_outer_r = GRILL_R_OUT
-    grill_inner_r = GRILL_R_IN
-    grill_h = GRILL_H
-
-    # 散热套壁体(外筒 - 内筒)
-    grill_sleeve = (
-        cq.Workplane("XY").circle(grill_outer_r).circle(grill_inner_r)
-        .extrude(grill_h)
-    )
-
-    # 构建 24 组切削刀具体(百叶窗叶片), 倾斜 15°
-    # 每个刀片是一个薄长方体, 沿径向贯穿散热套壁
-    # 两端各预留 GRILL_TOLERANCE=1mm 贯通容差, 杜绝 Z-Fighting
-    blade_length = (grill_outer_r - grill_inner_r) + 2 * GRILL_TOLERANCE
-    blade = (
-        cq.Workplane("XY")
-        .box(blade_length, GRILL_BLADE_W,
-             grill_h + 2 * GRILL_TOLERANCE)
-        # 刀片沿 X 方向(径向)放置, 中心在壁厚中点
-        .translate(((grill_outer_r + grill_inner_r) / 2, 0, 0))
-    )
-    # 倾斜 15°(绕 X 轴旋转 → 百叶窗效果)
-    blade_tilted = blade.rotate((0, 0, 0), (1, 0, 0), GRILL_TILT)
-
-    # 圆周阵列 24 组刀片, 批量执行布尔差集
-    cutters = [
-        blade_tilted.rotate((0, 0, 0), (0, 0, 1), i * 360 / GRILL_SLOTS)
-        for i in range(GRILL_SLOTS)
-    ]
-
-    # 批量布尔差集: 从散热套壁体中挖去 24 个百叶窗槽
-    for cutter in cutters:
-        grill_sleeve = grill_sleeve.cut(cutter)
-
-    # 散热套上下端环(加固端面, 密封端口)
-    grill_sleeve = grill_sleeve.union(
-        cq.Workplane("XY")
-        .circle(grill_outer_r).circle(grill_inner_r)
-        .extrude(3).translate((0, 0, 0))
-    ).union(
-        cq.Workplane("XY")
-        .circle(grill_outer_r).circle(grill_inner_r)
-        .extrude(3).translate((0, 0, grill_h - 3))
-    )
-
-    # 散热套定位到机身中段
-    grill_z = ION_BODY_L * 0.2
-    grill_sleeve = grill_sleeve.translate((0, 0, grill_z))
-
-    # ── 4. 推进器接口法兰(连接机身与散热套) ──
-    flange = (
-        cq.Workplane("XY")
-        .circle(ION_BODY_R + 3).circle(ION_BODY_R)
-        .extrude(4).translate((0, 0, grill_z - 4))
-    ).union(
-        cq.Workplane("XY")
-        .circle(ION_BODY_R + 3).circle(ION_BODY_R)
-        .extrude(4).translate((0, 0, grill_z + GRILL_H))
-    )
-
-    # ── 5. 整合: 机身 + 散热套 + 法兰(喷管单独返回, 材质不同) ──
-    assembly = body.union(grill_sleeve).union(flange)
-
-    dx, dy = POS_ION
-    z0 = BASE_H
     return [
-        ("推进器机身", assembly.translate((dx, dy, z0))),
-        ("加速器喷管", nozzle.translate((dx, dy, z0))),
+        ("气象站", station.val().translate((dx, dy, BASE_H))),
+        ("环境传感器", compound_of(sensors).translate((dx, dy, BASE_H))),
     ]
 
 
 # =====================================================================
-# 四-C、阶段二: 旋转抛物面高增益天线(深空通信系统)
+# 四-B、高级几何生成器(工具函数, 供 build_tower / build_rocket 调用)
 # =====================================================================
-# 📐 抛物面微积分推导
+# 📐 抛物面微积分推导(阶段二: 深空通信)
 # ---------------------------------------------------------------
 #   抛物面标准方程: z = r² / (4f),  其中 f 为焦距
 #
@@ -683,6 +628,19 @@ def build_ion_thruster_assembly():
 # ---------------------------------------------------------------
 #   天线增益 G = η·(π·D/λ)²,  η≈0.55(效率),  λ=c/freq
 #   D = 口径,  freq = 8.4 GHz (X 波段深空通信标准频率)
+#
+# 📐 斯蒂芬-玻尔兹曼热辐射定律(阶段一: 散热格栅)
+# ---------------------------------------------------------------
+#   P_rad = ε·σ·A·T⁴
+#   σ = 5.670×10⁻⁸ W/(m²·K⁴),  ε 为发射率, A 为有效辐射面积
+#
+#   真空环境无对流散热, 唯一散热途径为热辐射。百叶窗式倾斜格栅
+#   在不大幅增加体积的前提下, 将有效辐射表面积倍增:
+#   对于 N=24 槽, 倾斜角 θ=15°, 总倍增效应 ≈ N × 双面 / 单面积
+#   百叶窗倾斜 15° 使散热面法线偏离天顶, 各槽互相不遮挡, 全向辐射。
+#
+# 🔧 Z-Fighting 修复: 刀具体两端预留 GRILL_TOLERANCE=1mm
+#   贯通容差, 确保切削后壁面端口干净, 杜绝微小坏面与缝隙 → 水密。
 
 
 def parabolic_profile(f, rim_r, wall, n=DISH_SAMPLE_N):
@@ -702,7 +660,7 @@ def parabolic_profile(f, rim_r, wall, n=DISH_SAMPLE_N):
 
 
 def ParabolicDishGenerator():
-    """旋转抛物面高增益天线几何生成器。
+    """旋转抛物面高增益天线几何生成器(集成于深空通信塔顶)。
 
     步骤:
     1. 微积分点集离散采样生成壁厚 2mm 的反射体截面
@@ -710,10 +668,10 @@ def ParabolicDishGenerator():
     3. 外边缘并集构建刚性加固法兰圈(杜绝薄壁震颤变形)
     4. 馈源支撑臂 + 馈源(置于焦点 z=f)
 
-    返回: 抛物面反射器 Workplane 实体
+    返回: (dish, feed_arms, feed) 三元组
     """
     f = DISH_F
-    rim_r = DISH_APERTURE / 2
+    rim_r = DISH_D / 2
     wall = DISH_WALL
 
     # 1. 微积分离散采样 → 闭合截面轮廓
@@ -753,52 +711,55 @@ def ParabolicDishGenerator():
     return dish, compound_of(feed_arms), feed
 
 
-def build_deep_space_antenna():
-    """阶段二: 深空通信高增益抛物面天线。
+def build_paths():
+    """连接道路: 地表压痕路径连接各功能分区。
 
-    返回: [(材质名, 实体), ...]
+    用扁平带状体(宽 8mm, 厚 1mm)在各建筑间铺设火星车辙印路径,
+    使场景从"散点布局"升级为"有机连通的整体基地"。
+    路径连接: 穹顶→实验舱, 穹顶→通信塔, 实验舱→发射区, 穹顶→气象站,
+    穹顶→太阳能区, 穹顶→火星车停放点。
     """
-    dish, arms, feed = ParabolicDishGenerator()
-
-    # 天线整体倾斜对地(指向地球方向)
-    earth_tilt = EARTH_ELEV
-    dish = dish.rotate((0, 0, 0), (1, 0, 0), -earth_tilt)
-    arms = arms.rotate((0, 0, 0), (1, 0, 0), -earth_tilt)
-    feed = feed.rotate((0, 0, 0), (1, 0, 0), -earth_tilt)
-
-    # 支撑立柱
-    mast = post(3, 40)
-
-    dx, dy = POS_DISH
-    z0 = BASE_H
-
-    # 基座
-    base_plate = (
-        cq.Workplane("XY").polygon(6, 30).extrude(4)
-        .faces(">Z").workplane(centerOption="CenterOfBoundBox")
-        .circle(10).circle(3).extrude(2)
-    )
-
-    return [
-        ("抛物面反射器",
-         dish.translate((dx, dy, z0 + 40))),
-        ("天线法兰",
-         compound_of([base_plate, mast]).translate((dx, dy, z0))),
-        ("天线馈源臂",
-         compound_of([arms, feed]).translate((dx, dy, z0 + 40))),
+    paths = []
+    # 路径定义: (起点, 终点)
+    route_defs = [
+        (POS_DOME, POS_LAB),        # 穹顶→实验舱
+        (POS_DOME, POS_TOWER),      # 穹顶→通信塔
+        (POS_LAB, POS_ROCKET),      # 实验舱→发射区
+        (POS_DOME, POS_WEATHER),    # 穹顶→气象站
+        (POS_DOME, POS_SOLAR),      # 穹顶→能源区
+        (POS_DOME, POS_ROVER),      # 穹顶→火星车停放点
     ]
+    for (x0, y0), (x1, y1) in route_defs:
+        dx_seg, dy_seg = x1 - x0, y1 - y0
+        seg_len = math.hypot(dx_seg, dy_seg)
+        if seg_len < 1:
+            continue
+        # 扁平带状路径: 宽 8, 厚 1, 沿 XY 方向铺设
+        path = (
+            cq.Workplane("XY").box(seg_len, 8, 1)
+            .translate((seg_len / 2, 0, 0))        # 原点对齐起点
+        )
+        # 旋转到方向
+        angle = math.degrees(math.atan2(dy_seg, dx_seg))
+        path = path.rotate((0, 0, 0), (0, 0, 1), angle)
+        path = path.translate((x0, y0, BASE_H + 0.5))
+        paths.append(path.val())
+
+    return [("压痕路径", compound_of(paths))]
 
 
 # =====================================================================
 # 五、总装(材质表驱动, 一个循环完成全部装配)
 # =====================================================================
-BUILDERS = (build_terrain, build_dome, build_lab, build_tunnel, build_solar,
-            build_tower, build_rover, build_rocket, build_weather,
-            build_ion_thruster_assembly, build_deep_space_antenna)
+BUILDERS = (build_terrain, build_paths, build_dome, build_lab, build_tunnel,
+            build_solar, build_tower, build_rover, build_rocket, build_weather)
 
 
 def build_scene():
-    """按"地形→居住→科研→能源→通讯→运输→探测"工程逻辑总装。"""
+    """总装: 地形→道路→居住→科研→能源→通信→探测→发射→环境监测。
+
+    按功能分区逻辑总装, 连接道路贯穿各区域, 形成有机整体基地。
+    """
     assy = cq.Assembly(name="MarsResearchOutpost")
     for builder in BUILDERS:
         for name, shape in builder():
@@ -998,10 +959,10 @@ if __name__ == "__main__":
     c_light = 3e8  # 光速(m/s)
     wavelength = c_light / X_BAND_FREQ  # 波长(m)
     eta = 0.55  # 天线效率
-    D_m = DISH_APERTURE / 1000  # 口径(m)
+    D_m = DISH_D / 1000  # 口径(m)
     gain_linear = eta * (math.pi * D_m / wavelength) ** 2
     gain_dbi = 10 * math.log10(gain_linear)
-    print(f"      抛物面焦距 f = {DISH_F}mm, 口径 D = {DISH_APERTURE}mm")
+    print(f"      抛物面焦距 f = {DISH_F}mm, 口径 D = {DISH_D}mm")
     print(f"      X 波段频率 = {X_BAND_FREQ:.2e} Hz, 波长 λ = {wavelength*100:.2f} cm")
     print(f"      天线增益 G = {gain_linear:.1f} 倍 = {gain_dbi:.1f} dBi")
 
