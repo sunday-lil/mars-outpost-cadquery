@@ -30,6 +30,12 @@
   随机数撒布岩石(固定种子可复现)、
   太阳能板倾角 = 90° − 太阳高度角(自动对日)。
 
+  ── 程序化纹理贴图(纯标准库) ──
+  6 种程序化纹理: 火星地表(fBm噪声)、金属面板(拉丝+铆钉)、
+  太阳能板(网格)、火箭壳体(条纹)、抛物面反射器(同心圆)、
+  压痕路径(车辙)。fBm 值噪声 + PNG 编码(zlib), 嵌入 GLB
+  作为 baseColorTexture, 平面投影 UV 自动生成。
+
   使用说明
   --------
   1. 运行:  python mars_outpost.py
@@ -49,6 +55,7 @@ import math
 import random
 import re
 import struct
+import zlib
 
 import cadquery as cq
 
@@ -770,6 +777,223 @@ def build_scene():
 # =====================================================================
 # 六、导出器
 # =====================================================================
+
+# ── 程序化纹理生成器(纯标准库 zlib+struct, 无第三方依赖) ──
+# 为关键材质生成 64×64 PNG 纹理, 嵌入 GLB 作为 baseColorTexture
+
+def _png_encode(pixels, w, h):
+    """将 RGBA 像素列表编码为 PNG 字节流(纯标准库)。
+
+    pixels: [(r,g,b,a), ...] 长度 w*h, 每通道 0-255
+    返回: bytes (完整 PNG 文件)
+    """
+    def chunk(tag, data):
+        c = tag + data
+        return (struct.pack(">I", len(data)) + c
+                + struct.pack(">I", zlib.crc32(c) & 0xFFFFFFFF))
+
+    raw = bytearray()
+    for y in range(h):
+        raw.append(0)                          # filter type 0 (None)
+        for x in range(w):
+            r, g, b, a = pixels[y * w + x]
+            raw += bytes([r, g, b, a])
+    sig = b"\x89PNG\r\n\x1a\n"
+    ihdr = struct.pack(">IIBBBBB", w, h, 8, 6, 0, 0, 0)  # 8-bit RGBA
+    return (sig + chunk(b"IHDR", ihdr)
+            + chunk(b"IDAT", zlib.compress(bytes(raw), 9))
+            + chunk(b"IEND", b""))
+
+
+def _hash_noise(x, y, seed=0):
+    """简易值噪声(基于整数哈希), 返回 0.0~1.0。"""
+    h = (x * 374761393 + y * 668265263 + seed * 1274126177) & 0xFFFFFFFF
+    h = (h ^ (h >> 13)) * 1274126177 & 0xFFFFFFFF
+    return (h & 0xFFFF) / 65535.0
+
+
+def _smooth_noise(x, y, seed=0):
+    """双线性插值平滑噪声。"""
+    ix, iy = int(x), int(y)
+    fx, fy = x - ix, y - iy
+    ux, uy = fx * fx * (3 - 2 * fx), fy * fy * (3 - 2 * fy)
+    a = _hash_noise(ix, iy, seed)
+    b = _hash_noise(ix + 1, iy, seed)
+    c = _hash_noise(ix, iy + 1, seed)
+    d = _hash_noise(ix + 1, iy + 1, seed)
+    return a * (1 - ux) * (1 - uy) + b * ux * (1 - uy) + c * (1 - ux) * uy + d * ux * uy
+
+
+def _fbm(x, y, octaves=4, seed=0):
+    """分形布朗运动(fBm): 多倍频噪声叠加, 生成自然纹理。"""
+    val, amp, freq = 0.0, 1.0, 1.0
+    for _ in range(octaves):
+        val += _smooth_noise(x * freq, y * freq, seed) * amp
+        amp *= 0.5
+        freq *= 2.0
+    return val / 1.875
+
+
+def gen_texture_mars_ground(size=64):
+    """火星地表纹理: 橙红基底 + 暗斑噪纹 + 细微颗粒。"""
+    px = []
+    for y in range(size):
+        for x in range(size):
+            n = _fbm(x / size * 8, y / size * 8, 4, seed=42)
+            n2 = _fbm(x / size * 16, y / size * 16, 3, seed=99)
+            r = int(180 + n * 50 - n2 * 30)
+            g = int(85 + n * 35 - n2 * 20)
+            b = int(50 + n * 20 - n2 * 15)
+            a = 255
+            px.append((max(0, min(255, r)), max(0, min(255, g)),
+                       max(0, min(255, b)), a))
+    return _png_encode(px, size, size)
+
+
+def gen_texture_metal_panel(size=64):
+    """金属面板纹理: 灰色基底 + 拉丝纹路 + 铆钉点阵。"""
+    px = []
+    for y in range(size):
+        for x in range(size):
+            base = 120 + _hash_noise(x // 4, y // 4, 7) * 40
+            # 拉丝纹(水平方向周期性明暗)
+            brush = math.sin(x * 0.8) * 8 + _hash_noise(x, y // 8, 3) * 10
+            # 铆钉(每 16 像素一个)
+            rx, ry = x % 16, y % 16
+            if 6 <= rx <= 9 and 6 <= ry <= 9:
+                rivet = 30
+            else:
+                rivet = 0
+            v = int(base + brush - rivet)
+            v = max(60, min(200, v))
+            px.append((v, min(255, v + 2), min(255, v + 4), 255))
+    return _png_encode(px, size, size)
+
+
+def gen_texture_solar_panel(size=64):
+    """太阳能板纹理: 深蓝基底 + 网格线 + 高光反光。"""
+    px = []
+    for y in range(size):
+        for x in range(size):
+            # 网格线(每 16 像素分隔)
+            if x % 16 < 2 or y % 16 < 2:
+                r, g, b = 40, 50, 60
+            else:
+                n = _hash_noise(x, y, 5)
+                r = int(10 + n * 15)
+                g = int(25 + n * 20)
+                b = int(70 + n * 40)
+            px.append((r, g, b, 255))
+    return _png_encode(px, size, size)
+
+
+def gen_texture_rocket_hull(size=64):
+    """火箭壳体纹理: 白色基底 + 红色条纹 + 标识区。"""
+    px = []
+    for y in range(size):
+        for x in range(size):
+            n = _hash_noise(x, y, 11) * 20
+            if 20 <= y <= 24:                     # 红色条纹
+                r, g, b = int(200 + n), 40, 30
+            elif 40 <= y <= 44:
+                r, g, b = int(200 + n), 40, 30
+            else:
+                r = int(230 + n - 10)
+                g = int(228 + n - 10)
+                b = int(225 + n - 10)
+            px.append((max(0, min(255, r)), max(0, min(255, g)),
+                       max(0, min(255, b)), 255))
+    return _png_encode(px, size, size)
+
+
+def gen_texture_dish_reflector(size=64):
+    """抛物面反射器纹理: 银白基底 + 同心圆纹路。"""
+    px = []
+    cx = cy = size / 2
+    for y in range(size):
+        for x in range(size):
+            r_dist = math.hypot(x - cx, y - cy)
+            ring = math.sin(r_dist * 0.6) * 15
+            n = _hash_noise(x // 2, y // 2, 13) * 10
+            v = int(235 + ring + n - 5)
+            v = max(180, min(252, v))
+            px.append((v, v, min(255, v + 3), 255))
+    return _png_encode(px, size, size)
+
+
+def gen_texture_dirt_path(size=64):
+    """压痕路径纹理: 深红泥土 + 车辙痕迹。"""
+    px = []
+    for y in range(size):
+        for x in range(size):
+            n = _fbm(x / size * 6, y / size * 6, 3, seed=77)
+            # 两条平行车辙
+            if 18 <= x <= 22 or 42 <= x <= 46:
+                dark = 40
+            else:
+                dark = 0
+            r = int(120 + n * 40 - dark)
+            g = int(55 + n * 20 - dark)
+            b = int(30 + n * 15 - dark)
+            px.append((max(0, min(255, r)), max(0, min(255, g)),
+                       max(0, min(255, b)), 255))
+    return _png_encode(px, size, size)
+
+
+# 材质名 → 纹理生成函数 映射(无映射的材质用纯色)
+TEXTURE_MAP = {
+    "火星地形": gen_texture_mars_ground,
+    "火星岩石": gen_texture_mars_ground,
+    "压痕路径": gen_texture_dirt_path,
+    "科研实验舱": gen_texture_metal_panel,
+    "加压廊道": gen_texture_metal_panel,
+    "着陆平台": gen_texture_metal_panel,
+    "推进器机身": gen_texture_metal_panel,
+    "散热格栅": gen_texture_metal_panel,
+    "塔架": gen_texture_metal_panel,
+    "太阳能板": gen_texture_solar_panel,
+    "返回火箭": gen_texture_rocket_hull,
+    "抛物面反射器": gen_texture_dish_reflector,
+}
+
+
+def gen_uv(verts, tris):
+    """生成 UV 坐标: 基于平面投影(选最大面积投影面)。
+
+    对每个三角形, 依据法线选择 XY/XZ/YZ 中面积最大的投影平面,
+    然后将投影坐标归一化到 [0,1] 区间。
+    """
+    uvs = [[0.0, 0.0] for _ in verts]
+    used = set()
+    for a, b, c in tris:
+        va, vb, vc = verts[a], verts[b], verts[c]
+        # 面法线
+        ux, uy, uz = vb[0]-va[0], vb[1]-va[1], vb[2]-va[2]
+        vx, vy, vz = vc[0]-va[0], vc[1]-va[1], vc[2]-va[2]
+        nx = uy*vz - uz*vy
+        ny = uz*vx - ux*vz
+        nz = ux*vy - uy*vx
+        an = abs(nx)
+        bn = abs(ny)
+        cn = abs(nz)
+        # 选最大分量投影
+        if cn >= an and cn >= bn:
+            # XY 平面投影
+            def proj(p): return (p[0], p[1])
+        elif bn >= an:
+            # XZ 平面投影
+            def proj(p): return (p[0], p[2])
+        else:
+            # YZ 平面投影
+            def proj(p): return (p[1], p[2])
+        for idx in (a, b, c):
+            if idx not in used:
+                px, py = proj(verts[idx])
+                uvs[idx] = [px * 0.02 % 1.0, py * 0.02 % 1.0]
+                used.add(idx)
+    return uvs
+
+
 def tessellate(shape, tol=0.3):
     """实体 → (顶点表, 三角索引表), 多实体自动合并。"""
     verts, tris = [], []
@@ -807,10 +1031,12 @@ def smooth_normals(verts, tris):
 def write_glb(assy, path):
     """原生 glTF 2.0 GLB 导出器(仅用 json+struct 标准库)。
 
-    每个零件 → 独立 node/mesh/material, 且注入三重真实感要素:
+    每个零件 → 独立 node/mesh/material, 且注入四重真实感要素:
     ① 平滑顶点法线(PBR 反射高光的数学基础)
     ② 材质 PBR 参数(金属度/粗糙度/自发光, 由 MATERIALS 表驱动)
     ③ KHR_lights_punctual 太阳方向光 + 暖色补光(打开即有光照氛围)
+    ④ 程序化纹理贴图(baseColorTexture): 火星地表/金属面板/太阳能板等
+       纹理由纯标准库生成(fBm 噪声 + PNG 编码), 嵌入 GLB 二进制块
     """
     json_doc = {"asset": {"version": "2.0",
                           "generator": "MarsOutpost parametric builder"},
@@ -822,7 +1048,8 @@ def write_glb(assy, path):
                     {"type": "point", "name": "补光",
                      "color": [0.55, 0.65, 0.85], "intensity": 5e5}]}},
                 "nodes": [], "meshes": [], "materials": [],
-                "accessors": [], "bufferViews": [], "buffers": []}
+                "accessors": [], "bufferViews": [], "buffers": [],
+                "images": [], "textures": [], "samplers": []}
     # 太阳方向光节点: 绕X -50°绕Z 135° → 光从东南上方斜照(火星午后)
     sun_node = {"name": "太阳光", "extensions": {"KHR_lights_punctual": {"light": 0}},
                 "rotation": [-0.342, 0.0, 0.940, 0.0]}
@@ -832,28 +1059,58 @@ def write_glb(assy, path):
     json_doc["scenes"][0]["nodes"] += [0, 1]
     blob = bytearray()
 
-    def add_view(data, target):
+    def add_view(data, target=0):
         while len(blob) % 4:
             blob.append(0)
         offset = len(blob)
         blob.extend(data)
         json_doc["bufferViews"].append(
             {"buffer": 0, "byteOffset": offset, "byteLength": len(data),
-             "target": target})
+             "target": target} if target else
+            {"buffer": 0, "byteOffset": offset, "byteLength": len(data)})
         return len(json_doc["bufferViews"]) - 1
+
+    # ── 纹理缓存: 同名材质只生成一次 PNG ──
+    tex_cache = {}   # 材质名 → (image_idx, texture_idx, sampler_idx)
+
+    def get_texture(name):
+        """获取(或生成并缓存)材质对应的纹理索引。无纹理返回 None。"""
+        if name in tex_cache:
+            return tex_cache[name]
+        gen_fn = TEXTURE_MAP.get(name)
+        if gen_fn is None:
+            return None
+        png_bytes = gen_fn()
+        img_view = add_view(png_bytes)                        # PNG 嵌入 bufferView
+        img_idx = len(json_doc["images"])
+        json_doc["images"].append(
+            {"bufferView": img_view, "mimeType": "image/png"})
+        sampler_idx = len(json_doc["samplers"])
+        json_doc["samplers"].append(
+            {"wrapS": 10497, "wrapT": 10497,                 # REPEAT
+             "magFilter": 9729, "minFilter": 9987})           # LINEAR_MIPMAP_LINEAR
+        tex_idx = len(json_doc["textures"])
+        json_doc["textures"].append(
+            {"source": img_idx, "sampler": sampler_idx})
+        tex_cache[name] = tex_idx
+        return tex_idx
 
     for i, (shape, name, loc, _c) in enumerate(assy):
         name = name.split("/")[-1]        # 去掉装配路径前缀, 只留零件名
         verts, tris = tessellate(shape.moved(loc))
         normals = smooth_normals(verts, tris)
+        uvs = gen_uv(verts, tris)                           # ★ 生成 UV 坐标
         v_data = struct.pack(f"<{len(verts) * 3}f",
                              *[c for v in verts for c in v])
         n_data = struct.pack(f"<{len(normals) * 3}f",
                              *[c for n in normals for c in n])
+        uv_data = struct.pack(f"<{len(uvs) * 2}f",           # ★ UV 二进制
+                              *[c for uv in uvs for c in uv])
         i_data = struct.pack(f"<{len(tris) * 3}I",
                              *[t for tri in tris for t in tri])
         v_view = add_view(v_data, 34962)
         n_view = add_view(n_data, 34962)
+        uv_view = add_view(uv_data, 34962)                   # ★ UV bufferView
         i_view = add_view(i_data, 34963)
         mins = [min(v[k] for v in verts) for k in range(3)]
         maxs = [max(v[k] for v in verts) for k in range(3)]
@@ -861,22 +1118,30 @@ def write_glb(assy, path):
                    "count": len(verts), "type": "VEC3", "min": mins, "max": maxs}
         nrm_acc = {"bufferView": n_view, "componentType": 5126,
                    "count": len(normals), "type": "VEC3"}
+        uv_acc = {"bufferView": uv_view, "componentType": 5126,  # ★ UV accessor
+                  "count": len(uvs), "type": "VEC2"}
         idx_acc = {"bufferView": i_view, "componentType": 5125,
                    "count": len(tris) * 3, "type": "SCALAR"}
-        json_doc["accessors"] += [pos_acc, nrm_acc, idx_acc]
+        json_doc["accessors"] += [pos_acc, nrm_acc, uv_acc, idx_acc]
         m = mat_of(name)
         emissive = m.get("emissive", (0, 0, 0))
+        pbr = {
+            "baseColorFactor": [*m["color"], 1.0],
+            "metallicFactor": m["metal"],
+            "roughnessFactor": m["rough"]}
+        # ★ 绑定程序化纹理
+        tex_idx = get_texture(name)
+        if tex_idx is not None:
+            pbr["baseColorTexture"] = {"index": tex_idx, "texCoord": 0}
         json_doc["materials"].append({
             "name": name,
-            "pbrMetallicRoughness": {
-                "baseColorFactor": [*m["color"], 1.0],
-                "metallicFactor": m["metal"],
-                "roughnessFactor": m["rough"]},
+            "pbrMetallicRoughness": pbr,
             "emissiveFactor": list(emissive),
             "doubleSided": True})
         json_doc["meshes"].append({"primitives": [{
-            "attributes": {"POSITION": len(json_doc["accessors"]) - 3,
-                           "NORMAL": len(json_doc["accessors"]) - 2},
+            "attributes": {"POSITION": len(json_doc["accessors"]) - 4,
+                           "NORMAL": len(json_doc["accessors"]) - 3,
+                           "TEXCOORD_0": len(json_doc["accessors"]) - 2},  # ★
             "indices": len(json_doc["accessors"]) - 1,
             "material": i}]})
         json_doc["nodes"].append({"name": name, "mesh": i})
