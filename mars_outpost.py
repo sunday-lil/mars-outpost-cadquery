@@ -1125,12 +1125,14 @@ def write_glb(assy, path):
         json_doc["accessors"] += [pos_acc, nrm_acc, uv_acc, idx_acc]
         m = mat_of(name)
         emissive = m.get("emissive", (0, 0, 0))
+        # ★ 有纹理时 baseColorFactor=白(1,1,1), 让纹理原色完整显示;
+        #   无纹理时用材质表基色(纹理 × baseColorFactor 是相乘关系)
+        tex_idx = get_texture(name)
+        base_color = (1.0, 1.0, 1.0) if tex_idx is not None else m["color"]
         pbr = {
-            "baseColorFactor": [*m["color"], 1.0],
+            "baseColorFactor": [*base_color, 1.0],
             "metallicFactor": m["metal"],
             "roughnessFactor": m["rough"]}
-        # ★ 绑定程序化纹理
-        tex_idx = get_texture(name)
         if tex_idx is not None:
             pbr["baseColorTexture"] = {"index": tex_idx, "texCoord": 0}
         json_doc["materials"].append({
