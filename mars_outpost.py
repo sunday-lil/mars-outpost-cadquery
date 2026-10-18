@@ -958,39 +958,33 @@ TEXTURE_MAP = {
 
 
 def gen_uv(verts, tris):
-    """生成 UV 坐标: 基于平面投影(选最大面积投影面)。
+    """生成 UV 坐标: 包围盒归一化投影。
 
-    对每个三角形, 依据法线选择 XY/XZ/YZ 中面积最大的投影平面,
-    然后将投影坐标归一化到 [0,1] 区间。
+    计算整个网格的包围盒, 取最大跨度方向的两个轴作为 UV 投影面,
+    将坐标归一化到 [0,1] 区间。简单稳定, 保证所有顶点都有有效 UV。
     """
-    uvs = [[0.0, 0.0] for _ in verts]
-    used = set()
-    for a, b, c in tris:
-        va, vb, vc = verts[a], verts[b], verts[c]
-        # 面法线
-        ux, uy, uz = vb[0]-va[0], vb[1]-va[1], vb[2]-va[2]
-        vx, vy, vz = vc[0]-va[0], vc[1]-va[1], vc[2]-va[2]
-        nx = uy*vz - uz*vy
-        ny = uz*vx - ux*vz
-        nz = ux*vy - uy*vx
-        an = abs(nx)
-        bn = abs(ny)
-        cn = abs(nz)
-        # 选最大分量投影
-        if cn >= an and cn >= bn:
-            # XY 平面投影
-            def proj(p): return (p[0], p[1])
-        elif bn >= an:
-            # XZ 平面投影
-            def proj(p): return (p[0], p[2])
-        else:
-            # YZ 平面投影
-            def proj(p): return (p[1], p[2])
-        for idx in (a, b, c):
-            if idx not in used:
-                px, py = proj(verts[idx])
-                uvs[idx] = [px * 0.02 % 1.0, py * 0.02 % 1.0]
-                used.add(idx)
+    if not verts:
+        return []
+    # 包围盒
+    min_x = min(v[0] for v in verts)
+    max_x = max(v[0] for v in verts)
+    min_y = min(v[1] for v in verts)
+    max_y = max(v[1] for v in verts)
+    min_z = min(v[2] for v in verts)
+    max_z = max(v[2] for v in verts)
+    # 找最大跨度方向, 选另外两个轴做 UV
+    sx = max_x - min_x or 1e-6
+    sy = max_y - min_y or 1e-6
+    sz = max_z - min_z or 1e-6
+    if sx >= sy and sx >= sz:
+        # X 最大 → 用 YZ 投影
+        uvs = [[(v[1] - min_y) / sy, (v[2] - min_z) / sz] for v in verts]
+    elif sy >= sz:
+        # Y 最大 → 用 XZ 投影
+        uvs = [[(v[0] - min_x) / sx, (v[2] - min_z) / sz] for v in verts]
+    else:
+        # Z 最大 → 用 XY 投影
+        uvs = [[(v[0] - min_x) / sx, (v[1] - min_y) / sy] for v in verts]
     return uvs
 
 
@@ -1071,28 +1065,30 @@ def write_glb(assy, path):
         return len(json_doc["bufferViews"]) - 1
 
     # ── 纹理缓存: 同名材质只生成一次 PNG ──
-    tex_cache = {}   # 材质名 → (image_idx, texture_idx, sampler_idx)
+    # 先在循环中收集材质名, 循环结束后统一生成 PNG 追加到 blob 末尾
+    # (避免图片 bufferView 与几何 bufferView 交错导致渲染器解析异常)
+    tex_pending = {}   # 材质名 → texture_index (循环中分配, 循环后填充数据)
 
     def get_texture(name):
         """获取(或生成并缓存)材质对应的纹理索引。无纹理返回 None。"""
-        if name in tex_cache:
-            return tex_cache[name]
+        if name in tex_pending:
+            return tex_pending[name]
         gen_fn = TEXTURE_MAP.get(name)
         if gen_fn is None:
             return None
-        png_bytes = gen_fn()
-        img_view = add_view(png_bytes)                        # PNG 嵌入 bufferView
-        img_idx = len(json_doc["images"])
-        json_doc["images"].append(
-            {"bufferView": img_view, "mimeType": "image/png"})
+        # 预分配 texture/sampler/image 索引, PNG 数据循环后统一追加
         sampler_idx = len(json_doc["samplers"])
         json_doc["samplers"].append(
-            {"wrapS": 10497, "wrapT": 10497,                 # REPEAT
-             "magFilter": 9729, "minFilter": 9987})           # LINEAR_MIPMAP_LINEAR
+            {"wrapS": 10497, "wrapT": 10497,           # REPEAT
+             "magFilter": 9729, "minFilter": 9987})     # LINEAR_MIPMAP_LINEAR
+        img_idx = len(json_doc["images"])
+        # image 的 bufferView 循环后填充, 先占位
+        json_doc["images"].append(
+            {"bufferView": -1, "mimeType": "image/png"})
         tex_idx = len(json_doc["textures"])
         json_doc["textures"].append(
             {"source": img_idx, "sampler": sampler_idx})
-        tex_cache[name] = tex_idx
+        tex_pending[name] = (tex_idx, img_idx, gen_fn)
         return tex_idx
 
     for i, (shape, name, loc, _c) in enumerate(assy):
@@ -1126,7 +1122,7 @@ def write_glb(assy, path):
         m = mat_of(name)
         emissive = m.get("emissive", (0, 0, 0))
         # ★ 有纹理时 baseColorFactor=白(1,1,1), 让纹理原色完整显示;
-        #   无纹理时用材质表基色(纹理 × baseColorFactor 是相乘关系)
+        #   无纹理时用材质表基色(glTF 中 baseColorTexture × baseColorFactor 相乘)
         tex_idx = get_texture(name)
         base_color = (1.0, 1.0, 1.0) if tex_idx is not None else m["color"]
         pbr = {
@@ -1148,6 +1144,16 @@ def write_glb(assy, path):
             "material": i}]})
         json_doc["nodes"].append({"name": name, "mesh": i})
         json_doc["scenes"][0]["nodes"].append(len(json_doc["nodes"]) - 1)
+
+    # ── 所有几何数据写完后, 统一生成 PNG 纹理 ──
+    # 使用 base64 data URI 内联(兼容性最佳, 所有 glTF 渲染器都支持)
+    import base64
+    for mat_name, (tex_idx, img_idx, gen_fn) in tex_pending.items():
+        png_bytes = gen_fn()
+        b64 = base64.b64encode(png_bytes).decode('ascii')
+        json_doc["images"][img_idx] = {
+            "uri": f"data:image/png;base64,{b64}",
+            "mimeType": "image/png"}
 
     json_doc["buffers"].append({"byteLength": len(blob)})
     while len(blob) % 4:
