@@ -20,11 +20,14 @@
 
   ── 阶段二: 深空通信系统(集成于通信塔顶) ──
   旋转抛物面高增益天线, 严谨推导 z = r²/(4f) 微积分方程, 微积分
-  点集离散采样生成壁厚 2mm 反射体, 外缘法兰圈加固; X 波段(8.4GHz)
-  深空通信链路增益核算(dBi), 导出高精度 STL。
+  点集离散采样生成壁厚 2mm 反射体, 外缘法兰圈加固; 焦点馈源为
+  两圆截面 loft 放样的锥台喇叭(内置 Ø8×12mm 微波谐振腔), 三根
+  锥形支撑臂按 120° 极坐标阵列悬固; X 波段(8.4GHz)深空通信链路
+  增益核算(dBi), 导出高精度 STL。
 
   核心算法：极坐标放置、三角函数定向斜杆、椭圆参数方程旋转成穹顶、
   抛物线 z=r²/(4f) 微积分推导 + 旋转成抛物面天线、
+  多截面放样 loft(馈源喇叭锥台 / 根粗端细的锥形支撑臂)、
   斯蒂芬-玻尔兹曼热辐射定律 → 百叶窗散热格栅、
   CadQuery 批量布尔差集 + Z-Fighting 贯通容差修复、
   随机数撒布岩石(固定种子可复现)、
@@ -87,6 +90,12 @@ DISH_FLANGE_W = 6                   # 法兰圈宽度
 DISH_FLANGE_T = 4                   # 法兰圈厚度
 DISH_SAMPLE_N = 48                  # 微积分点集离散采样数
 X_BAND_FREQ = 8.4e9                 # X 波段中心频率(Hz)
+
+# --- 焦点馈源喇叭(多截面放样 loft + 微波谐振腔) ---
+FEED_R_BACK, FEED_R_APERTURE = 6.0, 12.0   # 喉部(焦点处)半径 / 喇叭口半径
+FEED_H = 16.0                              # 喇叭轴向高度
+FEED_HOLE_D, FEED_HOLE_DEPTH = 8.0, 12.0   # 谐振腔直径 / 深度(留 4mm 金属封底)
+FEED_ARM_R0, FEED_ARM_R1 = 1.8, 1.2        # 支撑臂根部 / 端部半径(锥形杆)
 
 # 各系统落位(x, y) —— 按功能分区:
 #   核心科研区(穹顶+实验舱+廊道): 中央
@@ -153,12 +162,22 @@ def polar(part, radius, angle_deg, z=0.0):
     return part.translate((radius * math.cos(a), radius * math.sin(a), z))
 
 
-def strut(p0, p1, r):
-    """连接空间两点的圆柱斜杆(三角函数定向)。"""
+def strut(p0, p1, r, r_end=None):
+    """连接空间两点的斜杆(三角函数定向)。
+
+    只给 r: 等径圆柱杆(塔柱/悬架/着陆腿);
+    再给 r_end: 两端各画一个圆截面做 loft 放样, 得到根粗端细的锥形杆件
+    (馈源支撑臂用这种桁架杆更贴近真实受力结构)。
+    """
     dx, dy, dz = (p1[i] - p0[i] for i in range(3))
     length = math.sqrt(dx * dx + dy * dy + dz * dz)
+    if r_end is None:
+        body = cq.Workplane("XY").circle(r).extrude(length)
+    else:
+        body = (cq.Workplane("XY").circle(r)
+                .workplane(offset=length).circle(r_end).loft())
     return (
-        cq.Workplane("XY").circle(r).extrude(length)
+        body
         .rotate((0, 0, 0), (0, 1, 0), math.degrees(math.atan2(math.hypot(dx, dy), dz)))
         .rotate((0, 0, 0), (0, 0, 1), math.degrees(math.atan2(dy, dx)))
         .translate(p0)
@@ -667,6 +686,24 @@ def parabolic_profile(f, rim_r, wall, n=DISH_SAMPLE_N):
     return outer + inner
 
 
+def feed_horn(feed_z):
+    """焦点馈源喇叭: 两圆截面 loft 放样成锥台, 再从喇叭口掏微波谐振腔。
+
+    喉部(小端 r=FEED_R_BACK)位于焦点 z=f, 喇叭口(大端 r=FEED_R_APERTURE)
+    朝向反射面(向下 16mm); 从喇叭口向里掏 Ø8×12mm 盲孔, 喉部保留 4mm
+    金属封底——这正是"多截面放样 + faces().hole()"两个特征的组合用法。
+    """
+    horn = (
+        cq.Workplane("XY")
+        .circle(FEED_R_APERTURE)                        # 喇叭口(朝向反射面)
+        .workplane(offset=FEED_H).circle(FEED_R_BACK)   # 喉部(焦点处)
+        .loft()                                         # 锥台放样
+        .faces("<Z").workplane(centerOption="CenterOfBoundBox")
+        .hole(FEED_HOLE_D, depth=FEED_HOLE_DEPTH)       # 谐振腔(留 4mm 封底)
+    )
+    return horn.translate((0, 0, feed_z - FEED_H))
+
+
 def ParabolicDishGenerator():
     """旋转抛物面高增益天线几何生成器(集成于深空通信塔顶)。
 
@@ -674,7 +711,7 @@ def ParabolicDishGenerator():
     1. 微积分点集离散采样生成壁厚 2mm 的反射体截面
     2. 围绕 Z 轴 360° 旋转拉伸成抛物面壳体
     3. 外边缘并集构建刚性加固法兰圈(杜绝薄壁震颤变形)
-    4. 馈源支撑臂 + 馈源(置于焦点 z=f)
+    4. 焦点馈源喇叭(loft 锥台 + 谐振腔) + 三根 120° 锥形支撑臂
 
     返回: (dish, feed_arms, feed) 三元组
     """
@@ -703,16 +740,20 @@ def ParabolicDishGenerator():
     )
     dish = dish.union(flange)
 
-    # 4. 馈源支撑臂(三根 120° 阵列, 从盘缘收拢到焦点) + 馈源(焦点处)
-    feed_z = f  # 馈源位于焦点 z = f
+    # 4. 三根支撑臂(120° 阵列): 下端扎在盘缘法兰, 上端收拢到馈源喉部外壁,
+    #    杆件用锥形放样(根部粗、端部细), 端点在喉部内部 1mm 处熔合
+    feed_z = f
     rim_z = rim_r ** 2 / (4 * f) + wall            # 盘缘上表面高度
+    tip_r = FEED_R_BACK - 1                        # 端点落在喉部壁内
     feed_arms = []
     for ang in (0, 120, 240):
         a = math.radians(ang)
-        rim = (rim_r * math.cos(a), rim_r * math.sin(a), rim_z)   # 盘缘
-        feed_arms.append(strut(rim, (0, 0, feed_z), 1.5))         # 盘缘 → 焦点
+        mount = (rim_r * math.cos(a), rim_r * math.sin(a), rim_z)          # 盘缘
+        tip = (tip_r * math.cos(a), tip_r * math.sin(a), feed_z - 1)       # 喉部
+        feed_arms.append(strut(mount, tip, FEED_ARM_R0, FEED_ARM_R1))
 
-    feed = cq.Workplane("XY").workplane(offset=feed_z).sphere(4)
+    # 5. 焦点馈源喇叭
+    feed = feed_horn(feed_z)
 
     return dish, compound_of(feed_arms), feed
 

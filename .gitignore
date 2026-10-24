@@ -16,6 +16,7 @@ make_docs.py
 
 # 本地参考与杂项
 cadquery-llm-skill-main/
+董的训练资料*/
 *.png
 *.lnk
 *.bin
