@@ -301,36 +301,52 @@ def build_dome():
         .spline(ell_arc(DOME_R, DOME_H)[1:])       # 椭圆弧: 顶→(R,0)
         .lineTo(DOME_R, -4).lineTo(0, -4).close()
     )
-    # 经向肋: 沿椭圆弧的球链拱(格构式外骨架, 零布尔运算), 旋转阵列
-    def dome_rib_chain():
-        balls = []
-        for tdeg in range(4, 90, 7):                     # 顶→边 13 颗球
-            t = math.radians(tdeg)
-            x = DOME_R * 1.01 * math.sin(t)
-            z = DOME_H * 1.01 * math.cos(t) + 2          # 紧贴壳外表面
-            balls.append(cq.Workplane("XY").workplane(offset=z)
-                         .sphere(2.8).translate((x, 0, 0)).val())
-        return compound_of(balls)
-
-    ribs = [dome_rib_chain().rotate((0, 0, 0), (0, 0, 1), i * 360 / DOME_RIBS)
-            for i in range(DOME_RIBS)]
-    ribs.append(cq.Solid.makeTorus(DOME_R * 0.80, 2.2).translate((0, 0, DOME_H * 0.38)))
-    ribs.append(cq.Solid.makeTorus(DOME_R * 0.56, 2.2).translate((0, 0, DOME_H * 0.68)))
-    # 舷窗: 窗筒必须沿"椭球面法线"方向插入——该处法线并非水平, 而是向外上翘
-    # 约 32°; 用水平圆柱会一半埋进壳体、一半翘成楔形块
+    # ── 舷窗几何(先算出来: 肋上的球链要避开窗口, 否则球会扣在窗里) ──
+    WIN_AZ = (120, 180, 240)
     win_z = DOME_H * 0.42
     win_rho = DOME_R * math.sin(math.acos(win_z / DOME_H))
     nx, nz = win_rho / DOME_R ** 2, win_z / DOME_H ** 2   # 椭球法线的水平/竖直分量
     nl = math.hypot(nx, nz)
     nx, nz = nx / nl, nz / nl
+    win_bases = [(win_rho * math.cos(math.radians(a)),
+                  win_rho * math.sin(math.radians(a)), win_z) for a in WIN_AZ]
+
+    # 经向肋: 沿椭圆弧的球链拱(格构式外骨架, 零布尔运算), 旋转阵列
+    def dome_rib_chain(alpha_deg):
+        a = math.radians(alpha_deg)
+        balls = []
+        for tdeg in range(4, 90, 7):                     # 顶→边 13 颗球
+            t = math.radians(tdeg)
+            x = DOME_R * 1.01 * math.sin(t)
+            z = DOME_H * 1.01 * math.cos(t) + 2          # 紧贴壳外表面
+            px, py = x * math.cos(a), x * math.sin(a)
+            if any((px - wx) ** 2 + (py - wy) ** 2 + (z - wz) ** 2 < 8.5 ** 2
+                   for wx, wy, wz in win_bases):
+                continue                                  # 避让舷窗开孔
+            balls.append(cq.Workplane("XY").workplane(offset=z)
+                         .sphere(2.8).translate((px, py, 0)).val())
+        return compound_of(balls)
+
+    ribs = [dome_rib_chain(i * 360 / DOME_RIBS) for i in range(DOME_RIBS)]
+    ribs.append(cq.Solid.makeTorus(DOME_R * 0.80, 2.2).translate((0, 0, DOME_H * 0.38)))
+    ribs.append(cq.Solid.makeTorus(DOME_R * 0.56, 2.2).translate((0, 0, DOME_H * 0.68)))
+    # 舷窗: 窗筒必须沿"椭球面法线"方向插入——该处法线并非水平, 而是向外上翘
+    # 约 32°; 用水平圆柱会一半埋进壳体、一半翘成楔形块
     wins = []
-    for a in (120, 180, 240):
-        ca, sa = math.cos(math.radians(a)), math.sin(math.radians(a))
-        base = (win_rho * ca, win_rho * sa, win_z)         # 该方位的壳面点
+    for base in win_bases:
+        ca, sa = base[0] / win_rho, base[1] / win_rho
         n = (nx * ca, nx * sa, nz)                         # 外法线方向
         p0 = tuple(base[i] - n[i] * 2 for i in range(3))   # 埋入壳体 2mm
         p1 = tuple(base[i] + n[i] * 0.8 for i in range(3))  # 只外凸 0.8mm, 做"平嵌窗"
         wins.append(strut(p0, p1, 5))                      # Ø10 舷窗
+        # 金属窗框(并入"穹顶肋"材质): 让舷窗有圈口, 而不是贴在壳上的蓝点
+        ty = math.degrees(math.atan2(math.hypot(n[0], n[1]), n[2]))
+        tz = math.degrees(math.atan2(n[1], n[0]))
+        rings = (cq.Solid.makeTorus(5.6, 0.6)
+                 .rotate((0, 0, 0), (0, 1, 0), ty)
+                 .rotate((0, 0, 0), (0, 0, 1), tz)
+                 .translate(base))
+        ribs.append(rings)
     # 信标: 杆 + 红灯
     beacon = post(2, 35).translate((0, 0, 50))
     beacon = beacon.union(
@@ -421,8 +437,10 @@ def build_tower():
     替代原来小口径天线——一座塔, 一套天线, 通信逻辑清晰。
     """
     H, top_r, bot_r = TOWER_H, 8, 26
+    # 桁架顶端收在 H-12: 天线盘装在 H-8, 若桁架做到 H, 三根柱顶会从
+    # 反射面正中捅出来(在盘面上留下三个小凸柱)
     struts = [strut((bot_r * math.cos(math.radians(a)), bot_r * math.sin(math.radians(a)), 0),
-                    (top_r * math.cos(math.radians(a)), top_r * math.sin(math.radians(a)), H), 3)
+                    (top_r * math.cos(math.radians(a)), top_r * math.sin(math.radians(a)), H - 12), 3)
               for a in (90, 210, 330)]
     rings = [cq.Solid.makeTorus(bot_r + (top_r - bot_r) * f, 1.2)
              .translate((0, 0, H * f))
