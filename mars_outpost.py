@@ -132,7 +132,6 @@ MATERIALS = {
     "返回火箭":   {"color": (0.85, 0.87, 0.90), "metal": 0.85, "rough": 0.20},
     "发动机喷管": {"color": (0.35, 0.33, 0.30), "metal": 0.95, "rough": 0.30},
     "气象站":     {"color": (0.93, 0.93, 0.91), "metal": 0.20, "rough": 0.40},
-    "环境传感器": {"color": (0.40, 0.55, 0.65), "metal": 0.50, "rough": 0.25},
     # 离子推进器(集成于火箭动力段)
     "推进器机身": {"color": (0.78, 0.80, 0.83), "metal": 0.90, "rough": 0.25},
     "加速器喷管": {"color": (0.30, 0.28, 0.25), "metal": 0.95, "rough": 0.35},
@@ -639,17 +638,10 @@ def build_weather():
         cq.Workplane("XY").workplane(offset=26 + 5 * 3.2)
         .box(15.5, 15.5, 1.5).translate((8, 0, 0)))
 
-    # ── 温湿压三层探头: 直接卡在主桅杆左侧(温度/湿度/气压分层测量) ──
-    sensors = []
-    for z_sens in (22, 50, 72):
-        s = (cq.Workplane("XY").workplane(offset=z_sens)
-             .box(4, 4, 4).translate((-3.2, 0, 0)))
-        sensors.append(s.val())
+    # 温湿压探头收在百叶箱内部(斯蒂文森屏本来就是干球/湿球温度表的防辐射罩),
+    # 不再单独摆小方块——小灰块在渲染里会被当成破面/多余几何
     dx, dy = POS_WEATHER
-    return [
-        ("气象站", station.val().translate((dx, dy, BASE_H))),
-        ("环境传感器", compound_of(sensors).translate((dx, dy, BASE_H))),
-    ]
+    return [("气象站", station.val().translate((dx, dy, BASE_H)))]
 
 
 # =====================================================================
