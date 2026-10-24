@@ -318,14 +318,21 @@ def build_dome():
             for i in range(DOME_RIBS)]
     ribs.append(cq.Solid.makeTorus(DOME_R * 0.80, 2.2).translate((0, 0, DOME_H * 0.38)))
     ribs.append(cq.Solid.makeTorus(DOME_R * 0.56, 2.2).translate((0, 0, DOME_H * 0.68)))
-    # 舷窗: 先旋转向位再平移, 保证圆柱始终径向朝外; 安装半径按该高度处
-    # 的椭球壳面半径反算, 使舷窗凸出壳面(否则整根窗筒会埋进实心穹顶不可见)
+    # 舷窗: 窗筒必须沿"椭球面法线"方向插入——该处法线并非水平, 而是向外上翘
+    # 约 32°; 用水平圆柱会一半埋进壳体、一半翘成楔形块
     win_z = DOME_H * 0.42
     win_rho = DOME_R * math.sin(math.acos(win_z / DOME_H))
-    win = cq.Workplane("YZ").circle(5).extrude(10)         # 沿 +X 伸出
-    wins = [polar(win.rotate((0, 0, 0), (0, 0, 1), a),
-                  win_rho - 4, a, win_z)
-            for a in (120, 180, 240)]
+    nx, nz = win_rho / DOME_R ** 2, win_z / DOME_H ** 2   # 椭球法线的水平/竖直分量
+    nl = math.hypot(nx, nz)
+    nx, nz = nx / nl, nz / nl
+    wins = []
+    for a in (120, 180, 240):
+        ca, sa = math.cos(math.radians(a)), math.sin(math.radians(a))
+        base = (win_rho * ca, win_rho * sa, win_z)         # 该方位的壳面点
+        n = (nx * ca, nx * sa, nz)                         # 外法线方向
+        p0 = tuple(base[i] - n[i] * 2 for i in range(3))   # 埋入壳体 2mm
+        p1 = tuple(base[i] + n[i] * 4 for i in range(3))   # 外凸 4mm
+        wins.append(strut(p0, p1, 5))                      # Ø10 舷窗
     # 信标: 杆 + 红灯
     beacon = post(2, 35).translate((0, 0, 50))
     beacon = beacon.union(
@@ -436,9 +443,17 @@ def build_tower():
     dish_group = compound_of([dish_reflector]).translate((0, 0, H - 8))
     feed_group = compound_of([feed_arms, feed]).translate((0, 0, H - 8))
 
-    # 桅杆警示灯: 桅杆从天线盘后方高出, 红球置于杆顶(航空警示灯)
-    beacon = (post(1.5, 54).translate((0, 0, H - 20))
-              .union(cq.Workplane("XY").workplane(offset=H + 34).sphere(4.5)))
+    # 航空警示灯: 直接坐在反射体法兰外缘(盘面最高处), 灯体随天线一起倾斜。
+    # 原先的"穿盘桅杆"会从反射面正中穿过、挡在天线口径里, 已取消
+    rim_r = DISH_D / 2
+    beacon = (
+        cq.Workplane("XY")
+        .workplane(offset=rim_r ** 2 / (4 * DISH_F))       # 法兰上表面高度
+        .sphere(4.5)
+        .translate((0, -(rim_r + DISH_FLANGE_W - 1.5), 0))  # 法兰外缘(倾斜后的最高边)
+        .rotate((0, 0, 0), (1, 0, 0), -earth_tilt)
+        .translate((0, 0, H - 8))
+    )
 
     dx, dy = POS_TOWER
     return [
@@ -555,11 +570,12 @@ def build_rocket():
         cq.Workplane("XY").workplane(offset=z_ion_top + hull_h * 0.68)
         .circle(r_b + 2).circle(r_b).extrude(10))
     # 整流罩: 椭圆弧加密采样折线从机身顶缘收到顶点 → 实心旋转体;
-    # 折线不过冲(样条起点陡升会内凹出"细脖子"), 基线嵌入机身破共面
+    # 底边必须与弧线在同一条 polyline 里(分成 moveTo+polyline 会断成两条线,
+    # 底环丢失 → 整流罩整体上浮 7mm, 与机身之间留缝)
     arc = [(x, hull_h - 1 + z) for x, z in reversed(ell_arc(r_b, nose_h, 14))]
+    nose_profile = [(0, hull_h - 1), (r_b, hull_h - 1)] + arc[1:]
     nose = revolve_z(
-        cq.Workplane("XZ").moveTo(0, hull_h - 1).lineTo(r_b, hull_h - 1)
-        .polyline(arc[1:]).close()).translate((0, 0, z_ion_top))
+        cq.Workplane("XZ").polyline(nose_profile).close()).translate((0, 0, z_ion_top))
     hull = hull.union(nose)
 
     # 着陆腿: 从机身侧壁斜撑到平台面
@@ -611,11 +627,21 @@ def build_weather():
     station = station.union(                              # 百叶箱挂塔身
         cq.Workplane("XY").workplane(offset=34).box(14, 14, 12).translate((16, 0, 0)))
 
-    # ── 温湿压传感器阵列: 三层不同高度的传感器球(分层测量) ──
+    # ── 温湿压传感器阵列: 侧挂传感器桅杆(三层高度) ──
+    # 传感器块不能凭空浮在塔外: 先立一根竖杆, 再用两道斜撑从格架腿上拉住,
+    # 三只探头(温度/湿度/气压)分层挂在竖杆上
+    boom_x = -7.0
+    boom = post(1.0, 62).translate((boom_x, 0, 16))            # 竖杆 z 16..78
+    for z_link in (28, 60):                                     # 斜撑 → 210° 方向格架腿
+        r_leg = max(9 - z_link * math.tan(math.radians(8)), 0.0)
+        leg_point = (r_leg * math.cos(math.radians(210)),
+                     r_leg * math.sin(math.radians(210)), z_link)
+        boom = boom.union(strut(leg_point, (boom_x, 0, z_link), 0.8))
+    station = station.union(boom)
     sensors = []
     for z_sens in (22, 50, 72):                # 温度 / 湿度 / 气压 三层
         s = (cq.Workplane("XY").workplane(offset=z_sens)
-             .box(4, 4, 4).translate((-16, 0, 0)))
+             .box(4, 4, 4).translate((boom_x, 0, 0)))
         sensors.append(s.val())
     dx, dy = POS_WEATHER
     return [
