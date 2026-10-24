@@ -707,21 +707,22 @@ def parabolic_profile(f, rim_r, wall, n=DISH_SAMPLE_N):
 
 
 def feed_horn(feed_z):
-    """焦点馈源喇叭: 两圆截面 loft 放样成锥台, 再从喇叭口掏微波谐振腔。
+    """焦点馈源喇叭: 两圆截面 loft 放样成锥台, 小端在焦点、大口向上张开。
 
-    喉部(小端 r=FEED_R_BACK)位于焦点 z=f, 喇叭口(大端 r=FEED_R_APERTURE)
-    朝向反射面(向下 16mm); 从喇叭口向里掏 Ø8×12mm 盲孔, 喉部保留 4mm
-    金属封底——这正是"多截面放样 + faces().hole()"两个特征的组合用法。
+    与课程 1.py / 5 精简.py 的构造方向一致: 焦点 z=f 处画小圆(喉部 r=6),
+    向上 16mm 画大圆(喇叭口 r=12) 放样; 再从喇叭口向下掏 Ø8×12mm 盲孔,
+    底部保留 4mm 金属封底——"多截面放样 + faces().hole()"的组合用法。
     """
-    horn = (
+    return (
         cq.Workplane("XY")
-        .circle(FEED_R_APERTURE)                        # 喇叭口(朝向反射面)
-        .workplane(offset=FEED_H).circle(FEED_R_BACK)   # 喉部(焦点处)
-        .loft()                                         # 锥台放样
-        .faces("<Z").workplane(centerOption="CenterOfBoundBox")
-        .hole(FEED_HOLE_D, depth=FEED_HOLE_DEPTH)       # 谐振腔(留 4mm 封底)
+        .workplane(offset=feed_z)
+        .circle(FEED_R_BACK)                                # 焦点处: 喉部小端
+        .workplane(offset=FEED_H)
+        .circle(FEED_R_APERTURE)                            # 向上张开: 喇叭口
+        .loft()                                             # 锥台放样
+        .faces(">Z").workplane(centerOption="CenterOfBoundBox")
+        .hole(FEED_HOLE_D, depth=FEED_HOLE_DEPTH)           # 谐振腔(留 4mm 底)
     )
-    return horn.translate((0, 0, feed_z - FEED_H))
 
 
 def ParabolicDishGenerator():
@@ -760,8 +761,8 @@ def ParabolicDishGenerator():
     )
     dish = dish.union(flange)
 
-    # 4. 三根支撑臂(120° 阵列): 下端扎在盘缘法兰, 上端收拢到馈源喉部外壁,
-    #    杆件用锥形放样(根部粗、端部细), 端点在喉部内部 1mm 处熔合
+    # 4. 三根支撑臂(120° 阵列): 下端扎在盘缘法兰, 上端收拢托住喇叭喉部,
+    #    杆件用锥形放样(根部粗、端部细), 端点埋进喉部底端 1mm 处熔合
     feed_z = f
     rim_z = rim_r ** 2 / (4 * f) + wall            # 盘缘上表面高度
     tip_r = FEED_R_BACK - 1                        # 端点落在喉部壁内
@@ -769,7 +770,7 @@ def ParabolicDishGenerator():
     for ang in (0, 120, 240):
         a = math.radians(ang)
         mount = (rim_r * math.cos(a), rim_r * math.sin(a), rim_z)          # 盘缘
-        tip = (tip_r * math.cos(a), tip_r * math.sin(a), feed_z - 1)       # 喉部
+        tip = (tip_r * math.cos(a), tip_r * math.sin(a), feed_z + 1)       # 喉部
         feed_arms.append(strut(mount, tip, FEED_ARM_R0, FEED_ARM_R1))
 
     # 5. 焦点馈源喇叭
