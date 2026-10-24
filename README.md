@@ -27,7 +27,7 @@
 
 ## 核心算法
 
-- 极坐标放置、三角函数定向斜杆、海伦公式求弧半径
+- 极坐标放置、三角函数定向斜杆、椭圆参数方程旋转成穹顶
 - 抛物线 `z = r²/(4f)` 微积分推导 + 旋转成抛物面天线
 - 斯蒂芬-玻尔兹曼热辐射定律 → 百叶窗散热格栅设计
 - CadQuery 批量布尔差集（`cut`）+ Z-Fighting 贯通容差修复
@@ -53,6 +53,8 @@ python mars_outpost.py
 | `view_iso/top/front.svg` | 三视角工程线框图 |
 
 运行时终端输出 X 波段天线增益核算结果（dBi）。
+
+**在线预览**：在项目根目录运行 `python -m http.server`，浏览器打开 `viewer.html`，即可实时旋转查看 `exports/mars_outpost.glb`（含 PBR 材质、环境反射与程序化纹理）。
 
 全站参数化：修改脚本顶部【参数区】常数（如 `SUN_ELEV` 太阳高度角、`DISH_F` 抛物面焦距、`GRILL_SLOTS` 散热槽数），模型自动重建。
 

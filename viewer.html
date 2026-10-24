@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>赤星前哨 · 火星科研站 — GLB 预览</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #0b1118; }
+  canvas { display: block; }
+  #hud {
+    position: fixed; left: 14px; bottom: 14px; z-index: 9;
+    color: #cfe3ff; font: 12px/1.6 "Segoe UI", "Microsoft YaHei", monospace;
+    background: rgba(10, 18, 28, .72); border: 1px solid rgba(255, 122, 60, .35);
+    border-radius: 8px; padding: 10px 14px; pointer-events: none; white-space: pre;
+  }
+  #hud b { color: #ff7a3c; }
+  #err {
+    position: fixed; inset: 0; z-index: 20; display: none;
+    align-items: center; justify-content: center; padding: 40px;
+    color: #ffd7c7; background: rgba(8, 12, 18, .92);
+    font: 14px/1.9 "Segoe UI", "Microsoft YaHei", sans-serif; white-space: pre-wrap;
+  }
+</style>
+</head>
+<body>
+<div id="hud">正在加载模型……</div>
+<div id="err"></div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const hud = document.getElementById('hud');
+const errBox = document.getElementById('err');
+const fail = (msg) => {
+  errBox.style.display = 'flex';
+  errBox.textContent = msg;
+  hud.textContent = '加载失败';
+};
+
+// 默认加载项目导出的场景; 也可以用 viewer.html#exports/xxx.glb 指定其它文件
+const file = decodeURIComponent(location.hash.replace(/^#/, '')) || 'exports/mars_outpost.glb';
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0b1118);
+
+// PBR 金属材质需要环境反射, 否则金属度高的零件在浏览器里会发黑
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+const sun = new THREE.DirectionalLight(0xfff0e0, 2.6);
+sun.position.set(300, -450, 700);
+scene.add(sun);
+
+const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 1, 20000);
+camera.up.set(0, 0, 1);          // 模型的竖直方向是 +Z, 让火星基地"站"起来
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+
+new GLTFLoader().load(file, (gltf) => {
+  const model = gltf.scene;
+  scene.add(model);
+
+  // 自动居中 + 自动取景
+  const box = new THREE.Box3().setFromObject(model);
+  const center = box.getCenter(new THREE.Vector3());
+  const size = box.getSize(new THREE.Vector3());
+  const radius = Math.max(size.x, size.y, size.z) * 0.5;
+  const dist = radius * 1.15 / Math.sin(THREE.MathUtils.degToRad(camera.fov * 0.5));
+
+  camera.near = radius / 500;
+  camera.far = radius * 40;
+  camera.position.set(center.x + dist * 0.62, center.y - dist * 0.78, center.z + dist * 0.5);
+  camera.updateProjectionMatrix();
+  controls.target.copy(center);
+  controls.update();
+
+  let parts = 0;
+  const materials = new Set();
+  model.traverse((o) => {
+    if (!o.isMesh) return;
+    parts += 1;
+    materials.add(o.material.name || '(unnamed)');
+  });
+  hud.innerHTML =
+    `<b>赤星前哨 · 火星科研站</b>\n` +
+    `文件: ${file}\n` +
+    `零件: ${parts}   材质: ${materials.size}\n` +
+    `尺寸: ${size.x.toFixed(0)} × ${size.y.toFixed(0)} × ${size.z.toFixed(0)} mm\n` +
+    `左键旋转 · 右键平移 · 滚轮缩放`;
+}, undefined, (e) => {
+  const local = location.protocol === 'file:';
+  fail(
+    'GLB 加载失败: ' + (e && e.message ? e.message : e) + '\n\n' +
+    (local
+      ? '浏览器禁止 file:// 页面读取本地模型文件。\n请在项目根目录运行:  python -m http.server\n然后访问:  http://127.0.0.1:8000/viewer.html'
+      : '请确认 exports/mars_outpost.glb 存在（运行 python mars_outpost.py 生成）。')
+  );
+});
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+renderer.setAnimationLoop(() => {
+  controls.update();
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>

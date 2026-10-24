@@ -23,7 +23,7 @@
   点集离散采样生成壁厚 2mm 反射体, 外缘法兰圈加固; X 波段(8.4GHz)
   深空通信链路增益核算(dBi), 导出高精度 STL。
 
-  核心算法：极坐标放置、三角函数定向斜杆、海伦公式求弧半径、
+  核心算法：极坐标放置、三角函数定向斜杆、椭圆参数方程旋转成穹顶、
   抛物线 z=r²/(4f) 微积分推导 + 旋转成抛物面天线、
   斯蒂芬-玻尔兹曼热辐射定律 → 百叶窗散热格栅、
   CadQuery 批量布尔差集 + Z-Fighting 贯通容差修复、
@@ -67,7 +67,7 @@ DOME_R, DOME_H, DOME_RIBS = 80, 60, 10   # 穹顶半径 / 矢高 / 肋数
 LAB_R, LAB_L = 32, 120             # 实验舱半径 / 长度
 SUN_ELEV, PANEL_N = 35, 4          # 太阳高度角(度) / 太阳能板数
 TOWER_H, DISH_D, EARTH_ELEV = 190, 120, 40   # 塔高 / 大天线口径 / 对地仰角
-ROCKET_H = 210                     # 火箭总高
+ROCKET_H = 210                     # 返回火箭主体(机身段+整流罩)总高
 ROCK_SEED, ROCK_N = 2026, 20       # 岩石随机种子 / 数量
 
 # --- 阶段一: 离子推进器动力总成 + 24 槽散热格栅 ---
@@ -117,7 +117,6 @@ MATERIALS = {
     "太阳能板":   {"color": (0.07, 0.14, 0.45), "metal": 0.40, "rough": 0.15},
     "能源边框":   {"color": (0.85, 0.62, 0.18), "metal": 0.90, "rough": 0.35},
     "塔架":       {"color": (0.55, 0.57, 0.60), "metal": 0.70, "rough": 0.50},
-    "深空天线":   {"color": (0.92, 0.92, 0.94), "metal": 0.30, "rough": 0.20},
     "天线信标":   {"color": (1.00, 0.10, 0.06), "metal": 0.00, "rough": 0.20,
                    "emissive": (0.9, 0.02, 0.0)},
     "火星车体":   {"color": (0.90, 0.88, 0.84), "metal": 0.30, "rough": 0.40},
@@ -152,14 +151,6 @@ def polar(part, radius, angle_deg, z=0.0):
     """极坐标放置: 把零件摆到 (半径, 方位角) 处。"""
     a = math.radians(angle_deg)
     return part.translate((radius * math.cos(a), radius * math.sin(a), z))
-
-
-def arc_r(p1, p_mid, p2):
-    """海伦公式求过三点的圆弧半径(保证不小于半弦长)。"""
-    a, b, c = math.dist(p_mid, p2), math.dist(p1, p2), math.dist(p1, p_mid)
-    s = (a + b + c) / 2
-    k = math.sqrt(max(s * (s - a) * (s - b) * (s - c), 1e-9))
-    return max(a * b * c / (4 * k), b / 2 + 0.5)
 
 
 def strut(p0, p1, r):
@@ -308,10 +299,13 @@ def build_dome():
             for i in range(DOME_RIBS)]
     ribs.append(cq.Solid.makeTorus(DOME_R * 0.80, 2.2).translate((0, 0, DOME_H * 0.38)))
     ribs.append(cq.Solid.makeTorus(DOME_R * 0.56, 2.2).translate((0, 0, DOME_H * 0.68)))
-    # 舷窗: 先旋转向位再平移, 保证圆柱始终径向朝外
-    win = cq.Workplane("YZ").circle(5).extrude(8)          # 沿 +X 伸出
+    # 舷窗: 先旋转向位再平移, 保证圆柱始终径向朝外; 安装半径按该高度处
+    # 的椭球壳面半径反算, 使舷窗凸出壳面(否则整根窗筒会埋进实心穹顶不可见)
+    win_z = DOME_H * 0.42
+    win_rho = DOME_R * math.sin(math.acos(win_z / DOME_H))
+    win = cq.Workplane("YZ").circle(5).extrude(10)         # 沿 +X 伸出
     wins = [polar(win.rotate((0, 0, 0), (0, 0, 1), a),
-                  DOME_R * 0.78, a, DOME_H * 0.42)
+                  win_rho - 4, a, win_z)
             for a in (120, 180, 240)]
     # 信标: 杆 + 红灯
     beacon = post(2, 35).translate((0, 0, 50))
@@ -420,7 +414,8 @@ def build_tower():
     feed_arms = feed_arms.rotate((0, 0, 0), (1, 0, 0), -earth_tilt)
     feed = feed.rotate((0, 0, 0), (1, 0, 0), -earth_tilt)
 
-    dish_group = compound_of([dish_reflector, feed_arms, feed]).translate((0, 0, H - 8))
+    dish_group = compound_of([dish_reflector]).translate((0, 0, H - 8))
+    feed_group = compound_of([feed_arms, feed]).translate((0, 0, H - 8))
 
     # 桅杆警示灯: 桅杆从天线盘后方高出, 红球置于杆顶(航空警示灯)
     beacon = (post(1.5, 54).translate((0, 0, H - 20))
@@ -430,6 +425,7 @@ def build_tower():
     return [
         ("塔架", compound_of(struts + rings).translate((dx, dy, BASE_H))),
         ("抛物面反射器", dish_group.translate((dx, dy, BASE_H))),
+        ("天线馈源臂", feed_group.translate((dx, dy, BASE_H))),
         ("天线信标", beacon.val().translate((dx, dy, BASE_H))),
     ]
 
@@ -479,7 +475,7 @@ def build_rocket():
     将阶段一的 24 槽散热格栅 + 收敛-扩张喷管直接作为火箭下方的动力段,
     替代原来重复的化学火箭喷管——一套推进系统, 动力逻辑清晰。
     """
-    H, r_b = ROCKET_H, 26
+    r_b = 26
     pad = (
         cq.Workplane("XY").polygon(8, 130).extrude(8)
         .faces(">Z").workplane(centerOption="CenterOfBoundBox")
@@ -531,23 +527,28 @@ def build_rocket():
     # 推进器机身段(连接散热套与火箭主体)
     ion_body = post(ION_BODY_R, ION_BODY_L).translate((0, 0, grill_h + 20 + ION_NOZZLE_L))
 
-    # 火箭主体(机身+段箍+整流罩), 叠加在推进器之上
+    # 火箭主体(机身+段箍+整流罩), 直接叠在推进器顶面上, 总高 = ROCKET_H
     z_ion_top = grill_h + 20 + ION_NOZZLE_L + ION_BODY_L
-    hull = post(r_b, 130).translate((0, 0, z_ion_top + 26))
-    hull = hull.union(
-        cq.Workplane("XY").workplane(offset=z_ion_top + 89)
+    nose_h = 63                                # 整流罩高度
+    hull_h = ROCKET_H - nose_h                 # 机身段高度
+    hull = post(r_b, hull_h).translate((0, 0, z_ion_top))
+    hull = hull.union(                          # 推进剂段箍(机身 68% 高度处)
+        cq.Workplane("XY").workplane(offset=z_ion_top + hull_h * 0.68)
         .circle(r_b + 2).circle(r_b).extrude(10))
-    arc = [(x, 155 + z) for x, z in reversed(ell_arc(r_b, 63, 14))]
+    # 整流罩: 椭圆弧加密采样折线从机身顶缘收到顶点 → 实心旋转体;
+    # 折线不过冲(样条起点陡升会内凹出"细脖子"), 基线嵌入机身破共面
+    arc = [(x, hull_h - 1 + z) for x, z in reversed(ell_arc(r_b, nose_h, 14))]
     nose = revolve_z(
-        cq.Workplane("XZ").moveTo(0, 155).lineTo(r_b, 155)
-        .polyline(arc[1:]).close())
+        cq.Workplane("XZ").moveTo(0, hull_h - 1).lineTo(r_b, hull_h - 1)
+        .polyline(arc[1:]).close()).translate((0, 0, z_ion_top))
     hull = hull.union(nose)
 
-    # 着陆腿
+    # 着陆腿: 从机身侧壁斜撑到平台面
+    leg_mount_z = z_ion_top + hull_h * 0.68
     legs = []
     for ang in (45, 135, 225, 315):
         a = math.radians(ang)
-        mount = (r_b * math.cos(a), r_b * math.sin(a), 100 + z_ion_top)
+        mount = (r_b * math.cos(a), r_b * math.sin(a), leg_mount_z)
         foot = (60 * math.cos(a), 60 * math.sin(a), 0)
         legs.append(strut(mount, foot, 2.5))
         legs.append(post(7, 3).translate((foot[0], foot[1], 0)))
@@ -591,9 +592,9 @@ def build_weather():
     station = station.union(                              # 百叶箱挂塔身
         cq.Workplane("XY").workplane(offset=34).box(14, 14, 12).translate((16, 0, 0)))
 
-    # ── 温湿压传感器阵列: 不同高度传感器球(分层测量) ──
+    # ── 温湿压传感器阵列: 三层不同高度的传感器球(分层测量) ──
     sensors = []
-    for z_sens, label in ((22, "温度"), (50, "湿度"), (72, "气压")):
+    for z_sens in (22, 50, 72):                # 温度 / 湿度 / 气压 三层
         s = (cq.Workplane("XY").workplane(offset=z_sens)
              .box(4, 4, 4).translate((-16, 0, 0)))
         sensors.append(s.val())
@@ -702,16 +703,14 @@ def ParabolicDishGenerator():
     )
     dish = dish.union(flange)
 
-    # 4. 馈源支撑臂(三根 120° 阵列) + 馈源(焦点处)
+    # 4. 馈源支撑臂(三根 120° 阵列, 从盘缘收拢到焦点) + 馈源(焦点处)
     feed_z = f  # 馈源位于焦点 z = f
+    rim_z = rim_r ** 2 / (4 * f) + wall            # 盘缘上表面高度
     feed_arms = []
     for ang in (0, 120, 240):
-        arm = strut(
-            (0, 0, rim_r ** 2 / (4 * f) + wall / 2),  # 盘缘
-            (0, 0, feed_z),                            # 焦点
-            1.5
-        ).rotate((0, 0, 0), (0, 0, 1), ang)
-        feed_arms.append(arm)
+        a = math.radians(ang)
+        rim = (rim_r * math.cos(a), rim_r * math.sin(a), rim_z)   # 盘缘
+        feed_arms.append(strut(rim, (0, 0, feed_z), 1.5))         # 盘缘 → 焦点
 
     feed = cq.Workplane("XY").workplane(offset=feed_z).sphere(4)
 
@@ -1072,7 +1071,7 @@ def write_glb(assy, path):
     def get_texture(name):
         """获取(或生成并缓存)材质对应的纹理索引。无纹理返回 None。"""
         if name in tex_pending:
-            return tex_pending[name]
+            return tex_pending[name][0]
         gen_fn = TEXTURE_MAP.get(name)
         if gen_fn is None:
             return None
@@ -1148,7 +1147,7 @@ def write_glb(assy, path):
     # ── 所有几何数据写完后, 统一生成 PNG 纹理 ──
     # 使用 base64 data URI 内联(兼容性最佳, 所有 glTF 渲染器都支持)
     import base64
-    for mat_name, (tex_idx, img_idx, gen_fn) in tex_pending.items():
+    for _mat_name, (tex_idx, img_idx, gen_fn) in tex_pending.items():
         png_bytes = gen_fn()
         b64 = base64.b64encode(png_bytes).decode('ascii')
         json_doc["images"][img_idx] = {
@@ -1172,8 +1171,8 @@ def write_glb(assy, path):
 def export_svg(compound, path, proj_dir, stroke="rgb(255,122,60)", bg="#0d1526"):
     """SVG 线框三视图(深空蓝底 + 火星橙线, 工程蓝图风)。
 
-    地形带大量布尔起伏时 HLR 算法可能失败 → 降级为无地形单独图,
-    保证导出流程不中断。
+    地形带大量布尔起伏时 HLR 算法个别视角可能失败 → 打印提示并跳过
+    该视角, 保证整体导出流程不中断。
     """
     try:
         cq.exporters.export(
