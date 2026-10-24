@@ -126,8 +126,6 @@ MATERIALS = {
     "太阳能板":   {"color": (0.07, 0.14, 0.45), "metal": 0.40, "rough": 0.15},
     "能源边框":   {"color": (0.85, 0.62, 0.18), "metal": 0.90, "rough": 0.35},
     "塔架":       {"color": (0.55, 0.57, 0.60), "metal": 0.70, "rough": 0.50},
-    "天线信标":   {"color": (1.00, 0.10, 0.06), "metal": 0.00, "rough": 0.20,
-                   "emissive": (0.9, 0.02, 0.0)},
     "火星车体":   {"color": (0.90, 0.88, 0.84), "metal": 0.30, "rough": 0.40},
     "车轮":       {"color": (0.25, 0.25, 0.27), "metal": 0.20, "rough": 0.80},
     "着陆平台":   {"color": (0.45, 0.47, 0.50), "metal": 0.50, "rough": 0.60},
@@ -331,7 +329,7 @@ def build_dome():
         base = (win_rho * ca, win_rho * sa, win_z)         # 该方位的壳面点
         n = (nx * ca, nx * sa, nz)                         # 外法线方向
         p0 = tuple(base[i] - n[i] * 2 for i in range(3))   # 埋入壳体 2mm
-        p1 = tuple(base[i] + n[i] * 4 for i in range(3))   # 外凸 4mm
+        p1 = tuple(base[i] + n[i] * 0.8 for i in range(3))  # 只外凸 0.8mm, 做"平嵌窗"
         wins.append(strut(p0, p1, 5))                      # Ø10 舷窗
     # 信标: 杆 + 红灯
     beacon = post(2, 35).translate((0, 0, 50))
@@ -417,7 +415,7 @@ def build_solar():
 
 
 def build_tower():
-    """深空通信塔: 三柱桁架 + 环撑 + 大口径抛物面高增益天线(阶段二集成) + 信标。
+    """深空通信塔: 三柱桁架 + 环撑 + 大口径抛物面高增益天线(阶段二集成)。
 
     将阶段二的 ParabolicDishGenerator 大抛物面天线直接集成到塔顶,
     替代原来小口径天线——一座塔, 一套天线, 通信逻辑清晰。
@@ -443,24 +441,14 @@ def build_tower():
     dish_group = compound_of([dish_reflector]).translate((0, 0, H - 8))
     feed_group = compound_of([feed_arms, feed]).translate((0, 0, H - 8))
 
-    # 航空警示灯: 直接坐在反射体法兰外缘(盘面最高处), 灯体随天线一起倾斜。
-    # 原先的"穿盘桅杆"会从反射面正中穿过、挡在天线口径里, 已取消
-    rim_r = DISH_D / 2
-    beacon = (
-        cq.Workplane("XY")
-        .workplane(offset=rim_r ** 2 / (4 * DISH_F))       # 法兰上表面高度
-        .sphere(4.5)
-        .translate((0, -(rim_r + DISH_FLANGE_W - 1.5), 0))  # 法兰外缘(倾斜后的最高边)
-        .rotate((0, 0, 0), (1, 0, 0), -earth_tilt)
-        .translate((0, 0, H - 8))
-    )
+    # 天线盘上不再挂任何警示灯: 桅杆会穿过反射面, 球灯挂在法兰上又会
+    # 挡住口径边缘——塔顶警示统一交给穹顶信标, 天线保持"盘+馈源"的干净结构
 
     dx, dy = POS_TOWER
     return [
         ("塔架", compound_of(struts + rings).translate((dx, dy, BASE_H))),
         ("抛物面反射器", dish_group.translate((dx, dy, BASE_H))),
         ("天线馈源臂", feed_group.translate((dx, dy, BASE_H))),
-        ("天线信标", beacon.val().translate((dx, dy, BASE_H))),
     ]
 
 
@@ -565,18 +553,17 @@ def build_rocket():
     z_ion_top = grill_h + 20 + ION_NOZZLE_L + ION_BODY_L
     nose_h = 63                                # 整流罩高度
     hull_h = ROCKET_H - nose_h                 # 机身段高度
-    hull = post(r_b, hull_h).translate((0, 0, z_ion_top))
+    # 机身与整流罩"一次旋转成型"(分两个实体再 union, 接缝处会留下着色箍痕):
+    # 母线 = 底面 → 侧壁 → 椭圆弧顶(按等高度采样, 根部才不会出现直筒段)
+    nose_pts = [(r_b * math.sqrt(max(1.0 - (i / 24) ** 2, 0.0)), nose_h * i / 24)
+                for i in range(1, 25)]
+    body_profile = [(0, 0), (r_b, 0), (r_b, hull_h)] + \
+                   [(x, hull_h + z) for x, z in nose_pts]
+    hull = revolve_z(
+        cq.Workplane("XZ").polyline(body_profile).close()).translate((0, 0, z_ion_top))
     hull = hull.union(                          # 推进剂段箍(机身 68% 高度处)
         cq.Workplane("XY").workplane(offset=z_ion_top + hull_h * 0.68)
         .circle(r_b + 2).circle(r_b).extrude(10))
-    # 整流罩: 椭圆弧加密采样折线从机身顶缘收到顶点 → 实心旋转体;
-    # 底边必须与弧线在同一条 polyline 里(分成 moveTo+polyline 会断成两条线,
-    # 底环丢失 → 整流罩整体上浮 7mm, 与机身之间留缝)
-    arc = [(x, hull_h - 1 + z) for x, z in reversed(ell_arc(r_b, nose_h, 14))]
-    nose_profile = [(0, hull_h - 1), (r_b, hull_h - 1)] + arc[1:]
-    nose = revolve_z(
-        cq.Workplane("XZ").polyline(nose_profile).close()).translate((0, 0, z_ion_top))
-    hull = hull.union(nose)
 
     # 着陆腿: 从机身侧壁斜撑到平台面
     leg_mount_z = z_ion_top + hull_h * 0.68
@@ -626,6 +613,11 @@ def build_weather():
         station = station.union(cup.rotate((0, 0, 0), (0, 0, 1), ang))
     station = station.union(                              # 百叶箱挂塔身
         cq.Workplane("XY").workplane(offset=34).box(14, 14, 12).translate((16, 0, 0)))
+    # 百叶箱短撑: 从 330° 格架腿拉到箱体内侧面(否则箱体悬空 5mm)
+    r_box = 9 - 34 * math.tan(math.radians(8))            # z=34 处的腿半径
+    box_leg = (r_box * math.cos(math.radians(330)),
+               r_box * math.sin(math.radians(330)), 34)
+    station = station.union(strut(box_leg, (9, 0, 34), 0.8))
 
     # ── 温湿压传感器阵列: 侧挂传感器桅杆(三层高度) ──
     # 传感器块不能凭空浮在塔外: 先立一根竖杆, 再用两道斜撑从格架腿上拉住,
