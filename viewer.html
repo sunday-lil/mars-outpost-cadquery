@@ -75,7 +75,9 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
 
-new GLTFLoader().load(file, (gltf) => {
+// 加时间戳参数, 避免浏览器拿上次缓存的旧 GLB(重新生成模型后刷新即可看到最新)
+const url = file + (file.includes('?') ? '&' : '?') + 'v=' + Date.now();
+new GLTFLoader().load(url, (gltf) => {
   const model = gltf.scene;
   scene.add(model);
 
