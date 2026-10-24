@@ -606,10 +606,10 @@ def build_rocket():
 
 
 def build_weather():
-    """环境监测站: 三柱格架 + 三杯风速计 + 百叶箱 + 温湿压传感器阵列。
+    """环境监测站: 三柱格架 + 中心主桅杆 + 三杯风速计 + 百叶箱 + 温湿压探头。
 
-    增强: 在塔身不同高度增设传感器球(温度/湿度/气压分层测量),
-    使气象站从单一风速计升级为综合环境监测平台。
+    所有设备都挂在一根中心桅杆上(百叶箱在右侧、三层探头在左侧), 避免
+    小方块散落在细细的三脚架周围; 百叶箱做成斯蒂文森屏(多层百叶板+顶盖)。
     """
     legs = []
     for ang in (90, 210, 330):                            # 柱底张开, 顶部收拢
@@ -623,35 +623,27 @@ def build_weather():
     station = cq.Workplane("XY").union(station)
     for b in braces:
         station = station.union(b)
-    station = station.union(post(1.2, 14).translate((0, 0, 66)))
+    # 中心主桅杆: 三柱收拢后一直通到顶部, 所有仪器都有"主心骨"
+    station = station.union(post(1.6, 78))
     for ang in (0, 120, 240):                             # 三杯风速计
         arm = cq.Workplane("XY").box(10, 2, 2).translate((5, 0, 76))
         cup = cq.Workplane("XY").sphere(3.5).translate((10, 0, 76))
         station = station.union(arm.rotate((0, 0, 0), (0, 0, 1), ang))
         station = station.union(cup.rotate((0, 0, 0), (0, 0, 1), ang))
-    station = station.union(                              # 百叶箱挂塔身
-        cq.Workplane("XY").workplane(offset=34).box(14, 14, 12).translate((16, 0, 0)))
-    # 百叶箱短撑: 从 330° 格架腿拉到箱体内侧面(否则箱体悬空 5mm)
-    r_box = 9 - 34 * math.tan(math.radians(8))            # z=34 处的腿半径
-    box_leg = (r_box * math.cos(math.radians(330)),
-               r_box * math.sin(math.radians(330)), 34)
-    station = station.union(strut(box_leg, (9, 0, 34), 0.8))
+    # 百叶箱 = 斯蒂文森屏: 5 层水平百叶板 + 顶盖, 挂在主桅杆右侧
+    for i in range(5):
+        station = station.union(
+            cq.Workplane("XY").workplane(offset=26 + i * 3.2)
+            .box(14, 14, 1.2).translate((8, 0, 0)))
+    station = station.union(
+        cq.Workplane("XY").workplane(offset=26 + 5 * 3.2)
+        .box(15.5, 15.5, 1.5).translate((8, 0, 0)))
 
-    # ── 温湿压传感器阵列: 侧挂传感器桅杆(三层高度) ──
-    # 传感器块不能凭空浮在塔外: 先立一根竖杆, 再用两道斜撑从格架腿上拉住,
-    # 三只探头(温度/湿度/气压)分层挂在竖杆上
-    boom_x = -7.0
-    boom = post(1.0, 62).translate((boom_x, 0, 16))            # 竖杆 z 16..78
-    for z_link in (28, 60):                                     # 斜撑 → 210° 方向格架腿
-        r_leg = max(9 - z_link * math.tan(math.radians(8)), 0.0)
-        leg_point = (r_leg * math.cos(math.radians(210)),
-                     r_leg * math.sin(math.radians(210)), z_link)
-        boom = boom.union(strut(leg_point, (boom_x, 0, z_link), 0.8))
-    station = station.union(boom)
+    # ── 温湿压三层探头: 直接卡在主桅杆左侧(温度/湿度/气压分层测量) ──
     sensors = []
-    for z_sens in (22, 50, 72):                # 温度 / 湿度 / 气压 三层
+    for z_sens in (22, 50, 72):
         s = (cq.Workplane("XY").workplane(offset=z_sens)
-             .box(4, 4, 4).translate((boom_x, 0, 0)))
+             .box(4, 4, 4).translate((-3.2, 0, 0)))
         sensors.append(s.val())
     dx, dy = POS_WEATHER
     return [
