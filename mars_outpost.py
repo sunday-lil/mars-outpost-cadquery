@@ -200,7 +200,7 @@ def flat_link(p0, p1, h=5.0, t=2.4, hole_d=2.6, inset=2.4):
     L = math.sqrt(dx * dx + dy * dy + dz * dz)
     yaw = math.degrees(math.atan2(dy, dx))
     tilt = -math.degrees(math.asin(max(-1.0, min(1.0, dz / L))))
-    bar = (cq.Workplane("XZ").rect(L, h).extrude(t, both=True)
+    bar = (cq.Workplane("XZ").rect(L, h).extrude(t / 2, both=True)
            .edges("|Y").fillet(min(h, t) * 0.42)        # 圆角端头
            .translate((L / 2, 0, 0)))
     if hole_d:
@@ -534,17 +534,17 @@ def build_rover():
 
     # ── 3. 车轮: 轮胎 + 轮辋槽 + 轮毂 + 12 抓地齿 + 6 颗轮毂螺栓 ──
     def wheel_unit():
-        w = (cq.Workplane("XY").circle(R_W).extrude(5, both=True)
+        w = (cq.Workplane("XY").circle(R_W).extrude(2.5, both=True)      # 轮宽 5
              .union(cq.Workplane("XY").circle(R_W - 1.6).circle(R_W - 3.0)
-                    .extrude(5.2, both=True))
-             .union(cq.Workplane("XY").circle(3.2).extrude(6.0, both=True)))
+                    .extrude(2.6, both=True))
+             .union(cq.Workplane("XY").circle(3.2).extrude(3.0, both=True)))
         for k in range(12):                                # 抓地齿
             w = w.union(cq.Workplane("XY").box(2.2, 1.2, 4.8)
                         .translate((R_W - 1.1, 0, 0))
                         .rotate((0, 0, 0), (0, 0, 1), k * 30))
         for k in range(6):                                 # 轮毂螺栓
             a = math.radians(k * 60)
-            w = w.union(cq.Workplane("XY").circle(0.7).extrude(6.2, both=True)
+            w = w.union(cq.Workplane("XY").circle(0.7).extrude(3.1, both=True)
                         .translate((1.9 * math.cos(a), 1.9 * math.sin(a), 0)))
         w = w.cut(cq.Workplane("XY").circle(1.3).extrude(6.6, both=True))  # 轴孔
         return w.rotate((0, 0, 0), (1, 0, 0), 90)
@@ -555,7 +555,7 @@ def build_rover():
         for wx in WHEEL_X:
             wheels.append(wheel_unit().translate((wx, s * WY, 0)))
             # 轮轴: 穿过摆臂端孔与轮毂轴孔, 轮子靠它转(摆臂不碰轮)
-            wheels.append(cq.Workplane("XY").circle(1.2).extrude(7.4, both=True)
+            wheels.append(cq.Workplane("XY").circle(1.2).extrude(3.7, both=True)
                           .rotate((0, 0, 0), (1, 0, 0), 90)
                           .translate((wx, s * (WY - 1.1), 0)))
         pivot = (2, s * (BW / 2), 12)                      # 车身枢轴
@@ -596,7 +596,7 @@ def build_rover():
 
     # ── 7. 五自由度采样机械臂: 转台 → 肩 → 肘 → 腕 → 三指夹爪 ──
     def pin(p, r, w):
-        return (cq.Workplane("XY").circle(r).extrude(w, both=True)
+        return (cq.Workplane("XY").circle(r).extrude(w / 2, both=True)
                 .rotate((0, 0, 0), (1, 0, 0), 90).translate(p))
 
     P0 = (24, 9, 21)      # J1 转台(绕 Z)
