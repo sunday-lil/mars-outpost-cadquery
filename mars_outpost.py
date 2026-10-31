@@ -521,7 +521,10 @@ def build_rover():
         for k in range(3):                                  # 侧散热栅条
             chassis = chassis.union(
                 cq.Workplane("XY").box(9, 1.0, 1.4)
-                .translate((-8 + k * 5, s * (BW / 2 + 0.7), 9)))
+                .translate((-16 + k * 5, s * (BW / 2 + 0.7), 9)))
+        chassis = chassis.union(                            # 摇臂支座(与车身同一实体)
+            cq.Workplane("XY").workplane(offset=7)
+            .box(6, 1.8, 10).translate((2, s * (BW / 2 + 0.9), 0)))
 
     # ── 2. 太阳能帆板(两片, 带支座) ──
     panels = []
@@ -558,7 +561,8 @@ def build_rover():
             wheels.append(cq.Workplane("XY").circle(1.2).extrude(3.7, both=True)
                           .rotate((0, 0, 0), (1, 0, 0), 90)
                           .translate((wx, s * (WY - 1.1), 0)))
-        pivot = (2, s * (BW / 2), 12)                      # 车身枢轴
+        mount_y = s * (BW / 2 + 1.6)                       # 支座坐在侧裙外表面
+        pivot = (2, mount_y, 12)                           # 车身枢轴
         # 摆臂端头停在轮子内侧(轮宽 5 → 内侧面在 WY-2.5), 不插进轮里
         link_y = s * (WY - 4.8)
         front = (WHEEL_X[0], link_y, 0)
@@ -572,8 +576,6 @@ def build_rover():
         for p in (pivot, bogie):                           # 关节销
             links.append(cq.Workplane("XY").circle(2.2).extrude(1.1, both=True)
                          .rotate((0, 0, 0), (1, 0, 0), 90).translate(p))
-        links.append(cq.Workplane("XY").workplane(offset=7)  # 车身侧面摇臂支座
-                     .box(6, 1.8, 10).translate((pivot[0], s * (BW / 2), 0)))
     links.append(strut((2, -BW / 2, 23.5), (2, BW / 2, 23.5), 1.1))  # 差速横杆
 
     # ── 5. 桅杆 + 双目相机 ──
