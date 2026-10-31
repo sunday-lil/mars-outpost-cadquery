@@ -34,9 +34,10 @@
   太阳能板倾角 = 90° − 太阳高度角(自动对日)。
 
   ── 程序化纹理贴图(纯标准库) ──
-  6 种程序化纹理: 火星地表(fBm噪声)、金属面板(拉丝+铆钉)、
+  9 种程序化纹理: 火星地表(fBm噪声)、金属面板(拉丝+铆钉)、
   太阳能板(网格)、火箭壳体(条纹)、抛物面反射器(同心圆)、
-  压痕路径(车辙)。fBm 值噪声 + PNG 编码(zlib), 嵌入 GLB
+  压痕路径(车辙)、火星车漆(分缝+铆钉+沙尘)、车轮胎面(胎纹)、
+  机械臂(拉丝铝)。fBm 值噪声 + PNG 编码(zlib), 嵌入 GLB
   作为 baseColorTexture, 平面投影 UV 自动生成。
 
   使用说明
@@ -1090,6 +1091,56 @@ def gen_texture_dirt_path(size=64):
     return _png_encode(px, size, size)
 
 
+def gen_texture_rover_body(size=64):
+    """火星车车漆: 米白漆面 + 面板分缝 + 铆钉 + 火星沙尘。"""
+    px = []
+    for y in range(size):
+        for x in range(size):
+            base = 224 + _fbm(x / size * 5, y / size * 5, 3, seed=21) * 22
+            if x % 16 < 1 or y % 16 < 1:                     # 面板分缝
+                base -= 40
+            if x % 16 in (4, 12) and y % 16 in (4, 12):      # 铆钉
+                base -= 28
+            dust = min(max(0.0, _fbm(x / size * 3, y / size * 3, 2, seed=34) - 0.58) * 2.6, 1.0)
+            r = int(base * (1 - dust) + 176 * dust)
+            g = int(base * (1 - dust) + 112 * dust)
+            b = int(base * (1 - dust) + 74 * dust)
+            px.append((max(0, min(255, r)), max(0, min(255, g)),
+                       max(0, min(255, b)), 255))
+    return _png_encode(px, size, size)
+
+
+def gen_texture_rover_wheel(size=64):
+    """车轮: 深灰胎面 + 环向胎纹 + 沙尘。"""
+    px = []
+    for y in range(size):
+        for x in range(size):
+            base = 58 + _hash_noise(x // 2, y // 2, 41) * 16
+            if y % 8 < 2:                                    # 横向胎纹
+                base -= 16
+            dust = min(max(0.0, _fbm(x / size * 4, y / size * 4, 2, seed=44) - 0.6) * 2.4, 1.0)
+            r = int(base * (1 - dust) + 150 * dust)
+            g = int(base * (1 - dust) + 96 * dust)
+            b = int(base * (1 - dust) + 66 * dust)
+            px.append((max(0, min(255, r)), max(0, min(255, g)),
+                       max(0, min(255, b)), 255))
+    return _png_encode(px, size, size)
+
+
+def gen_texture_brushed_metal(size=64):
+    """机械臂: 拉丝铝(单向细纹) + 轻微划痕。"""
+    px = []
+    for y in range(size):
+        for x in range(size):
+            v = (176 + math.sin(x * 1.9) * 5
+                 + _hash_noise(x // 8, y, 51) * 14
+                 + _fbm(x / size * 3, y / size * 3, 2, seed=52) * 10)
+            v = int(max(120, min(225, v)))
+            px.append((v, min(255, v + 3), min(255, v + 6), 255))
+    return _png_encode(px, size, size)
+
+
+
 # 材质名 → 纹理生成函数 映射(无映射的材质用纯色)
 TEXTURE_MAP = {
     "火星地形": gen_texture_mars_ground,
@@ -1104,6 +1155,10 @@ TEXTURE_MAP = {
     "太阳能板": gen_texture_solar_panel,
     "返回火箭": gen_texture_rocket_hull,
     "抛物面反射器": gen_texture_dish_reflector,
+    "火星车体": gen_texture_rover_body,
+    "车轮": gen_texture_rover_wheel,
+    "机械臂": gen_texture_brushed_metal,
+    "车顶帆板": gen_texture_solar_panel,
 }
 
 
