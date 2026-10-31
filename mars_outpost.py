@@ -190,6 +190,28 @@ def post(r, h):
     return cq.Workplane("XY").circle(r).extrude(h)
 
 
+def flat_link(p0, p1, h=5.0, t=2.4, hole_d=2.6, inset=2.4):
+    """两点间的扁平连杆(板面竖直, 截面 h×t), 末端开轴孔。
+
+    和圆杆 strut 的区别: 这是"扁铁条"——悬架摆臂、摇臂都该是这种板件,
+    受力方向在板面内; 末端按孔径挖一个贯通轴孔(参考课程 4(1).py 的 build_bar)。
+    """
+    dx, dy, dz = (p1[i] - p0[i] for i in range(3))
+    L = math.sqrt(dx * dx + dy * dy + dz * dz)
+    yaw = math.degrees(math.atan2(dy, dx))
+    tilt = -math.degrees(math.asin(max(-1.0, min(1.0, dz / L))))
+    bar = (cq.Workplane("XZ").rect(L, h).extrude(t, both=True)
+           .edges("|Y").fillet(min(h, t) * 0.42)        # 圆角端头
+           .translate((L / 2, 0, 0)))
+    if hole_d:
+        bar = bar.cut(cq.Workplane("XZ").center(L - inset, 0)
+                      .circle(hole_d / 2).extrude(t * 3, both=True))
+    return (bar.rotate((0, 0, 0), (0, 0, 1), yaw)
+            .rotate((0, 0, 0),
+                    (-math.sin(math.radians(yaw)), math.cos(math.radians(yaw)), 0), tilt)
+            .translate(p0))
+
+
 def revolve_z(builder):
     """XZ 轮廓(x=半径, z=高度)绕 Z 轴转 → 竖直旋转体(穹顶/天线/喷管)。
 
@@ -524,24 +546,28 @@ def build_rover():
             a = math.radians(k * 60)
             w = w.union(cq.Workplane("XY").circle(0.7).extrude(6.2, both=True)
                         .translate((1.9 * math.cos(a), 1.9 * math.sin(a), 0)))
+        w = w.cut(cq.Workplane("XY").circle(1.3).extrude(6.6, both=True))  # 轴孔
         return w.rotate((0, 0, 0), (1, 0, 0), 90)
 
-    # ── 4. 摇臂-转向架悬架 + 差速横杆 ──
+    # ── 4. 摇臂-转向架悬架(扁平摆臂, 端部带轴孔) + 差速横杆 ──
     wheels, links = [], []
     for s in (-1, 1):
         for wx in WHEEL_X:
             wheels.append(wheel_unit().translate((wx, s * WY, 0)))
-        pivot = (2, s * (BW / 2), 12)                      # 摇臂枢轴
+        pivot = (2, s * (BW / 2), 12)                      # 车身枢轴
         front = (WHEEL_X[0], s * WY, 0)
-        bogie = (9, s * WY, 2.5)                           # 转向架支点
-        links.append(strut(pivot, front, 1.8, 1.6))        # 摇臂→前轮
-        links.append(strut(pivot, bogie, 1.8, 1.6))        # 摇臂→转向架
-        links.append(strut(bogie, (WHEEL_X[1], s * WY, 0), 1.4, 1.2))
-        links.append(strut(bogie, (WHEEL_X[2], s * WY, 0), 1.4, 1.2))
-        for p in (pivot, front, bogie):                    # 关节销
-            links.append(cq.Workplane("XY").circle(2.2).extrude(2.4, both=True)
+        mid = (WHEEL_X[1], s * WY, 0)
+        rear = (WHEEL_X[2], s * WY, 0)
+        bogie = (9, s * WY, 3.0)                           # 转向架支点
+        links.append(flat_link(pivot, front, 3.8, 1.9))    # 摇臂前臂
+        links.append(flat_link(pivot, bogie, 3.8, 1.9))    # 摇臂后臂
+        links.append(flat_link(bogie, mid, 3.2, 1.7))      # 转向架前臂
+        links.append(flat_link(bogie, rear, 3.2, 1.7))     # 转向架后臂
+        for p in (pivot, bogie):                           # 关节销
+            links.append(cq.Workplane("XY").circle(2.2).extrude(1.1, both=True)
                          .rotate((0, 0, 0), (1, 0, 0), 90).translate(p))
-        links.append(post(1.2, 12).translate((2, s * (BW / 2), 12)))
+        links.append(cq.Workplane("XY").workplane(offset=7)  # 车身侧面摇臂支座
+                     .box(6, 1.8, 10).translate((pivot[0], s * (BW / 2), 0)))
     links.append(strut((2, -BW / 2, 23.5), (2, BW / 2, 23.5), 1.1))  # 差速横杆
 
     # ── 5. 桅杆 + 双目相机 ──
