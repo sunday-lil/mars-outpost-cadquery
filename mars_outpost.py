@@ -523,8 +523,8 @@ def build_rover():
                 cq.Workplane("XY").box(9, 1.0, 1.4)
                 .translate((-16 + k * 5, s * (BW / 2 + 0.7), 9)))
         chassis = chassis.union(                            # 摇臂支座(与车身同一实体)
-            cq.Workplane("XY").workplane(offset=7)
-            .box(6, 1.8, 10).translate((2, s * (BW / 2 + 0.9), 0)))
+            cq.Workplane("XY").workplane(offset=7)          # 外表面与摆臂内表面齐平,
+            .box(6, 1.3, 10).translate((2, s * (BW / 2), 0)))  # 不再从摆臂里穿出来
 
     # ── 2. 太阳能帆板(两片, 带支座) ──
     panels = []
@@ -569,13 +569,16 @@ def build_rover():
         mid = (WHEEL_X[1], link_y, 0)
         rear = (WHEEL_X[2], link_y, 0)
         bogie = (9, link_y, 3.0)                           # 转向架支点(与摆臂同一平面)
-        links.append(flat_link(pivot, front, 3.8, 1.9))    # 摇臂前臂
-        links.append(flat_link(pivot, bogie, 3.8, 1.9))    # 摇臂后臂
-        links.append(flat_link(bogie, mid, 3.2, 1.7))      # 转向架前臂
-        links.append(flat_link(bogie, rear, 3.2, 1.7))     # 转向架后臂
-        for p in (pivot, bogie):                           # 关节销
-            links.append(cq.Workplane("XY").circle(2.2).extrude(1.1, both=True)
-                         .rotate((0, 0, 0), (1, 0, 0), 90).translate(p))
+        # 每侧悬架并成一个实体: 四块摆臂在关节处本来就重叠, 分成独立实体
+        # 会在重合面上闪烁(渲染成一块发白的"瘤"), union 后就干净了
+        side = flat_link(pivot, front, 3.8, 1.9)              # 摇臂前臂
+        side = side.union(flat_link(pivot, bogie, 3.8, 1.9))  # 摇臂后臂
+        side = side.union(flat_link(bogie, mid, 3.2, 1.7))    # 转向架前臂
+        side = side.union(flat_link(bogie, rear, 3.2, 1.7))   # 转向架后臂
+        for p in (pivot, bogie):                              # 关节销
+            side = side.union(cq.Workplane("XY").circle(2.2).extrude(1.1, both=True)
+                              .rotate((0, 0, 0), (1, 0, 0), 90).translate(p))
+        links.append(side)
     links.append(strut((2, -BW / 2, 23.5), (2, BW / 2, 23.5), 1.1))  # 差速横杆
 
     # ── 5. 桅杆 + 双目相机 ──
