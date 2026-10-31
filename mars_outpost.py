@@ -554,11 +554,17 @@ def build_rover():
     for s in (-1, 1):
         for wx in WHEEL_X:
             wheels.append(wheel_unit().translate((wx, s * WY, 0)))
+            # 轮轴: 穿过摆臂端孔与轮毂轴孔, 轮子靠它转(摆臂不碰轮)
+            wheels.append(cq.Workplane("XY").circle(1.2).extrude(7.4, both=True)
+                          .rotate((0, 0, 0), (1, 0, 0), 90)
+                          .translate((wx, s * (WY - 1.1), 0)))
         pivot = (2, s * (BW / 2), 12)                      # 车身枢轴
-        front = (WHEEL_X[0], s * WY, 0)
-        mid = (WHEEL_X[1], s * WY, 0)
-        rear = (WHEEL_X[2], s * WY, 0)
-        bogie = (9, s * WY, 3.0)                           # 转向架支点
+        # 摆臂端头停在轮子内侧(轮宽 5 → 内侧面在 WY-2.5), 不插进轮里
+        link_y = s * (WY - 4.8)
+        front = (WHEEL_X[0], link_y, 0)
+        mid = (WHEEL_X[1], link_y, 0)
+        rear = (WHEEL_X[2], link_y, 0)
+        bogie = (9, link_y, 3.0)                           # 转向架支点(与摆臂同一平面)
         links.append(flat_link(pivot, front, 3.8, 1.9))    # 摇臂前臂
         links.append(flat_link(pivot, bogie, 3.8, 1.9))    # 摇臂后臂
         links.append(flat_link(bogie, mid, 3.2, 1.7))      # 转向架前臂
