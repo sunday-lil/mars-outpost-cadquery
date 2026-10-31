@@ -128,6 +128,9 @@ MATERIALS = {
     "塔架":       {"color": (0.55, 0.57, 0.60), "metal": 0.70, "rough": 0.50},
     "火星车体":   {"color": (0.90, 0.88, 0.84), "metal": 0.30, "rough": 0.40},
     "车轮":       {"color": (0.25, 0.25, 0.27), "metal": 0.20, "rough": 0.80},
+    "机械臂":     {"color": (0.82, 0.84, 0.86), "metal": 0.85, "rough": 0.28},
+    "车顶帆板":   {"color": (0.07, 0.14, 0.45), "metal": 0.40, "rough": 0.15},
+    "相机镜片":   {"color": (0.15, 0.35, 0.55), "metal": 0.30, "rough": 0.08},
     "着陆平台":   {"color": (0.45, 0.47, 0.50), "metal": 0.50, "rough": 0.60},
     "返回火箭":   {"color": (0.85, 0.87, 0.90), "metal": 0.85, "rough": 0.20},
     "发动机喷管": {"color": (0.35, 0.33, 0.30), "metal": 0.95, "rough": 0.30},
@@ -470,41 +473,127 @@ def build_tower():
 
 
 def build_rover():
-    """火星车: 车身+双目桅杆+机械臂 + 摇臂悬架 + 每侧三轮(轮心共面)。"""
-    # 局部坐标: 轮心所在平面 z=0(轮半径 9 → 整体抬高 BASE_H+9 后贴地)
-    body = (
-        cq.Workplane("XY").box(46, 62, 14).edges("|Z").fillet(6)
-        .faces(">Z").workplane(centerOption="CenterOfBoundBox")
-        .box(40, 56, 3).translate((0, 0, 2))            # 太阳能甲板 z~-3..11
-    )
-    mast = post(1.8, 26).translate((0, -22, 11))        # 桅杆 z 11~37
-    cam = cq.Workplane("XY").workplane(offset=37).center(0, -22).box(10, 6, 7)
-    arm = (cq.Workplane("XZ").center(20, 0).circle(1.5).extrude(16)
-           .rotate((0, 0, 0), (0, 0, 1), 40).translate((12, 18, 6)))
-    chassis = body.union(mast).union(cam.val()).union(arm)
+    """火星车: 摇臂-转向架悬架 + 六轮抓地齿 + 桅杆双目 + 五自由度采样机械臂。
 
+    局部坐标: 轮心平面 z=0(整体抬高 BASE_H+R_W 后贴地); +X 车头, +Y 车右。
+    机械臂摆成"伸向地面取样"的姿态(不折叠), 关节外露, 便于看清自由度。
+    """
+    BL, BW, BH = 56, 40, 15           # 车身长 / 宽 / 高
+    WHEEL_X = (-18, 0, 18)            # 前 / 中 / 后 轮位(纵向)
+    WY = BW / 2 + 6                   # 轮距半宽
+    R_W = 9                           # 车轮半径
+
+    # ── 1. 车身: 圆角箱体 + 顶甲板 + 前保险杠 + 侧裙板 + 散热栅 ──
+    chassis = (cq.Workplane("XY").box(BL, BW, BH)
+               .edges("|Z").fillet(5).translate((0, 0, 12)))
+    chassis = chassis.union(
+        cq.Workplane("XY").workplane(offset=18.5).box(BL - 6, BW - 4, 2.2))
+    chassis = chassis.union(
+        cq.Workplane("XY").workplane(offset=8).box(4, BW - 10, 7)
+        .translate((BL / 2 + 1, 0, 0)))                    # 前保险杠
+    for s in (-1, 1):
+        chassis = chassis.union(
+            cq.Workplane("XY").box(BL - 16, 1.4, BH - 5)
+            .translate((-2, s * BW / 2, 12)))              # 侧裙板
+        for k in range(3):                                  # 侧散热栅条
+            chassis = chassis.union(
+                cq.Workplane("XY").box(9, 1.0, 1.4)
+                .translate((-8 + k * 5, s * (BW / 2 + 0.7), 9)))
+
+    # ── 2. 太阳能帆板(两片, 带支座) ──
+    panels = []
+    for s in (-1, 1):
+        panels.append(cq.Workplane("XY").workplane(offset=21.0)
+                      .box(19, 14, 0.9).translate((-2, s * 8.5, 0)))
+        chassis = chassis.union(
+            cq.Workplane("XY").workplane(offset=19.9).box(3, 3, 1.4)
+            .translate((-2, s * 8.5, 0)))
+
+    # ── 3. 车轮: 轮胎 + 轮辋槽 + 轮毂 + 12 抓地齿 + 6 颗轮毂螺栓 ──
     def wheel_unit():
-        """单轮: 轮心在原点, 轴线沿 Y(转动 90° 后)。"""
-        w = (cq.Workplane("XY").circle(9).extrude(3.5, both=True)
-             .union(cq.Workplane("XY").circle(3.5).extrude(5, both=True))
-             .union(cq.Workplane("XY").circle(9.5).circle(8).extrude(1, both=True)))
-        for k in range(12):                              # 12 条抓地齿
-            w = w.union(cq.Workplane("XY").box(3.5, 2.5, 15)
-                        .translate((8.2, 0, 0))
+        w = (cq.Workplane("XY").circle(R_W).extrude(5, both=True)
+             .union(cq.Workplane("XY").circle(R_W - 1.6).circle(R_W - 3.0)
+                    .extrude(5.2, both=True))
+             .union(cq.Workplane("XY").circle(3.2).extrude(6.0, both=True)))
+        for k in range(12):                                # 抓地齿
+            w = w.union(cq.Workplane("XY").box(2.2, 1.2, 4.8)
+                        .translate((R_W - 1.1, 0, 0))
                         .rotate((0, 0, 0), (0, 0, 1), k * 30))
+        for k in range(6):                                 # 轮毂螺栓
+            a = math.radians(k * 60)
+            w = w.union(cq.Workplane("XY").circle(0.7).extrude(6.2, both=True)
+                        .translate((1.9 * math.cos(a), 1.9 * math.sin(a), 0)))
         return w.rotate((0, 0, 0), (1, 0, 0), 90)
 
-    wheels, rods = [], []
-    for side in (-1, 1):                                 # 左右对称
-        for wx in (-21, 0, 21):                          # 前中后三轮
-            wy = side * 38
-            wheels.append(wheel_unit().translate((wx, wy, 0)))
-            rods.append(strut((0, side * 28, 8), (wx, wy, 5), 1.6))
+    # ── 4. 摇臂-转向架悬架 + 差速横杆 ──
+    wheels, links = [], []
+    for s in (-1, 1):
+        for wx in WHEEL_X:
+            wheels.append(wheel_unit().translate((wx, s * WY, 0)))
+        pivot = (2, s * (BW / 2), 12)                      # 摇臂枢轴
+        front = (WHEEL_X[0], s * WY, 0)
+        bogie = (9, s * WY, 2.5)                           # 转向架支点
+        links.append(strut(pivot, front, 1.8, 1.6))        # 摇臂→前轮
+        links.append(strut(pivot, bogie, 1.8, 1.6))        # 摇臂→转向架
+        links.append(strut(bogie, (WHEEL_X[1], s * WY, 0), 1.4, 1.2))
+        links.append(strut(bogie, (WHEEL_X[2], s * WY, 0), 1.4, 1.2))
+        for p in (pivot, front, bogie):                    # 关节销
+            links.append(cq.Workplane("XY").circle(2.2).extrude(2.4, both=True)
+                         .rotate((0, 0, 0), (1, 0, 0), 90).translate(p))
+        links.append(post(1.2, 12).translate((2, s * (BW / 2), 12)))
+    links.append(strut((2, -BW / 2, 23.5), (2, BW / 2, 23.5), 1.1))  # 差速横杆
+
+    # ── 5. 桅杆 + 双目相机 ──
+    mast = (post(1.6, 20).translate((14, -11, 19.5))
+            .union(post(1.1, 8).translate((14, -11, 39.5))))
+    head = cq.Workplane("XY").workplane(offset=47.5).box(7, 5.5, 4.5).translate((14, -11, 0))
+    lenses = []
+    for dy in (-1.3, 1.3):
+        lenses.append(cq.Workplane("XY").circle(1.3).extrude(3)
+                      .rotate((0, 0, 0), (0, 1, 0), 90)
+                      .translate((14 + 1.5, -11 + dy, 47.5)))
+
+    # ── 6. 高增益天线 + 样品缓存架 ──
+    hga_post = post(1.1, 8).translate((-14, 11, 19.5))
+    hga = (post(6.5, 1.2).rotate((0, 0, 0), (1, 0, 0), 35)
+           .translate((-14, 11, 27)))
+    cache = cq.Workplane("XY").workplane(offset=20).box(7, 16, 4).translate((-24, 0, 0))
+    for i in range(5):
+        cache = cache.union(post(1.0, 6).translate((-24, -8 + i * 4, 21)))
+
+    # ── 7. 五自由度采样机械臂: 转台 → 肩 → 肘 → 腕 → 三指夹爪 ──
+    def pin(p, r, w):
+        return (cq.Workplane("XY").circle(r).extrude(w, both=True)
+                .rotate((0, 0, 0), (1, 0, 0), 90).translate(p))
+
+    P0 = (24, 9, 21)      # J1 转台(绕 Z)
+    P1 = (31, 9, 30)      # J2 肩(绕 Y)
+    P2 = (41, 9, 21)      # J3 肘(绕 Y)
+    P3 = (47, 9, 6)       # J4 腕(绕 Y), 夹爪朝下伸向地面
+    arm = post(4.2, 5).translate((P0[0], P0[1], P0[2] - 2.5))
+    arm = arm.union(strut(P0, P1, 3.0, 2.4))
+    arm = arm.union(pin(P1, 3.2, 6.4))
+    arm = arm.union(strut(P1, P2, 2.4, 2.0))
+    arm = arm.union(pin(P2, 2.7, 5.2))
+    arm = arm.union(strut(P2, P3, 2.0, 1.7))
+    arm = arm.union(pin(P3, 2.2, 4.2))
+    grip = (cq.Workplane("XY").workplane(offset=P3[2] - 3.2)
+            .box(6, 6, 2.4).translate((P3[0], P3[1], 0)))
+    for k in range(3):                                     # 三指夹爪
+        f = (cq.Workplane("XY").box(2.0, 1.5, 7.5)
+             .translate((2.4, 0, -5.0))
+             .rotate((0, 0, 0), (0, 0, 1), k * 120))
+        grip = grip.union(f.translate((P3[0], P3[1], P3[2] - 3.0)))
+    arm = arm.union(grip)
+
     dx, dy = POS_ROVER
-    pos = (dx, dy, BASE_H + 9)
+    pos = (dx, dy, BASE_H + R_W)
     return [
-        ("火星车体", compound_of([chassis] + rods).translate(pos)),
-        ("车轮", compound_of(wheels).translate(pos)),
+        ("火星车体", compound_of([chassis, mast, head, hga_post, hga, cache]).translate(pos)),
+        ("车轮", compound_of(wheels + links).translate(pos)),
+        ("车顶帆板", compound_of(panels).translate(pos)),
+        ("相机镜片", compound_of(lenses).translate(pos)),
+        ("机械臂", arm.translate(pos)),
     ]
 
 
