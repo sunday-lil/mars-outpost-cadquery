@@ -343,7 +343,7 @@ def build_dome():
         for tdeg in range(4, 90, 7):                     # 顶→边 13 颗球
             t = math.radians(tdeg)
             x = DOME_R * 1.01 * math.sin(t)
-            z = DOME_H * 1.01 * math.cos(t) + 2          # 紧贴壳外表面
+            z = DOME_H * 1.01 * math.cos(t) + 0.9        # 埋进壳外表面
             px, py = x * math.cos(a), x * math.sin(a)
             if any((px - wx) ** 2 + (py - wy) ** 2 + (z - wz) ** 2 < 8.5 ** 2
                    for wx, wy, wz in win_bases):
@@ -581,6 +581,8 @@ def build_rover():
             side = side.union(cq.Workplane("XY").circle(pr).extrude(1.2, both=True)
                               .rotate((0, 0, 0), (1, 0, 0), 90).translate(p))
         links.append(side)
+    for s in (-1, 1):                                    # 横杆支柱(接到车身)
+        links.append(post(1.3, 5).translate((2, s * (BW / 2 - 1), 19)))
     links.append(strut((2, -BW / 2, 23.5), (2, BW / 2, 23.5), 1.1))  # 差速横杆
 
     # ── 5. 桅杆 + 双目相机 ──
@@ -679,6 +681,10 @@ def build_rocket():
         .extrude(3).translate((0, 0, grill_h - 3)))
     # 散热格栅环绕火箭下段
     grill_sleeve = grill_sleeve.translate((0, 0, 20))
+    # 与喷管之间的过渡环: 套筒内壁 r=30, 喷管口 r=18, 不接环中间就是悬空的
+    grill_sleeve = grill_sleeve.union(
+        cq.Workplane("XY").workplane(offset=grill_h + 14)
+        .circle(grill_inner_r + 1.5).circle(ION_BODY_R * 0.3).extrude(6))
 
     # 收敛-扩张离子加速器喷管(旋转体)
     nozzle_profile = [
