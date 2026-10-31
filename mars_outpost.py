@@ -575,8 +575,10 @@ def build_rover():
         side = side.union(flat_link(pivot, bogie, 3.8, 1.9))  # 摇臂后臂
         side = side.union(flat_link(bogie, mid, 3.2, 1.7))    # 转向架前臂
         side = side.union(flat_link(bogie, rear, 3.2, 1.7))   # 转向架后臂
-        for p in (pivot, bogie):                              # 关节销
-            side = side.union(cq.Workplane("XY").circle(2.2).extrude(1.1, both=True)
+        # 关节销: 转向架支点用大直径凸台, 把两条摆臂之间的 V 形缝填满,
+        # 否则缝里会露出车身底板的白色, 随视角变化看着像渲染 bug
+        for p, pr in ((pivot, 2.6), (bogie, 3.4)):
+            side = side.union(cq.Workplane("XY").circle(pr).extrude(1.2, both=True)
                               .rotate((0, 0, 0), (1, 0, 0), 90).translate(p))
         links.append(side)
     links.append(strut((2, -BW / 2, 23.5), (2, BW / 2, 23.5), 1.1))  # 差速横杆
