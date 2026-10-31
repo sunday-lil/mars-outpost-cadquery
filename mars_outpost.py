@@ -117,23 +117,23 @@ POS_SOLAR = (-156, -190)
 MATERIALS = {
     "火星地形":   {"color": (0.72, 0.35, 0.22), "metal": 0.00, "rough": 0.95},
     "火星岩石":   {"color": (0.32, 0.17, 0.11), "metal": 0.00, "rough": 0.90},
-    "居住穹顶":   {"color": (0.95, 0.95, 0.93), "metal": 0.05, "rough": 0.25},
-    "穹顶肋":     {"color": (0.75, 0.77, 0.80), "metal": 0.60, "rough": 0.40},
+    "居住穹顶":   {"color": (0.95, 0.95, 0.93), "metal": 0.05, "rough": 0.45},
+    "穹顶肋":     {"color": (0.72, 0.74, 0.77), "metal": 0.45, "rough": 0.52},
     "观察舷窗":   {"color": (0.15, 0.35, 0.55), "metal": 0.30, "rough": 0.08},
     "顶部信标":   {"color": (1.00, 0.08, 0.05), "metal": 0.00, "rough": 0.20,
                    "emissive": (1.0, 0.05, 0.02)},
-    "科研实验舱": {"color": (0.82, 0.84, 0.87), "metal": 0.80, "rough": 0.30},
+    "科研实验舱": {"color": (0.82, 0.84, 0.87), "metal": 0.70, "rough": 0.42},
     "加压廊道":   {"color": (0.60, 0.62, 0.65), "metal": 0.50, "rough": 0.45},
     "太阳能板":   {"color": (0.07, 0.14, 0.45), "metal": 0.40, "rough": 0.15},
     "能源边框":   {"color": (0.85, 0.62, 0.18), "metal": 0.90, "rough": 0.35},
     "塔架":       {"color": (0.55, 0.57, 0.60), "metal": 0.70, "rough": 0.50},
-    "火星车体":   {"color": (0.90, 0.88, 0.84), "metal": 0.30, "rough": 0.40},
+    "火星车体":   {"color": (0.90, 0.88, 0.84), "metal": 0.22, "rough": 0.55},
     "车轮":       {"color": (0.25, 0.25, 0.27), "metal": 0.20, "rough": 0.80},
-    "机械臂":     {"color": (0.82, 0.84, 0.86), "metal": 0.85, "rough": 0.28},
+    "机械臂":     {"color": (0.80, 0.82, 0.84), "metal": 0.55, "rough": 0.50},
     "车顶帆板":   {"color": (0.07, 0.14, 0.45), "metal": 0.40, "rough": 0.15},
     "相机镜片":   {"color": (0.15, 0.35, 0.55), "metal": 0.30, "rough": 0.08},
     "着陆平台":   {"color": (0.45, 0.47, 0.50), "metal": 0.50, "rough": 0.60},
-    "返回火箭":   {"color": (0.85, 0.87, 0.90), "metal": 0.85, "rough": 0.20},
+    "返回火箭":   {"color": (0.85, 0.87, 0.90), "metal": 0.80, "rough": 0.32},
     "发动机喷管": {"color": (0.35, 0.33, 0.30), "metal": 0.95, "rough": 0.30},
     "气象站":     {"color": (0.93, 0.93, 0.91), "metal": 0.20, "rough": 0.40},
     # 离子推进器(集成于火箭动力段)
@@ -1030,7 +1030,7 @@ def _fbm(x, y, octaves=4, seed=0):
     return val / 1.875
 
 
-def gen_texture_mars_ground(size=64):
+def gen_texture_mars_ground(size=96):
     """火星地表纹理: 橙红基底 + 暗斑噪纹 + 细微颗粒。"""
     px = []
     for y in range(size):
@@ -1046,7 +1046,7 @@ def gen_texture_mars_ground(size=64):
     return _png_encode(px, size, size)
 
 
-def gen_texture_metal_panel(size=64):
+def gen_texture_metal_panel(size=96):
     """金属面板纹理: 灰色基底 + 拉丝纹路 + 铆钉点阵。"""
     px = []
     for y in range(size):
@@ -1066,7 +1066,7 @@ def gen_texture_metal_panel(size=64):
     return _png_encode(px, size, size)
 
 
-def gen_texture_solar_panel(size=64):
+def gen_texture_solar_panel(size=96):
     """太阳能板纹理: 深蓝基底 + 网格线 + 高光反光。"""
     px = []
     for y in range(size):
@@ -1083,7 +1083,7 @@ def gen_texture_solar_panel(size=64):
     return _png_encode(px, size, size)
 
 
-def gen_texture_rocket_hull(size=64):
+def gen_texture_rocket_hull(size=96):
     """火箭壳体纹理: 白色基底 + 红色条纹 + 标识区。"""
     px = []
     for y in range(size):
@@ -1102,7 +1102,7 @@ def gen_texture_rocket_hull(size=64):
     return _png_encode(px, size, size)
 
 
-def gen_texture_dish_reflector(size=64):
+def gen_texture_dish_reflector(size=96):
     """抛物面反射器纹理: 银白基底 + 同心圆纹路。"""
     px = []
     cx = cy = size / 2
@@ -1117,7 +1117,7 @@ def gen_texture_dish_reflector(size=64):
     return _png_encode(px, size, size)
 
 
-def gen_texture_dirt_path(size=64):
+def gen_texture_dirt_path(size=96):
     """压痕路径纹理: 深红泥土 + 车辙痕迹。"""
     px = []
     for y in range(size):
@@ -1136,16 +1136,16 @@ def gen_texture_dirt_path(size=64):
     return _png_encode(px, size, size)
 
 
-def gen_texture_rover_body(size=64):
+def gen_texture_rover_body(size=96):
     """火星车车漆: 米白漆面 + 面板分缝 + 铆钉 + 火星沙尘。"""
     px = []
     for y in range(size):
         for x in range(size):
             base = 224 + _fbm(x / size * 5, y / size * 5, 3, seed=21) * 22
-            if x % 16 < 1 or y % 16 < 1:                     # 面板分缝
-                base -= 40
+            if x % 16 < 1 or y % 16 < 1:                     # 面板分缝(很淡)
+                base -= 9
             if x % 16 in (4, 12) and y % 16 in (4, 12):      # 铆钉
-                base -= 28
+                base -= 6
             dust = min(max(0.0, _fbm(x / size * 3, y / size * 3, 2, seed=34) - 0.58) * 2.6, 1.0)
             r = int(base * (1 - dust) + 176 * dust)
             g = int(base * (1 - dust) + 112 * dust)
@@ -1155,7 +1155,7 @@ def gen_texture_rover_body(size=64):
     return _png_encode(px, size, size)
 
 
-def gen_texture_rover_wheel(size=64):
+def gen_texture_rover_wheel(size=96):
     """车轮: 深灰胎面 + 环向胎纹 + 沙尘。"""
     px = []
     for y in range(size):
@@ -1172,7 +1172,7 @@ def gen_texture_rover_wheel(size=64):
     return _png_encode(px, size, size)
 
 
-def gen_texture_brushed_metal(size=64):
+def gen_texture_brushed_metal(size=96):
     """机械臂: 拉丝铝(单向细纹) + 轻微划痕。"""
     px = []
     for y in range(size):
@@ -1182,6 +1182,104 @@ def gen_texture_brushed_metal(size=64):
                  + _fbm(x / size * 3, y / size * 3, 2, seed=52) * 10)
             v = int(max(120, min(225, v)))
             px.append((v, min(255, v + 3), min(255, v + 6), 255))
+    return _png_encode(px, size, size)
+
+
+
+def gen_texture_dome_skin(size=96):
+    """穹顶蒙皮: 米白陶瓷板 + 微弱分缝 + 底部沙尘。"""
+    px = []
+    for y in range(size):
+        for x in range(size):
+            n = _fbm(x / size * 5, y / size * 5, 3, seed=61)
+            base = 226 + n * 24
+            if x % 24 < 1 or y % 24 < 1:                     # 板缝(很淡)
+                base -= 7
+            if (x % 24 == 6 or x % 24 == 18) and (y % 24 == 6 or y % 24 == 18):
+                base -= 5                                    # 铆钉
+            dust = min(max(0.0, _fbm(x / size * 3, y / size * 3, 2, seed=62) - 0.62) * 2.2, 1.0)
+            r = int(base * (1 - dust) + 186 * dust)
+            g = int(base * (1 - dust) + 132 * dust)
+            b = int(base * (1 - dust) + 96 * dust)
+            px.append((max(0, min(255, r)), max(0, min(255, g)),
+                       max(0, min(255, b)), 255))
+    return _png_encode(px, size, size)
+
+
+def gen_texture_glass(size=96):
+    """舷窗/镜片: 深蓝玻璃 + 斜向反光带 + 细划痕。"""
+    px = []
+    for y in range(size):
+        for x in range(size):
+            base = 46 + _fbm(x / size * 4, y / size * 4, 2, seed=71) * 26
+            band = max(0.0, 1.0 - abs((x * 0.8 + y * 0.6) % 44 - 22) / 9.0)
+            r = int(base * 0.5 + band * 90)
+            g = int(base * 0.9 + band * 120)
+            b = int(base * 1.6 + band * 150)
+            if _hash_noise(x // 2, y // 9, 72) > 0.93:        # 细划痕
+                r += 30; g += 30; b += 30
+            px.append((max(0, min(255, r)), max(0, min(255, g)),
+                       max(0, min(255, b)), 255))
+    return _png_encode(px, size, size)
+
+
+def gen_texture_gold(size=96):
+    """能源边框: 阳极氧化金 + 细拉丝 + 局部磨损。"""
+    px = []
+    for y in range(size):
+        for x in range(size):
+            v = 0.82 + _hash_noise(x // 3, y, 81) * 0.16
+            wear = max(0.0, _fbm(x / size * 5, y / size * 5, 2, seed=82) - 0.66) * 2.4
+            wear = min(wear, 1.0)
+            r = int(216 * v * (1 - wear) + 240 * wear)
+            g = int(158 * v * (1 - wear) + 238 * wear)
+            b = int(44 * v * (1 - wear) + 232 * wear)
+            px.append((max(0, min(255, r)), max(0, min(255, g)),
+                       max(0, min(255, b)), 255))
+    return _png_encode(px, size, size)
+
+
+def gen_texture_heat_metal(size=96):
+    """喷管: 烧蚀过的深色金属 + 热变色(蓝/琥珀)环带。"""
+    px = []
+    for y in range(size):
+        for x in range(size):
+            n = _fbm(x / size * 6, y / size * 6, 3, seed=91)
+            base = 58 + n * 34
+            band = math.sin(y / size * 9.0) * 0.5 + 0.5     # 环向热变色
+            r = int(base + band * 46)
+            g = int(base * 0.92 + band * 20)
+            b = int(base * 0.85 + (1 - band) * 54)
+            if _hash_noise(x // 4, y // 4, 92) > 0.95:        # 烧蚀斑点
+                r -= 16; g -= 14; b -= 12
+            px.append((max(0, min(255, r)), max(0, min(255, g)),
+                       max(0, min(255, b)), 255))
+    return _png_encode(px, size, size)
+
+
+def gen_texture_beacon(size=96):
+    """信标灯罩: 红色透光罩 + 中心高光。"""
+    px = []
+    for y in range(size):
+        for x in range(size):
+            d = math.hypot(x - size / 2, y - size / 2) / (size * 0.5)
+            glow = max(0.0, 1.0 - d) ** 2
+            r = int(200 + glow * 55)
+            g = int(26 + glow * 90)
+            b = int(18 + glow * 70)
+            px.append((max(0, min(255, r)), max(0, min(255, g)),
+                       max(0, min(255, b)), 255))
+    return _png_encode(px, size, size)
+
+
+def gen_rough(size=96, base=0.80, amp=0.30, seed=101):
+    """金属度/粗糙度贴图: G=粗糙度, B=金属度(1.0 保持材质设定)。"""
+    px = []
+    for y in range(size):
+        for x in range(size):
+            n = _fbm(x / size * 7, y / size * 7, 3, seed=seed)
+            g = int(max(30, min(255, (base + (n - 0.5) * amp) * 255)))
+            px.append((255, g, 255, 255))
     return _png_encode(px, size, size)
 
 
@@ -1204,37 +1302,44 @@ TEXTURE_MAP = {
     "车轮": gen_texture_rover_wheel,
     "机械臂": gen_texture_brushed_metal,
     "车顶帆板": gen_texture_solar_panel,
+    "居住穹顶": gen_texture_dome_skin,
+    "穹顶肋": gen_texture_brushed_metal,
+    "观察舷窗": gen_texture_glass,
+    "相机镜片": gen_texture_glass,
+    "顶部信标": gen_texture_beacon,
+    "能源边框": gen_texture_gold,
+    "发动机喷管": gen_texture_heat_metal,
+    "加速器喷管": gen_texture_heat_metal,
+    "气象站": gen_texture_rover_body,
+    "天线馈源臂": gen_texture_brushed_metal,
 }
 
 
 def gen_uv(verts, tris):
-    """生成 UV 坐标: 包围盒归一化投影。
+    """生成 UV: 按包围盒主轴投影, 两个轴用同一缩放(不拉长)。
 
-    计算整个网格的包围盒, 取最大跨度方向的两个轴作为 UV 投影面,
-    将坐标归一化到 [0,1] 区间。简单稳定, 保证所有顶点都有有效 UV。
+    早期版本对 U/V 各自归一化, 长条零件会被拉变形; 逐顶点平铺又会让
+    珠子/条纹这类小特征糊成噪点。折中: 投影面照旧, 但两轴共用一个
+    缩放系数(取最大跨度), 图案正好铺满零件一次且不变形。
     """
     if not verts:
         return []
-    # 包围盒
     min_x = min(v[0] for v in verts)
     max_x = max(v[0] for v in verts)
     min_y = min(v[1] for v in verts)
     max_y = max(v[1] for v in verts)
     min_z = min(v[2] for v in verts)
     max_z = max(v[2] for v in verts)
-    # 找最大跨度方向, 选另外两个轴做 UV
-    sx = max_x - min_x or 1e-6
-    sy = max_y - min_y or 1e-6
-    sz = max_z - min_z or 1e-6
-    if sx >= sy and sx >= sz:
-        # X 最大 → 用 YZ 投影
-        uvs = [[(v[1] - min_y) / sy, (v[2] - min_z) / sz] for v in verts]
-    elif sy >= sz:
-        # Y 最大 → 用 XZ 投影
-        uvs = [[(v[0] - min_x) / sx, (v[2] - min_z) / sz] for v in verts]
-    else:
-        # Z 最大 → 用 XY 投影
-        uvs = [[(v[0] - min_x) / sx, (v[1] - min_y) / sy] for v in verts]
+    sx = max(max_x - min_x, 1e-6)
+    sy = max(max_y - min_y, 1e-6)
+    sz = max(max_z - min_z, 1e-6)
+    s = 1.0 / max(sx, sy, sz)                 # 统一缩放: 最大跨度 = 1 张贴图
+    if sx >= sy and sx >= sz:                 # X 最大 → YZ 投影
+        uvs = [[(v[1] - min_y) * s, (v[2] - min_z) * s] for v in verts]
+    elif sy >= sz:                            # Y 最大 → XZ 投影
+        uvs = [[(v[0] - min_x) * s, (v[2] - min_z) * s] for v in verts]
+    else:                                     # Z 最大 → XY 投影
+        uvs = [[(v[0] - min_x) * s, (v[1] - min_y) * s] for v in verts]
     return uvs
 
 
@@ -1341,6 +1446,30 @@ def write_glb(assy, path):
         tex_pending[name] = (tex_idx, img_idx, gen_fn)
         return tex_idx
 
+    # 粗糙度贴图: 按材质类别共用 4 张, 打破高光"一片死白"的塑料感
+    ROUGH_KINDS = {
+        "metal":  lambda: gen_rough(base=0.62, amp=0.16, seed=111),
+        "paint":  lambda: gen_rough(base=0.85, amp=0.10, seed=112),
+        "ground": lambda: gen_rough(base=0.96, amp=0.06, seed=113),
+        "glass":  lambda: gen_rough(base=0.18, amp=0.06, seed=114),
+    }
+    rough_pending = {}
+
+    def get_roughness(kind):
+        """获取(或生成)粗糙度贴图索引。"""
+        if kind in rough_pending:
+            return rough_pending[kind][0]
+        sampler_idx = len(json_doc["samplers"])
+        json_doc["samplers"].append(
+            {"wrapS": 10497, "wrapT": 10497,
+             "magFilter": 9729, "minFilter": 9987})
+        img_idx = len(json_doc["images"])
+        json_doc["images"].append({"bufferView": -1, "mimeType": "image/png"})
+        tex_idx = len(json_doc["textures"])
+        json_doc["textures"].append({"source": img_idx, "sampler": sampler_idx})
+        rough_pending[kind] = (tex_idx, img_idx, ROUGH_KINDS[kind])
+        return tex_idx
+
     for i, (shape, name, loc, _c) in enumerate(assy):
         name = name.split("/")[-1]        # 去掉装配路径前缀, 只留零件名
         verts, tris = tessellate(shape.moved(loc))
@@ -1368,7 +1497,17 @@ def write_glb(assy, path):
                   "count": len(uvs), "type": "VEC2"}
         idx_acc = {"bufferView": i_view, "componentType": 5125,
                    "count": len(tris) * 3, "type": "SCALAR"}
-        json_doc["accessors"] += [pos_acc, nrm_acc, uv_acc, idx_acc]
+        # 顶点色: 越高越干净, 贴近地面混入火星尘(与贴图相乘, 不额外占纹理)
+        cols = []
+        for v in verts:
+            h = max(0.0, v[2] - BASE_H)
+            t = (max(0.0, 1.0 - h / 26.0) ** 1.7) * 0.42
+            cols.append((1.0 - 0.36 * t, 1.0 - 0.58 * t, 1.0 - 0.72 * t))
+        c_data = struct.pack("<%df" % (len(cols) * 3), *[c for col in cols for c in col])
+        c_view = add_view(c_data, 34962)
+        col_acc = {"bufferView": c_view, "componentType": 5126,
+                   "count": len(verts), "type": "VEC3"}
+        json_doc["accessors"] += [pos_acc, nrm_acc, uv_acc, col_acc, idx_acc]
         m = mat_of(name)
         emissive = m.get("emissive", (0, 0, 0))
         # ★ 有纹理时 baseColorFactor=白(1,1,1), 让纹理原色完整显示;
@@ -1381,15 +1520,23 @@ def write_glb(assy, path):
             "roughnessFactor": m["rough"]}
         if tex_idx is not None:
             pbr["baseColorTexture"] = {"index": tex_idx, "texCoord": 0}
+        # 粗糙度贴图: 金属件更粗糙多变, 地面最粗糙, 玻璃最光滑
+        rk = ("metal" if m["metal"] > 0.6 else
+              "ground" if m["rough"] > 0.55 else
+              "glass" if m["rough"] < 0.15 else "paint")
+        if not emissive or max(emissive) < 0.5:
+            pbr["metallicRoughnessTexture"] = {
+                "index": get_roughness(rk), "texCoord": 0}
         json_doc["materials"].append({
             "name": name,
             "pbrMetallicRoughness": pbr,
             "emissiveFactor": list(emissive),
             "doubleSided": True})
         json_doc["meshes"].append({"primitives": [{
-            "attributes": {"POSITION": len(json_doc["accessors"]) - 4,
-                           "NORMAL": len(json_doc["accessors"]) - 3,
-                           "TEXCOORD_0": len(json_doc["accessors"]) - 2},  # ★
+            "attributes": {"POSITION": len(json_doc["accessors"]) - 5,
+                           "NORMAL": len(json_doc["accessors"]) - 4,
+                           "TEXCOORD_0": len(json_doc["accessors"]) - 3,
+                           "COLOR_0": len(json_doc["accessors"]) - 2},
             "indices": len(json_doc["accessors"]) - 1,
             "material": i}]})
         json_doc["nodes"].append({"name": name, "mesh": i})
@@ -1398,12 +1545,13 @@ def write_glb(assy, path):
     # ── 所有几何数据写完后, 统一生成 PNG 纹理 ──
     # 使用 base64 data URI 内联(兼容性最佳, 所有 glTF 渲染器都支持)
     import base64
-    for _mat_name, (tex_idx, img_idx, gen_fn) in tex_pending.items():
-        png_bytes = gen_fn()
-        b64 = base64.b64encode(png_bytes).decode('ascii')
-        json_doc["images"][img_idx] = {
-            "uri": f"data:image/png;base64,{b64}",
-            "mimeType": "image/png"}
+    for _pending in (tex_pending, rough_pending):
+        for _key, (tex_idx, img_idx, gen_fn) in _pending.items():
+            png_bytes = gen_fn()
+            b64 = base64.b64encode(png_bytes).decode('ascii')
+            json_doc["images"][img_idx] = {
+                "uri": f"data:image/png;base64,{b64}",
+                "mimeType": "image/png"}
 
     json_doc["buffers"].append({"byteLength": len(blob)})
     while len(blob) % 4:
