@@ -185,6 +185,34 @@ def strut(p0, p1, r, r_end=None):
     )
 
 
+
+def flat_link_lattice(p0, p1, h=7.0, t=4.0, hole_d=2.8, margin=2.6, web=1.6):
+    """带减重窗的扁平连杆: 中间掏一个长圆孔, 只留边框(镂空减重)。
+
+    实心板 → slot2D 长圆孔 → 布尔差集, 外形和 flat_link 一致,
+    但中间是透空的, 才是真车那种"桁架钣金摆臂"。
+    """
+    dx, dy, dz = (p1[i] - p0[i] for i in range(3))
+    L = math.sqrt(dx * dx + dy * dy + dz * dz)
+    yaw = math.degrees(math.atan2(dy, dx))
+    tilt = -math.degrees(math.asin(max(-1.0, min(1.0, dz / L))))
+    bar = (cq.Workplane("XZ").rect(L, h).extrude(t / 2, both=True)
+           .edges("|Y").fillet(min(h, t) * 0.42)
+           .translate((L / 2, 0, 0)))
+    if hole_d:
+        bar = bar.cut(cq.Workplane("XZ").center(L - 2.4, 0)
+                      .circle(hole_d / 2).extrude(t * 2, both=True))
+    win_len = max(L - 2 * margin, 1.0)
+    win_wid = max(h - 2 * web, 0.8)
+    if win_len > win_wid * 1.2:
+        window = (cq.Workplane("XZ").slot2D(win_len, win_wid)
+                  .extrude(t * 2, both=True).translate((L / 2, 0, 0)))
+        bar = bar.cut(window)
+    return (bar.rotate((0, 0, 0), (0, 0, 1), yaw)
+            .rotate((0, 0, 0),
+                    (-math.sin(math.radians(yaw)), math.cos(math.radians(yaw)), 0), tilt)
+            .translate(p0))
+
 def post(r, h):
     """竖直圆柱快捷方式。"""
     return cq.Workplane("XY").circle(r).extrude(h)
@@ -496,86 +524,143 @@ def build_tower():
 
 
 
-def arm_ik(target_r, target_z, l1, l2, base_z=0.0):
-    """逆向定位(余弦定理): 已知目标平面距离与高度, 反求肩/肘两关节角。
+# ══════════════════════════════════════════════════════════════════
+#  车载采样机械臂 —— 与课程 4.py 一一对应
+#  4.py 用三个原子零件(基座/臂节/铲斗) + 正逆解装配; 这里同名同序重建,
+#  只把坐标轴换成火星车用的 +X 车头(4.py 用 +Y 为车头)。
+# ══════════════════════════════════════════════════════════════════
 
-    与课程 4.py 同一套推导:
-        dz   = target_z - base_z
-        dist = sqrt(R^2 + dz^2)
-        cosθ2 = (dist^2 - l1^2 - l2^2) / (2·l1·l2)
-        θ1   = atan2(dz, R) - atan2(l2·sinθ2, l1 + l2·cosθ2)
-    超出可达范围时把 cos 限幅到 ±1, 返回 reachable=False(不抛异常)。
+def create_arm_base():
+    """机械臂基座: 法兰盘 + 镂空立柱 + 一对耳板(对应 4.py 的 create_arm_base)。"""
+    base = cq.Workplane("XY").circle(5.6).extrude(1.6)               # 法兰
+    base = base.union(cq.Workplane("XY").circle(4.2).circle(1.8).extrude(5.0))  # 镂空立柱
+    for s in (-1, 1):                                                # 耳板
+        base = base.union(cq.Workplane("XY").box(3.2, 1.4, 4.2)
+                          .translate((-0.4, s * 2.6, 5.2)))
+    base = base.union(cq.Workplane("XY").circle(2.6).extrude(1.2)    # 顶盖
+                      .translate((0, 0, 6.0)))
+    return base
+
+
+def create_arm_segment(length, thickness=3.0, width=6.2, hole_d=2.0):
+    """机械臂节: 周边留窄边、中间开大长圆孔(对应 4.py 的 create_arm_segment)。
+
+    形状对齐资料截图: 薄板 + 两端半圆 + 一条几乎贯通的长圆孔 + 端部销孔。
+    """
+    seg = (cq.Workplane("XZ").rect(length, width).extrude(thickness / 2, both=True)
+           .edges("|Y").fillet(width * 0.48)
+           .translate((length / 2, 0, 0)))
+    for x in (1.7, length - 1.7):                                    # 两端销孔
+        seg = seg.cut(cq.Workplane("XZ").center(x, 0)
+                      .circle(hole_d / 2).extrude(thickness * 2, both=True))
+    win_len = max(length - 2.0 * 1.9, 1.0)                           # 中线大长圆孔
+    win_wid = max(width - 2.0 * 0.95, 0.8)
+    if win_len > win_wid * 1.1:
+        seg = seg.cut(cq.Workplane("XZ").slot2D(win_len, win_wid)
+                      .extrude(thickness * 2, both=True).translate((length / 2, 0, 0)))
+    return seg
+
+
+def create_sampling_claw(width=7.0):
+    """采样铲斗: 半圆槽 + 后挡板 + 刃口(对应 4.py 的 create_sampling_claw)。"""
+    trough = (cq.Workplane("XZ").circle(3.4).circle(2.7)
+              .extrude(width / 2, both=True))                        # 半圆管
+    trough = trough.cut(cq.Workplane("XY").box(12, 12, 8).translate((0, 0, 3.0)))  # 切出敞口
+    trough = trough.union(cq.Workplane("XY").box(1.2, width, 3.4).translate((0.0, 0, 1.9)))  # 后挡
+    trough = trough.union(cq.Workplane("XY").box(0.8, width, 1.2).translate((3.3, 0, -0.6)))  # 刃口
+    return trough
+
+
+def calculate_forward_kinematics(theta_yaw_deg=0.0, theta_pitch1_deg=30.0,
+                                 theta_pitch2_deg=-45.0, l1=25.0, l2=20.0,
+                                 base_pos=(0.0, 0.0, 0.0)):
+    """正向定位: 已知关节角 → 末端铲斗的三维坐标(与 4.py 的 FK 同式)。
+
+    1. 平面展长投影 r1 = l1·cosθ1, r2 = r1 + l2·cos(θ1+θ2)
+    2. 空间高度投影 z1 = bz + l1·sinθ1, z2 = z1 + l2·sin(θ1+θ2)
+    3. 方位角投影 X/Y
+    """
+    bx, by, bz = base_pos
+    t_yaw = math.radians(theta_yaw_deg)
+    t1 = math.radians(theta_pitch1_deg)
+    t12 = math.radians(theta_pitch1_deg + theta_pitch2_deg)
+    r1 = l1 * math.cos(t1)
+    x1 = bx + r1 * math.cos(t_yaw)
+    y1 = by + r1 * math.sin(t_yaw)
+    z1 = bz + l1 * math.sin(t1)
+    r2 = r1 + l2 * math.cos(t12)
+    x2 = bx + r2 * math.cos(t_yaw)
+    y2 = by + r2 * math.sin(t_yaw)
+    z2 = z1 + l2 * math.sin(t12)
+    return {"shoulder": (round(bx, 2), round(by, 2), round(bz, 2)),
+            "elbow": (round(x1, 2), round(y1, 2), round(z1, 2)),
+            "wrist": (round(x2, 2), round(y2, 2), round(z2, 2)),
+            "horizontal_reach": round(r2, 2)}
+
+
+def calculate_inverse_kinematics(target_r, target_z, l1=25.0, l2=20.0, base_z=0.0):
+    """逆向定位: 余弦定理反求 θ1/θ2(与 4.py 的 IK 同式)。
+
+    dz = target_z - base_z;  dist² = R² + dz²
+    cosθ2 = (dist² - l1² - l2²) / (2·l1·l2)
+    θ1 = atan2(dz, R) - atan2(l2·sinθ2, l1 + l2·cosθ2)
+    超出可达范围时限幅到 ±1 并返回 reachable=False, 不抛 math domain error。
     """
     dz = target_z - base_z
     dist_sq = target_r ** 2 + dz ** 2
     dist = math.sqrt(dist_sq)
     if dist > l1 + l2:
-        cos2, reachable = 1.0, False
+        cos_t2, reachable = 1.0, False
     elif dist < abs(l1 - l2):
-        cos2, reachable = -1.0, False
+        cos_t2, reachable = -1.0, False
     else:
-        cos2 = max(-1.0, min(1.0, (dist_sq - l1 * l1 - l2 * l2) / (2 * l1 * l2)))
+        cos_t2 = max(-1.0, min(1.0, (dist_sq - l1 * l1 - l2 * l2) / (2.0 * l1 * l2)))
         reachable = True
-    t2 = -math.acos(cos2)                       # 肘部向上弯(解的分支)
-    t1 = math.atan2(dz, target_r) - math.atan2(l2 * math.sin(t2),
-                                               l1 + l2 * math.cos(t2))
-    return math.degrees(t1), math.degrees(t2), reachable
+    theta_2_rad = -math.acos(cos_t2)                     # 肘部向上弯曲解
+    sin_t2 = math.sin(theta_2_rad)
+    alpha = math.atan2(dz, target_r)
+    beta = math.atan2(l2 * sin_t2, l1 + l2 * cos_t2)
+    theta_1_rad = alpha - beta
+    return (round(math.degrees(theta_1_rad), 2),
+            round(math.degrees(theta_2_rad), 2), reachable)
 
 
-def arm_fk(base, yaw_deg, t1_deg, t2_deg, l1, l2):
-    """正向定位: 已知关节角, 求肘/腕的空间坐标(与 4.py 的 FK 一致)。"""
-    bz = base[2]
-    yaw, t1 = math.radians(yaw_deg), math.radians(t1_deg)
-    t12 = math.radians(t1_deg + t2_deg)
-    r1 = l1 * math.cos(t1)
-    elbow = (base[0] + r1 * math.cos(yaw), base[1] + r1 * math.sin(yaw), bz + l1 * math.sin(t1))
-    r2 = r1 + l2 * math.cos(t12)
-    wrist = (base[0] + r2 * math.cos(yaw), base[1] + r2 * math.sin(yaw),
-             elbow[2] + l2 * math.sin(t12))
-    return elbow, wrist, r2
+def assemble_robotic_arm(target_r, target_z, l1=25.0, l2=20.0, pivot_z=0.0):
+    """按逆解角度把"基座 + 大臂 + 小臂 + 铲斗"铰接起来(对应 4.py 的 assemble_robotic_arm)。
 
-
-def build_arm(base, yaw_deg, t1_deg, t2_deg, l1=19.0, l2=15.0):
-    """机械臂: 转台基座 + 大臂 + 小臂 + 采样铲斗(参考课程 4.py 的装配顺序)。
-
-    结构对照 4.py: create_arm_base() → create_arm_segment(l1) →
-    create_arm_segment(l2) → create_sampling_claw(), 关节角由 arm_ik 给出。
+    与 4.py 同一顺序: 大臂绕枢轴转 t1 → 小臂在肘点转 t1+t2 → 铲斗在腕点同向。
+    本工程车头为 +X, 故绕 Y 轴俯仰(4.py 车头为 +Y, 绕 X 轴)。
     """
+    t1_deg, t2_deg, reachable = calculate_inverse_kinematics(
+        target_r, target_z, l1, l2, base_z=pivot_z)
+    t12_deg = t1_deg + t2_deg
+    t1_rad, t12_rad = math.radians(t1_deg), math.radians(t12_deg)
+
+    base = create_arm_base()
+    upper = (create_arm_segment(l1)
+             .rotate((0, 0, 0), (0, 1, 0), -t1_deg)
+             .translate((0, 0, pivot_z)))
+    elbow_y = l1 * math.cos(t1_rad)
+    elbow_z = pivot_z + l1 * math.sin(t1_rad)
+    forearm = (create_arm_segment(l2)
+               .rotate((0, 0, 0), (0, 1, 0), -t12_deg)
+               .translate((elbow_y, 0, elbow_z)))
+    wrist_y = elbow_y + l2 * math.cos(t12_rad)
+    wrist_z = elbow_z + l2 * math.sin(t12_rad)
+    claw = (create_sampling_claw()
+            .rotate((0, 0, 0), (0, 1, 0), -t12_deg)
+            .translate((wrist_y, 0, wrist_z)))
+
     def pin(p, r, w):
         return (cq.Workplane("XY").circle(r).extrude(w / 2, both=True)
                 .rotate((0, 0, 0), (1, 0, 0), 90).translate(p))
 
-    elbow, wrist, _ = arm_fk(base, yaw_deg, t1_deg, t2_deg, l1, l2)
-    t12 = t1_deg + t2_deg
-    bx, by, bz = base
-
-    # ① 基座: 转台圆盘 + 肩部销轴(4.py 的 create_arm_base)
-    arm = (cq.Workplane("XY").circle(5.0).extrude(5.0)
-           .translate((bx, by, bz - 5.0)))
-    arm = arm.union(cq.Workplane("XY").circle(4.2).extrude(1.6).translate((bx, by, bz - 5.0)))
-    arm = arm.union(pin((bx, by, bz), 2.8, 7.0))
-
-    # ② 大臂 / 小臂: 矩形截面的板件, 两端销孔(4.py 的 create_arm_segment)
-    arm = arm.union(flat_link(base, elbow, 7.0, 4.2, 2.8))
-    arm = arm.union(pin(elbow, 2.8, 6.0))
-    arm = arm.union(flat_link(elbow, wrist, 6.0, 3.6, 2.4))
-    arm = arm.union(pin(wrist, 2.4, 5.0))
-
-    # ③ 采样铲斗: 半圆槽 + 两侧挡板 + 刃口(4.py 的 create_sampling_claw)
-    scoop = (cq.Workplane("XY").box(9.0, 7.0, 4.6)
-             .cut(cq.Workplane("XZ").circle(3.2).extrude(9.0, both=True)
-                  .translate((0, 0, 2.4))))
-    lip = cq.Workplane("XY").box(1.4, 7.0, 4.6).translate((4.2, 0, 0))
-    scoop = scoop.union(lip)
-    back = cq.Workplane("XY").box(1.6, 7.0, 4.6).translate((-4.2, 0, 0))
-    scoop = scoop.union(back)
-    scoop = scoop.rotate((0, 0, 0), (1, 0, 0), -90)        # 铲斗口朝下
-    scoop = scoop.rotate((0, 0, 0), (0, 0, 1), yaw_deg)
-    scoop = scoop.rotate((0, 0, 0),
-                         (math.cos(math.radians(yaw_deg)), math.sin(math.radians(yaw_deg)), 0),
-                         -(t12 + 90.0))
-    arm = arm.union(scoop.translate(wrist))
-    return arm
+    shoulder = (0.0, 0.0, pivot_z)
+    arm = (base.union(upper).union(forearm).union(claw)
+           .union(pin(shoulder, 2.6, 7.6))
+           .union(pin((elbow_y, 0, elbow_z), 2.6, 6.8))
+           .union(pin((wrist_y, 0, wrist_z), 2.2, 6.0)))
+    return arm, (t1_deg, t2_deg, reachable)
 
 
 def build_rover():
@@ -686,12 +771,10 @@ def build_rover():
     for i in range(5):
         cache = cache.union(post(1.0, 6).translate((-24, -8 + i * 4, 21)))
 
-    # ── 7. 车载采样机械臂: 转台 + 大臂 + 小臂 + 采样铲斗 ──
-    # 目标点取在车前地面 (R=15, 比基座低 29mm), 用逆解算出肩/肘角度后装配,
-    # 与课程 4.py 的"先解算、再装配"流程一致
-    arm_base = (24.0, 8.0, 20.0)
-    t1_deg, t2_deg, reachable = arm_ik(15.0, -4.5, 19.0, 15.0, base_z=arm_base[2])
-    arm = build_arm(arm_base, 0.0, t1_deg, t2_deg, 19.0, 15.0)
+    # ── 7. 车载采样机械臂(与课程 4.py 同一套零件与装配流程) ──
+    # 车头 +X: 逆解在 XZ 平面内解, 再整臂平移到车前顶面
+    arm, (_t1, _t2, _ok) = assemble_robotic_arm(30.0, -20.0, 25.0, 20.0, pivot_z=0.0)
+    arm = arm.translate((24.0, 8.0, 20.0))
 
     dx, dy = POS_ROVER
     pos = (dx, dy, BASE_H + R_W)
