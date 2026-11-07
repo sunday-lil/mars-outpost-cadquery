@@ -129,7 +129,7 @@ MATERIALS = {
     "塔架":       {"color": (0.55, 0.57, 0.60), "metal": 0.70, "rough": 0.50},
     "火星车体":   {"color": (0.90, 0.88, 0.84), "metal": 0.22, "rough": 0.55},
     "车轮":       {"color": (0.25, 0.25, 0.27), "metal": 0.20, "rough": 0.80},
-    "机械臂":     {"color": (0.80, 0.82, 0.84), "metal": 0.55, "rough": 0.50},
+    "机械臂":     {"color": (0.58, 0.60, 0.63), "metal": 0.35, "rough": 0.55},
     "车顶帆板":   {"color": (0.07, 0.14, 0.45), "metal": 0.40, "rough": 0.15},
     "相机镜片":   {"color": (0.15, 0.35, 0.55), "metal": 0.30, "rough": 0.08},
     "着陆平台":   {"color": (0.45, 0.47, 0.50), "metal": 0.50, "rough": 0.60},
@@ -495,6 +495,89 @@ def build_tower():
     ]
 
 
+
+def arm_ik(target_r, target_z, l1, l2, base_z=0.0):
+    """逆向定位(余弦定理): 已知目标平面距离与高度, 反求肩/肘两关节角。
+
+    与课程 4.py 同一套推导:
+        dz   = target_z - base_z
+        dist = sqrt(R^2 + dz^2)
+        cosθ2 = (dist^2 - l1^2 - l2^2) / (2·l1·l2)
+        θ1   = atan2(dz, R) - atan2(l2·sinθ2, l1 + l2·cosθ2)
+    超出可达范围时把 cos 限幅到 ±1, 返回 reachable=False(不抛异常)。
+    """
+    dz = target_z - base_z
+    dist_sq = target_r ** 2 + dz ** 2
+    dist = math.sqrt(dist_sq)
+    if dist > l1 + l2:
+        cos2, reachable = 1.0, False
+    elif dist < abs(l1 - l2):
+        cos2, reachable = -1.0, False
+    else:
+        cos2 = max(-1.0, min(1.0, (dist_sq - l1 * l1 - l2 * l2) / (2 * l1 * l2)))
+        reachable = True
+    t2 = -math.acos(cos2)                       # 肘部向上弯(解的分支)
+    t1 = math.atan2(dz, target_r) - math.atan2(l2 * math.sin(t2),
+                                               l1 + l2 * math.cos(t2))
+    return math.degrees(t1), math.degrees(t2), reachable
+
+
+def arm_fk(base, yaw_deg, t1_deg, t2_deg, l1, l2):
+    """正向定位: 已知关节角, 求肘/腕的空间坐标(与 4.py 的 FK 一致)。"""
+    bz = base[2]
+    yaw, t1 = math.radians(yaw_deg), math.radians(t1_deg)
+    t12 = math.radians(t1_deg + t2_deg)
+    r1 = l1 * math.cos(t1)
+    elbow = (base[0] + r1 * math.cos(yaw), base[1] + r1 * math.sin(yaw), bz + l1 * math.sin(t1))
+    r2 = r1 + l2 * math.cos(t12)
+    wrist = (base[0] + r2 * math.cos(yaw), base[1] + r2 * math.sin(yaw),
+             elbow[2] + l2 * math.sin(t12))
+    return elbow, wrist, r2
+
+
+def build_arm(base, yaw_deg, t1_deg, t2_deg, l1=19.0, l2=15.0):
+    """机械臂: 转台基座 + 大臂 + 小臂 + 采样铲斗(参考课程 4.py 的装配顺序)。
+
+    结构对照 4.py: create_arm_base() → create_arm_segment(l1) →
+    create_arm_segment(l2) → create_sampling_claw(), 关节角由 arm_ik 给出。
+    """
+    def pin(p, r, w):
+        return (cq.Workplane("XY").circle(r).extrude(w / 2, both=True)
+                .rotate((0, 0, 0), (1, 0, 0), 90).translate(p))
+
+    elbow, wrist, _ = arm_fk(base, yaw_deg, t1_deg, t2_deg, l1, l2)
+    t12 = t1_deg + t2_deg
+    bx, by, bz = base
+
+    # ① 基座: 转台圆盘 + 肩部销轴(4.py 的 create_arm_base)
+    arm = (cq.Workplane("XY").circle(5.0).extrude(5.0)
+           .translate((bx, by, bz - 5.0)))
+    arm = arm.union(cq.Workplane("XY").circle(4.2).extrude(1.6).translate((bx, by, bz - 5.0)))
+    arm = arm.union(pin((bx, by, bz), 2.8, 7.0))
+
+    # ② 大臂 / 小臂: 矩形截面的板件, 两端销孔(4.py 的 create_arm_segment)
+    arm = arm.union(flat_link(base, elbow, 7.0, 4.2, 2.8))
+    arm = arm.union(pin(elbow, 2.8, 6.0))
+    arm = arm.union(flat_link(elbow, wrist, 6.0, 3.6, 2.4))
+    arm = arm.union(pin(wrist, 2.4, 5.0))
+
+    # ③ 采样铲斗: 半圆槽 + 两侧挡板 + 刃口(4.py 的 create_sampling_claw)
+    scoop = (cq.Workplane("XY").box(9.0, 7.0, 4.6)
+             .cut(cq.Workplane("XZ").circle(3.2).extrude(9.0, both=True)
+                  .translate((0, 0, 2.4))))
+    lip = cq.Workplane("XY").box(1.4, 7.0, 4.6).translate((4.2, 0, 0))
+    scoop = scoop.union(lip)
+    back = cq.Workplane("XY").box(1.6, 7.0, 4.6).translate((-4.2, 0, 0))
+    scoop = scoop.union(back)
+    scoop = scoop.rotate((0, 0, 0), (1, 0, 0), -90)        # 铲斗口朝下
+    scoop = scoop.rotate((0, 0, 0), (0, 0, 1), yaw_deg)
+    scoop = scoop.rotate((0, 0, 0),
+                         (math.cos(math.radians(yaw_deg)), math.sin(math.radians(yaw_deg)), 0),
+                         -(t12 + 90.0))
+    arm = arm.union(scoop.translate(wrist))
+    return arm
+
+
 def build_rover():
     """火星车: 摇臂-转向架悬架 + 六轮抓地齿 + 桅杆双目 + 五自由度采样机械臂。
 
@@ -603,30 +686,12 @@ def build_rover():
     for i in range(5):
         cache = cache.union(post(1.0, 6).translate((-24, -8 + i * 4, 21)))
 
-    # ── 7. 五自由度采样机械臂: 转台 → 肩 → 肘 → 腕 → 三指夹爪 ──
-    def pin(p, r, w):
-        return (cq.Workplane("XY").circle(r).extrude(w / 2, both=True)
-                .rotate((0, 0, 0), (1, 0, 0), 90).translate(p))
-
-    P0 = (24, 9, 21)      # J1 转台(绕 Z)
-    P1 = (31, 9, 30)      # J2 肩(绕 Y)
-    P2 = (41, 9, 21)      # J3 肘(绕 Y)
-    P3 = (47, 9, 6)       # J4 腕(绕 Y), 夹爪朝下伸向地面
-    arm = post(4.2, 5).translate((P0[0], P0[1], P0[2] - 2.5))
-    arm = arm.union(strut(P0, P1, 3.0, 2.4))
-    arm = arm.union(pin(P1, 3.2, 6.4))
-    arm = arm.union(strut(P1, P2, 2.4, 2.0))
-    arm = arm.union(pin(P2, 2.7, 5.2))
-    arm = arm.union(strut(P2, P3, 2.0, 1.7))
-    arm = arm.union(pin(P3, 2.2, 4.2))
-    grip = (cq.Workplane("XY").workplane(offset=P3[2] - 3.2)
-            .box(6, 6, 2.4).translate((P3[0], P3[1], 0)))
-    for k in range(3):                                     # 三指夹爪
-        f = (cq.Workplane("XY").box(2.0, 1.5, 7.5)
-             .translate((2.4, 0, -5.0))
-             .rotate((0, 0, 0), (0, 0, 1), k * 120))
-        grip = grip.union(f.translate((P3[0], P3[1], P3[2] - 3.0)))
-    arm = arm.union(grip)
+    # ── 7. 车载采样机械臂: 转台 + 大臂 + 小臂 + 采样铲斗 ──
+    # 目标点取在车前地面 (R=15, 比基座低 29mm), 用逆解算出肩/肘角度后装配,
+    # 与课程 4.py 的"先解算、再装配"流程一致
+    arm_base = (24.0, 8.0, 20.0)
+    t1_deg, t2_deg, reachable = arm_ik(15.0, -4.5, 19.0, 15.0, base_z=arm_base[2])
+    arm = build_arm(arm_base, 0.0, t1_deg, t2_deg, 19.0, 15.0)
 
     dx, dy = POS_ROVER
     pos = (dx, dy, BASE_H + R_W)
@@ -1284,6 +1349,22 @@ def gen_rough(size=96, base=0.80, amp=0.30, seed=101):
 
 
 
+def gen_texture_arm_metal(size=96):
+    """机械臂: 深灰钢 + 单向拉丝 + 边缘磨损(比穹顶肋深一档, 才能和车身区分开)"""
+    px = []
+    for y in range(size):
+        for x in range(size):
+            v = (104 + math.sin(x * 2.1) * 6
+                 + _hash_noise(x // 6, y, 121) * 18
+                 + _fbm(x / size * 4, y / size * 4, 2, seed=122) * 14)
+            wear = max(0.0, _fbm(x / size * 5, y / size * 5, 2, seed=123) - 0.7) * 2.0
+            v = max(64, min(168, v)) + wear * 60
+            v = int(max(0, min(255, v)))
+            px.append((v, int(v * 0.99), int(v * 0.96), 255))
+    return _png_encode(px, size, size)
+
+
+
 # 材质名 → 纹理生成函数 映射(无映射的材质用纯色)
 TEXTURE_MAP = {
     "火星地形": gen_texture_mars_ground,
@@ -1300,7 +1381,7 @@ TEXTURE_MAP = {
     "抛物面反射器": gen_texture_dish_reflector,
     "火星车体": gen_texture_rover_body,
     "车轮": gen_texture_rover_wheel,
-    "机械臂": gen_texture_brushed_metal,
+    "机械臂": gen_texture_arm_metal,
     "车顶帆板": gen_texture_solar_panel,
     "居住穹顶": gen_texture_dome_skin,
     "穹顶肋": gen_texture_brushed_metal,
