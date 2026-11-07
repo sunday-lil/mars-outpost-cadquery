@@ -530,45 +530,43 @@ def build_tower():
 #  只把坐标轴换成火星车用的 +X 车头(4.py 用 +Y 为车头)。
 # ══════════════════════════════════════════════════════════════════
 
-def create_arm_base():
-    """机械臂基座: 法兰盘 + 镂空立柱 + 一对耳板(对应 4.py 的 create_arm_base)。"""
-    base = cq.Workplane("XY").circle(5.6).extrude(1.6)               # 法兰
-    base = base.union(cq.Workplane("XY").circle(4.2).circle(1.8).extrude(5.0))  # 镂空立柱
-    for s in (-1, 1):                                                # 耳板
-        base = base.union(cq.Workplane("XY").box(3.2, 1.4, 4.2)
-                          .translate((-0.4, s * 2.6, 5.2)))
-    base = base.union(cq.Workplane("XY").circle(2.6).extrude(1.2)    # 顶盖
-                      .translate((0, 0, 6.0)))
+def create_arm_base(height=4.0):
+    """机械臂基座: 圆形凸台(资料里就是一个圆盘座), 枢轴在凸台顶部 z=0。"""
+    base = cq.Workplane("XY").circle(5.4).extrude(height).translate((0, 0, -height))
+    base = base.union(cq.Workplane("XY").circle(4.4).extrude(1.4).translate((0, 0, -1.4)))
+    for k in range(4):                                        # 4 颗固定螺栓
+        a = math.radians(k * 90 + 45)
+        base = base.union(cq.Workplane("XY").circle(0.9).extrude(1.0)
+                          .translate((3.4 * math.cos(a), 3.4 * math.sin(a), -height)))
     return base
 
 
-def create_arm_segment(length, thickness=3.0, width=6.2, hole_d=2.0):
-    """机械臂节: 周边留窄边、中间开大长圆孔(对应 4.py 的 create_arm_segment)。
+def create_arm_segment(length, thickness=4.2, width=6.8, hole_d=2.2, rim=1.7):
+    """机械臂节: 胶囊形板条 + 贯通长圆孔(资料里的镂空臂节), 沿 +X 摆放。
 
-    形状对齐资料截图: 薄板 + 两端半圆 + 一条几乎贯通的长圆孔 + 端部销孔。
+    外形 = 两端半圆的胶囊; 内部 = 一条同心的长圆孔, 四周留 rim 宽边框;
+    两端各一个销孔做铰接。
     """
     seg = (cq.Workplane("XZ").rect(length, width).extrude(thickness / 2, both=True)
-           .edges("|Y").fillet(width * 0.48)
+           .edges("|Y").fillet(width / 2 - 0.05)                 # 全圆角 → 胶囊外形
            .translate((length / 2, 0, 0)))
-    for x in (1.7, length - 1.7):                                    # 两端销孔
+    win_len, win_wid = length - 2 * rim, width - 2 * rim
+    seg = seg.cut(cq.Workplane("XZ").slot2D(max(win_len, 1.0), max(win_wid, 0.8))
+                  .extrude(thickness * 2, both=True).translate((length / 2, 0, 0)))
+    for x in (1.5, length - 1.5):                               # 两端销孔
         seg = seg.cut(cq.Workplane("XZ").center(x, 0)
                       .circle(hole_d / 2).extrude(thickness * 2, both=True))
-    win_len = max(length - 2.0 * 1.9, 1.0)                           # 中线大长圆孔
-    win_wid = max(width - 2.0 * 0.95, 0.8)
-    if win_len > win_wid * 1.1:
-        seg = seg.cut(cq.Workplane("XZ").slot2D(win_len, win_wid)
-                      .extrude(thickness * 2, both=True).translate((length / 2, 0, 0)))
     return seg
 
 
 def create_sampling_claw(width=7.0):
-    """采样铲斗: 半圆槽 + 后挡板 + 刃口(对应 4.py 的 create_sampling_claw)。"""
-    trough = (cq.Workplane("XZ").circle(3.4).circle(2.7)
-              .extrude(width / 2, both=True))                        # 半圆管
-    trough = trough.cut(cq.Workplane("XY").box(12, 12, 8).translate((0, 0, 3.0)))  # 切出敞口
-    trough = trough.union(cq.Workplane("XY").box(1.2, width, 3.4).translate((0.0, 0, 1.9)))  # 后挡
-    trough = trough.union(cq.Workplane("XY").box(0.8, width, 1.2).translate((3.3, 0, -0.6)))  # 刃口
-    return trough
+    """采样铲斗: 小方斗 + 倒角刃口(资料里末端就是个小方块)。"""
+    claw = (cq.Workplane("XY").box(6.2, width, 4.4)
+            .edges().chamfer(0.5))
+    claw = claw.cut(cq.Workplane("XY").workplane(offset=1.2)
+                    .box(8.0, width - 1.6, 3.0))              # 掏成敞口斗
+    claw = claw.union(cq.Workplane("XY").box(1.0, width, 1.2).translate((-2.9, 0, 0)))
+    return claw
 
 
 def calculate_forward_kinematics(theta_yaw_deg=0.0, theta_pitch1_deg=30.0,
@@ -773,8 +771,8 @@ def build_rover():
 
     # ── 7. 车载采样机械臂(与课程 4.py 同一套零件与装配流程) ──
     # 车头 +X: 逆解在 XZ 平面内解, 再整臂平移到车前顶面
-    arm, (_t1, _t2, _ok) = assemble_robotic_arm(30.0, -20.0, 25.0, 20.0, pivot_z=0.0)
-    arm = arm.translate((24.0, 8.0, 20.0))
+    arm, (_t1, _t2, _ok) = assemble_robotic_arm(21.0, -29.0, 25.0, 20.0, pivot_z=0.0)
+    arm = arm.translate((24.0, 8.0, 23.6))
 
     dx, dy = POS_ROVER
     pos = (dx, dy, BASE_H + R_W)
