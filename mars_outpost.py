@@ -570,16 +570,19 @@ def create_arm_segment(length, thickness=7.2, width=10.0):
 
 
 def create_sampling_claw():
-    """铲斗 + 挂耳, 对应资料 mount / scoop。"""
-    s = ARM_S
-    mount = (cq.Workplane("YZ").circle(5 * s).extrude(6.4 * s)
-             .translate((-6.4 * s / 2, 0, 0))
-             .faces(">X").workplane().hole(4 * s))
-    scoop = (cq.Workplane("XY").rect(12 * s, 16 * s).extrude(8 * s)
-             .faces(">Z").workplane().rect(10 * s, 14 * s)
-             .cutBlind(-6 * s)
-             .translate((0, 16 * s / 2 + 3 * s, -12 * s / 2)))
-    return mount.union(scoop)
+    """末端三指夹爪: 腕部基座 + 3 根 120° 分布的指爪(沿臂向伸出)。
+
+    换回早先那版"三指夹爪": 指爪比按 0.55 缩放的零件更粗壮, 末端带内钩,
+    与 44mm 长的臂配套, 看去像能真的夹住样品。
+    """
+    hub = cq.Workplane("XY").circle(4.0).extrude(2.4).translate((0, 0, -1.2))
+    hub = hub.union(cq.Workplane("YZ").circle(2.4).extrude(2.2).translate((-1.1, 0, 0)))
+    for k in range(3):
+        f = (cq.Workplane("XY").box(1.9, 1.6, 7.2).translate((2.5, 0, -5.0))
+             .union(cq.Workplane("XY").box(2.8, 1.3, 1.3).translate((2.7, 0, -8.4)))
+             .rotate((0, 0, 0), (0, 0, 1), k * 120))
+        hub = hub.union(f)
+    return hub.rotate((0, 0, 0), (1, 0, 0), 90)               # 指爪指向 +Y(臂向)
 
 
 def calculate_forward_kinematics(theta_yaw_deg=0.0, theta_pitch1_deg=30.0,
