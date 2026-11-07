@@ -530,43 +530,56 @@ def build_tower():
 #  只把坐标轴换成火星车用的 +X 车头(4.py 用 +Y 为车头)。
 # ══════════════════════════════════════════════════════════════════
 
-def create_arm_base(height=4.0):
-    """机械臂基座: 圆形凸台(资料里就是一个圆盘座), 枢轴在凸台顶部 z=0。"""
-    base = cq.Workplane("XY").circle(5.4).extrude(height).translate((0, 0, -height))
-    base = base.union(cq.Workplane("XY").circle(4.4).extrude(1.4).translate((0, 0, -1.4)))
-    for k in range(4):                                        # 4 颗固定螺栓
-        a = math.radians(k * 90 + 45)
-        base = base.union(cq.Workplane("XY").circle(0.9).extrude(1.0)
-                          .translate((3.4 * math.cos(a), 3.4 * math.sin(a), -height)))
-    return base
+# 资料(机械臂2.py)的零件是按 100mm 车身做的, 我们车身 56mm, 等比缩放 0.55
+ARM_S = 0.55
 
 
-def create_arm_segment(length, thickness=4.2, width=6.8, hole_d=2.2, rim=1.7):
-    """机械臂节: 胶囊形板条 + 贯通长圆孔(资料里的镂空臂节), 沿 +X 摆放。
+def create_arm_base():
+    """基座: 圆形法兰 + 止推环槽 + 耳座(U 型槽 + 俯仰销孔), 对应资料 base_flange/clevis_solid。"""
+    s = ARM_S
+    flange = (cq.Workplane("XY").circle(12 * s).extrude(5 * s)
+              .faces(">Z").workplane()
+              .circle(10 * s).circle(8 * s).cutBlind(-1.5 * s))      # 止推环槽
+    clevis = (cq.Workplane("XY").workplane(offset=5 * s)
+              .rect(14 * s, 12 * s).extrude(11 * s)
+              .faces(">Z").workplane().rect(8 * s, 14 * s)
+              .cutBlind(-8 * s)                                       # U 型槽
+              .faces(">X").workplane(centerOption="CenterOfMass")
+              .hole(4 * s)                                            # 俯仰销孔
+              .edges(">Z and |Y").fillet(0.5 * s))
+    return flange.union(clevis)
 
-    外形 = 两端半圆的胶囊; 内部 = 一条同心的长圆孔, 四周留 rim 宽边框;
-    两端各一个销孔做铰接。
+
+def create_arm_segment(length, thickness=7.2, width=10.0):
+    """臂节: 胶囊外形 + 两端销孔 + 中间减重长圆孔, 对应资料 arm()。
+
+    资料里是 YZ 平面 slot2D(length+width, width) 沿 X 拉伸 thickness,
+    再在 +X 面 pushPoints 打两个 Ø4 销孔、中间 slot2D 切穿。
     """
-    seg = (cq.Workplane("XZ").rect(length, width).extrude(thickness / 2, both=True)
-           .edges("|Y").fillet(width / 2 - 0.05)                 # 全圆角 → 胶囊外形
-           .translate((length / 2, 0, 0)))
-    win_len, win_wid = length - 2 * rim, width - 2 * rim
-    seg = seg.cut(cq.Workplane("XZ").slot2D(max(win_len, 1.0), max(win_wid, 0.8))
-                  .extrude(thickness * 2, both=True).translate((length / 2, 0, 0)))
-    for x in (1.5, length - 1.5):                               # 两端销孔
-        seg = seg.cut(cq.Workplane("XZ").center(x, 0)
-                      .circle(hole_d / 2).extrude(thickness * 2, both=True))
-    return seg
+    s = ARM_S
+    L, T, W = length * s, thickness * s, width * s
+    link = (cq.Workplane("YZ").slot2D(L + W, W, 0).extrude(T)
+            .translate((-T / 2, L / 2, 0)))
+    link = (link.faces(">X").workplane()
+            .pushPoints([(0, 0), (L, 0)]).hole(4 * s))
+    if L > 22 * s:
+        link = (link.faces(">X").workplane()
+                .pushPoints([(L / 2.0, 0)])
+                .slot2D(L - W * 1.6, W - 4.5 * s, 0).cutThruAll())
+    return link
 
 
-def create_sampling_claw(width=7.0):
-    """采样铲斗: 小方斗 + 倒角刃口(资料里末端就是个小方块)。"""
-    claw = (cq.Workplane("XY").box(6.2, width, 4.4)
-            .edges().chamfer(0.5))
-    claw = claw.cut(cq.Workplane("XY").workplane(offset=1.2)
-                    .box(8.0, width - 1.6, 3.0))              # 掏成敞口斗
-    claw = claw.union(cq.Workplane("XY").box(1.0, width, 1.2).translate((-2.9, 0, 0)))
-    return claw
+def create_sampling_claw():
+    """铲斗 + 挂耳, 对应资料 mount / scoop。"""
+    s = ARM_S
+    mount = (cq.Workplane("YZ").circle(5 * s).extrude(6.4 * s)
+             .translate((-6.4 * s / 2, 0, 0))
+             .faces(">X").workplane().hole(4 * s))
+    scoop = (cq.Workplane("XY").rect(12 * s, 16 * s).extrude(8 * s)
+             .faces(">Z").workplane().rect(10 * s, 14 * s)
+             .cutBlind(-6 * s)
+             .translate((0, 16 * s / 2 + 3 * s, -12 * s / 2)))
+    return mount.union(scoop)
 
 
 def calculate_forward_kinematics(theta_yaw_deg=0.0, theta_pitch1_deg=30.0,
@@ -623,42 +636,36 @@ def calculate_inverse_kinematics(target_r, target_z, l1=25.0, l2=20.0, base_z=0.
             round(math.degrees(theta_2_rad), 2), reachable)
 
 
-def assemble_robotic_arm(target_r, target_z, l1=25.0, l2=20.0, pivot_z=0.0):
-    """按逆解角度把"基座 + 大臂 + 小臂 + 铲斗"铰接起来(对应 4.py 的 assemble_robotic_arm)。
+def assemble_robotic_arm(target_r, target_z, l1=45.0, l2=35.0, pivot_z=0.0):
+    """按逆解角度铰接"基座 + 大臂 + 小臂 + 铲斗"(与 4.py 的 assemble_robotic_arm 同序)。
 
-    与 4.py 同一顺序: 大臂绕枢轴转 t1 → 小臂在肘点转 t1+t2 → 铲斗在腕点同向。
-    本工程车头为 +X, 故绕 Y 轴俯仰(4.py 车头为 +Y, 绕 X 轴)。
+    资料里机械臂沿 +Y 伸展、绕 X 俯仰; 我们整车车头为 +X, 所以最后整体绕 Z 转 -90°。
     """
+    s = ARM_S
+    L1, L2 = l1 * s, l2 * s
     t1_deg, t2_deg, reachable = calculate_inverse_kinematics(
-        target_r, target_z, l1, l2, base_z=pivot_z)
+        target_r, target_z, L1, L2, base_z=pivot_z)      # 按缩放后的实际臂长解
     t12_deg = t1_deg + t2_deg
-    t1_rad, t12_rad = math.radians(t1_deg), math.radians(t12_deg)
 
     base = create_arm_base()
     upper = (create_arm_segment(l1)
-             .rotate((0, 0, 0), (0, 1, 0), -t1_deg)
+             .rotate((0, 0, 0), (1, 0, 0), t1_deg)
              .translate((0, 0, pivot_z)))
-    elbow_y = l1 * math.cos(t1_rad)
-    elbow_z = pivot_z + l1 * math.sin(t1_rad)
+    t1_rad = math.radians(t1_deg)
+    elbow_y = L1 * math.cos(t1_rad)
+    elbow_z = pivot_z + L1 * math.sin(t1_rad)
     forearm = (create_arm_segment(l2)
-               .rotate((0, 0, 0), (0, 1, 0), -t12_deg)
-               .translate((elbow_y, 0, elbow_z)))
-    wrist_y = elbow_y + l2 * math.cos(t12_rad)
-    wrist_z = elbow_z + l2 * math.sin(t12_rad)
+               .rotate((0, 0, 0), (1, 0, 0), t12_deg)
+               .translate((0, elbow_y, elbow_z)))
+    t12_rad = math.radians(t12_deg)
+    wrist_y = elbow_y + L2 * math.cos(t12_rad)
+    wrist_z = elbow_z + L2 * math.sin(t12_rad)
     claw = (create_sampling_claw()
-            .rotate((0, 0, 0), (0, 1, 0), -t12_deg)
-            .translate((wrist_y, 0, wrist_z)))
+            .rotate((0, 0, 0), (1, 0, 0), t12_deg)
+            .translate((0, wrist_y, wrist_z)))
 
-    def pin(p, r, w):
-        return (cq.Workplane("XY").circle(r).extrude(w / 2, both=True)
-                .rotate((0, 0, 0), (1, 0, 0), 90).translate(p))
-
-    shoulder = (0.0, 0.0, pivot_z)
-    arm = (base.union(upper).union(forearm).union(claw)
-           .union(pin(shoulder, 2.6, 7.6))
-           .union(pin((elbow_y, 0, elbow_z), 2.6, 6.8))
-           .union(pin((wrist_y, 0, wrist_z), 2.2, 6.0)))
-    return arm, (t1_deg, t2_deg, reachable)
+    arm = base.union(upper).union(forearm).union(claw)
+    return arm.rotate((0, 0, 0), (0, 0, 1), -90), (t1_deg, t2_deg, reachable)
 
 
 def build_rover():
@@ -769,10 +776,11 @@ def build_rover():
     for i in range(5):
         cache = cache.union(post(1.0, 6).translate((-24, -8 + i * 4, 21)))
 
-    # ── 7. 车载采样机械臂(与课程 4.py 同一套零件与装配流程) ──
-    # 车头 +X: 逆解在 XZ 平面内解, 再整臂平移到车前顶面
-    arm, (_t1, _t2, _ok) = assemble_robotic_arm(21.0, -29.0, 25.0, 20.0, pivot_z=0.0)
-    arm = arm.translate((24.0, 8.0, 23.6))
+    # ── 7. 车载采样机械臂(零件与装配流程同资料 机械臂2.py) ──
+    # 基座法兰坐在前甲板 (20, 8); 目标点取车前地面 (R=15, 比枢轴低 37.4)
+    arm, (_t1, _t2, _ok) = assemble_robotic_arm(
+        15.0, -27.0, 45.0, 35.0, pivot_z=0.0)
+    arm = arm.translate((20.0, 8.0, 19.6 + 16.0 * ARM_S))
 
     dx, dy = POS_ROVER
     pos = (dx, dy, BASE_H + R_W)
