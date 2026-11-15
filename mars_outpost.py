@@ -34,7 +34,7 @@
   太阳能板倾角 = 90° − 太阳高度角(自动对日)。
 
   ── 程序化纹理贴图(纯标准库) ──
-  9 种程序化纹理: 火星地表(fBm噪声)、金属面板(拉丝+铆钉)、
+  14 种程序化纹理: 火星地表(fBm噪声)、金属面板(拉丝+铆钉)、
   太阳能板(网格)、火箭壳体(条纹)、抛物面反射器(同心圆)、
   压痕路径(车辙)、火星车漆(分缝+铆钉+沙尘)、车轮胎面(胎纹)、
   机械臂(拉丝铝)。fBm 值噪声 + PNG 编码(zlib), 嵌入 GLB
@@ -346,75 +346,85 @@ def build_terrain():
             ("火星岩石", compound_of(rocks + chips))]
 
 
+def calculate_artificial_gravity_rpm(radius_m=60.0, target_g=3.72):
+    """人工重力转速求解(课程 Lesson 09 任务 1)。
+
+    a = ω²R  →  ω = sqrt(a / R),  RPM = 60ω / 2π
+    target_g 默认取火星重力 3.72 m/s²(在火星表面补足到当地重力)。
+    """
+    omega = math.sqrt(target_g / radius_m)
+    rpm = (60.0 * omega) / (2.0 * math.pi)
+    return {"radius_m": radius_m, "target_g": target_g,
+            "omega_rad_s": round(omega, 4), "rpm": round(rpm, 2)}
+
+
 def build_dome():
-    """穹顶壳(椭圆参数方程+旋转) + 极向肋 + 环带 + 舷窗 + 信标 + 气闸。"""
-    # 壳体: 椭圆弧 x=R·sin(t), z=H·cos(t) 采样 → 样条 → 绕 Z 旋转
-    shell = revolve_z(
-        cq.Workplane("XZ").moveTo(0, DOME_H)
-        .spline(ell_arc(DOME_R, DOME_H)[1:])       # 椭圆弧: 顶→(R,0)
-        .lineTo(DOME_R, -4).lineTo(0, -4).close()
-    )
-    # ── 舷窗几何(先算出来: 肋上的球链要避开窗口, 否则球会扣在窗里) ──
-    WIN_AZ = (120, 180, 240)
-    win_z = DOME_H * 0.42
-    win_rho = DOME_R * math.sin(math.acos(win_z / DOME_H))
-    nx, nz = win_rho / DOME_R ** 2, win_z / DOME_H ** 2   # 椭球法线的水平/竖直分量
-    nl = math.hypot(nx, nz)
-    nx, nz = nx / nl, nz / nl
-    win_bases = [(win_rho * math.cos(math.radians(a)),
-                  win_rho * math.sin(math.radians(a)), win_z) for a in WIN_AZ]
+    """旋转居住环: **中空环壳**(壁厚 1.6) + 观景窗 + 轮毂轴 + 辐条 + 信标。
 
-    # 经向肋: 沿椭圆弧的球链拱(格构式外骨架, 零布尔运算), 旋转阵列
-    def dome_rib_chain(alpha_deg):
-        a = math.radians(alpha_deg)
-        balls = []
-        for tdeg in range(4, 90, 7):                     # 顶→边 13 颗球
-            t = math.radians(tdeg)
-            x = DOME_R * 1.01 * math.sin(t)
-            z = DOME_H * 1.01 * math.cos(t) + 0.9        # 埋进壳外表面
-            px, py = x * math.cos(a), x * math.sin(a)
-            if any((px - wx) ** 2 + (py - wy) ** 2 + (z - wz) ** 2 < 8.5 ** 2
-                   for wx, wy, wz in win_bases):
-                continue                                  # 避让舷窗开孔
-            balls.append(cq.Workplane("XY").workplane(offset=z)
-                         .sphere(2.8).translate((px, py, 0)).val())
-        return compound_of(balls)
+    取自 Lesson 09 的要点: 生活舱是绕 Z 回转的偏置圆管, 壁有厚度、内部中空,
+    外壁再切窗; 人工重力由自转产生, a = ω²R(见 calculate_artificial_gravity_rpm)。
+    支撑结构沿用本站: 中央轮毂轴 + 6 根辐条, 环体挂在轴上。
+    """
+    R_MAJ, R_TUBE, WALL = 52.0, 13.0, 1.6     # 主半径 / 管外半径 / 壁厚
+    Z_RING = 74.0                              # 环心高度
+    HUB_R = 9.0
+    R_OUT = R_MAJ + R_TUBE                     # 外缘 65
 
-    ribs = [dome_rib_chain(i * 360 / DOME_RIBS) for i in range(DOME_RIBS)]
-    ribs.append(cq.Solid.makeTorus(DOME_R * 0.80, 2.2).translate((0, 0, DOME_H * 0.38)))
-    ribs.append(cq.Solid.makeTorus(DOME_R * 0.56, 2.2).translate((0, 0, DOME_H * 0.68)))
-    # 舷窗: 窗筒必须沿"椭球面法线"方向插入——该处法线并非水平, 而是向外上翘
-    # 约 32°; 用水平圆柱会一半埋进壳体、一半翘成楔形块
-    wins = []
-    for base in win_bases:
-        ca, sa = base[0] / win_rho, base[1] / win_rho
-        n = (nx * ca, nx * sa, nz)                         # 外法线方向
-        p0 = tuple(base[i] - n[i] * 2 for i in range(3))   # 埋入壳体 2mm
-        p1 = tuple(base[i] + n[i] * 0.8 for i in range(3))  # 只外凸 0.8mm, 做"平嵌窗"
-        wins.append(strut(p0, p1, 5))                      # Ø10 舷窗
-        # 金属窗框(并入"穹顶肋"材质): 让舷窗有圈口, 而不是贴在壳上的蓝点
-        ty = math.degrees(math.atan2(math.hypot(n[0], n[1]), n[2]))
-        tz = math.degrees(math.atan2(n[1], n[0]))
-        rings = (cq.Solid.makeTorus(5.6, 0.6)
-                 .rotate((0, 0, 0), (0, 1, 0), ty)
-                 .rotate((0, 0, 0), (0, 0, 1), tz)
-                 .translate(base))
-        ribs.append(rings)
-    # 信标: 杆 + 红灯
-    beacon = post(2, 35).translate((0, 0, 50))
-    beacon = beacon.union(
-        cq.Workplane("XY").workplane(offset=85).sphere(5))
-    # 气闸门舱: 竖直圆鼓对接舱, 贴在穹顶侧面
-    airlock = (
-        post(16, 24).faces(">Z").workplane(centerOption="CenterOfBoundBox")
-        .circle(12).extrude(2)
-    ).translate((DOME_R - 4, 0, 0))
+    # ── 1. 中空环壳: 外管挖内管, 留 1.6 壁厚 ──
+    ring = (cq.Workplane("XZ").moveTo(R_MAJ, 0)
+            .circle(R_TUBE).circle(R_TUBE - WALL)      # 偏置同心圆 → 管壁截面
+            .revolve(360, (0, 0, 0), (0, 1, 0)))       # 局部 +Y = 全局 +Z
+    ring = ring.translate((0, 0, Z_RING))
+    # 环体闭合: 回转 360°, 不留断口(要开孔只从舷窗开)
 
-    shell = shell.union(airlock)
+    # ── 2. 观景窗: 8 扇圆窗, 径向切穿外壁(能看进中空舱内) ──
+    wins, frames = [], []
+    for k in range(8):
+        a = math.radians(k * 45 + 22.5)
+        ca, sa = math.cos(a), math.sin(a)
+        wins.append(strut(((R_OUT - 1.0) * ca, (R_OUT - 1.0) * sa, Z_RING),
+                          ((R_OUT + 0.6) * ca, (R_OUT + 0.6) * sa, Z_RING), 4.6))
+        frames.append(cq.Solid.makeTorus(5.2, 0.6)
+                      .rotate((0, 0, 0), (0, 1, 0), 90)
+                      .rotate((0, 0, 0), (0, 0, 1), k * 45 + 22.5)
+                      .translate(((R_OUT - 0.2) * ca, (R_OUT - 0.2) * sa, Z_RING)))
+
+    # ── 3. 轮毂轴 + 底鼓 + 顶盖(转轴处线速度为零, 最佳对接点) ──
+    hub = post(HUB_R, Z_RING + 8).union(post(15, 14))
+    hub = hub.union(cq.Workplane("XY").workplane(offset=Z_RING + 6)
+                    .circle(HUB_R + 3).circle(HUB_R).extrude(4))
+    hub = hub.union(cq.Workplane("XY").workplane(offset=14)
+                    .circle(15).circle(11).extrude(3))
+
+    # ── 4. 辐条: 6 根径向桁架 + 斜拉索 ──
+    spokes = []
+    for k in range(6):
+        a = math.radians(k * 60)
+        p0 = (HUB_R * math.cos(a), HUB_R * math.sin(a), Z_RING)
+        p1 = ((R_MAJ - R_TUBE + 1.0) * math.cos(a),
+              (R_MAJ - R_TUBE + 1.0) * math.sin(a), Z_RING)
+        spokes.append(strut(p0, p1, 2.2, 1.5))
+        mid = ((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2, Z_RING)
+        spokes.append(strut((0, 0, Z_RING + 8), mid, 0.9))
+
+    # ── 5. 环向加强箍: 12 道, 把环管分成 12 个舱段 ──
+    hoops = []
+    for k in range(12):
+        a = math.radians(k * 30)
+        hoops.append(cq.Solid.makeTorus(R_TUBE + 0.9, 0.7)
+                     .rotate((0, 0, 0), (0, 1, 0), 90)
+                     .rotate((0, 0, 0), (0, 0, 1), k * 30 + 90)
+                     .translate((R_MAJ * math.cos(a), R_MAJ * math.sin(a), Z_RING)))
+
+    # ── 6. 信标 ──
+    beacon = (post(2, 12).translate((0, 0, Z_RING + 8))
+              .union(cq.Workplane("XY").workplane(offset=Z_RING + 22).sphere(4.5)))
+
+    body = ring.union(hub)
     dx, dy = POS_DOME
     return [
-        ("居住穹顶", shell.translate((dx, dy, BASE_H))),
-        ("穹顶肋", compound_of([r.translate((dx, dy, BASE_H)) for r in ribs])),
+        ("居住穹顶", body.translate((dx, dy, BASE_H))),
+        ("穹顶肋", compound_of([r.translate((dx, dy, BASE_H)) for r in hoops + frames + spokes])),
         ("观察舷窗", compound_of([w.translate((dx, dy, BASE_H)) for w in wins])),
         ("顶部信标", beacon.val().translate((dx, dy, BASE_H))),
     ]
@@ -444,8 +454,8 @@ def build_lab():
 def build_tunnel():
     """加压廊道: 圆环截面沿样条曲线扫掠(截面圆心与路径起点重合)。"""
     # 路径 z 从 0 缓升到 10 再回落(局部坐标), 后面统一抬升
-    path = cq.Workplane("XZ").moveTo(20, 0).spline([(55, 10), (95, 10), (128, 0)])
-    tube = (cq.Workplane("YZ").workplane(offset=20)
+    path = cq.Workplane("XZ").moveTo(5, 0).spline([(50, 10), (95, 10), (128, 0)])
+    tube = (cq.Workplane("YZ").workplane(offset=5)
             .circle(14).circle(11).sweep(path))
     ring = (cq.Workplane("YZ").workplane(offset=95)
             .circle(16).circle(11).extrude(6).translate((0, 0, 10)))
