@@ -20,3 +20,8 @@ cadquery-llm-skill-main/
 *.png
 *.lnk
 *.bin
+
+# Blender 工作文件（体积大，不入库）
+blender_work/
+*.blend
+*.blend1
