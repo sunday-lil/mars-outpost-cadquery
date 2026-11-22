@@ -7,8 +7,13 @@ __pycache__/
 *.pyc
 
 # 生成产物(本地运行脚本后自行生成)
-exports/
-renders/
+exports/*
+renders/*
+# 但技术文档要入库
+!exports/结构仿真说明.md
+!exports/改造计划.md
+!exports/qa_report.json
+!exports/unit_table.json
 
 # 参赛相关材料(不上传)
 make_docs.py
@@ -21,7 +26,6 @@ cadquery-llm-skill-main/
 *.lnk
 *.bin
 
-# Blender 工作文件（体积大，不入库）
-blender_work/
+# Blender 工作文件（只忽略大文件，脚本要入库）
 *.blend
 *.blend1
