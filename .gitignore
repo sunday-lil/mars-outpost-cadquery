@@ -11,6 +11,8 @@ exports/*
 renders/*
 # 但技术文档要入库
 !exports/结构仿真说明.md
+!exports/作品创作说明_探秘火星逐梦太空.docx
+!exports/提交清单.md
 !exports/改造计划.md
 !exports/qa_report.json
 !exports/qa_deep.json

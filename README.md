@@ -127,7 +127,9 @@ python mars_outpost.py
 | `exports/v3_hero.png` / `v3_ring.png` / `v3_site.png` | 白天三视 |
 | `exports/v3_dusk.png` / `v3_dusk_ring.png` | 黄昏版 |
 | `exports/结构仿真说明.md` | 结构与物理校核全文（含 QA 三轮记录） |
-| `exports/作品创作说明.docx` / `演示视频脚本.md` | 参赛文档（由 `make_docs.py` 生成） |
+| `exports/作品创作说明_探秘火星逐梦太空.docx` | **参赛必交文档**（由 `make_entry_docs.py` 生成） |
+| `exports/提交清单.md` | 提交材料清单与提交前检查表 |
+| `exports/演示视频脚本.md` | 演示视频分镜脚本 |
 
 复现流程（需要 Blender 5.3）：
 
@@ -139,3 +141,15 @@ blender -b habitat_v3_s6.blend -P blender_work/v3_stage7.py   # 车辙 + 天空
 blender -b habitat_v3_s7.blend -P blender_work/v3_stage8.py   # 辙带接门口 + 集合分组
 blender -b habitat_v3_s8.blend -P blender_work/bug_hunt.py    # 缺陷扫描与修复
 ```
+
+## 参赛信息
+
+| 项 | 内容 |
+|---|---|
+| 赛事 | 河北省中小学「人工智能 +」科学教育实践活动 · 探秘火星逐梦太空 |
+| 赛项 | 三维设计项目（初中组，代码编程 + 三维模型综合制作） |
+| 必交材料 | 可编辑源文件（`mars_outpost.py` / `.step` / `.blend`）+ Word 版作品创作说明 |
+| 选交材料 | MP4 演示视频（≤50 MB，≤5 分钟） |
+| 提交时间 | 12 月中旬线上提交 |
+
+生成参赛文档：`.venv/Scripts/python.exe make_entry_docs.py`

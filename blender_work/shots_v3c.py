@@ -3,6 +3,11 @@ from mathutils import Vector, Matrix
 HERE = os.path.dirname(bpy.data.filepath)
 EXPORTS = os.path.abspath(os.path.join(HERE, "..", "exports"))
 scene = bpy.context.scene
+scene.render.resolution_x = 1920
+scene.render.resolution_y = 1080
+scene.render.resolution_percentage = 100
+scene.eevee.taa_render_samples = 128
+scene.render.image_settings.file_format = 'PNG'
 cd = bpy.data.cameras.new("C"); cd.lens=50; cd.clip_end=20000
 cam = bpy.data.objects.new("C", cd); bpy.context.collection.objects.link(cam); scene.camera=cam
 def look(pos,tgt,lens):
