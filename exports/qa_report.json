@@ -1,5 +1,5 @@
 {
- "objects": 124,
+ "objects": 180,
  "deformed": [],
  "overlaps": [
   {
@@ -71,6 +71,246 @@
    "a": "FAC_RockRing3",
    "b": "返回火箭",
    "m3": 465.9
+  },
+  {
+   "a": "FAC_WinTube0",
+   "b": "居住穹顶",
+   "m3": 331.2
+  },
+  {
+   "a": "FAC_WinTube0",
+   "b": "穹顶肋_restored",
+   "m3": 331.2
+  },
+  {
+   "a": "FAC_WinTube0",
+   "b": "观察舷窗_restored",
+   "m3": 303.5
+  },
+  {
+   "a": "FAC_WinTube1",
+   "b": "居住穹顶",
+   "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube1",
+   "b": "穹顶肋_restored",
+   "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube1",
+   "b": "观察舷窗_restored",
+   "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube10",
+   "b": "居住穹顶",
+   "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube10",
+   "b": "穹顶肋_restored",
+   "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube10",
+   "b": "观察舷窗_restored",
+   "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube11",
+   "b": "居住穹顶",
+   "m3": 479.7
+  },
+  {
+   "a": "FAC_WinTube11",
+   "b": "穹顶肋_restored",
+   "m3": 479.7
+  },
+  {
+   "a": "FAC_WinTube11",
+   "b": "观察舷窗_restored",
+   "m3": 479.6
+  },
+  {
+   "a": "FAC_WinTube12",
+   "b": "居住穹顶",
+   "m3": 331.2
+  },
+  {
+   "a": "FAC_WinTube12",
+   "b": "穹顶肋_restored",
+   "m3": 331.2
+  },
+  {
+   "a": "FAC_WinTube12",
+   "b": "观察舷窗_restored",
+   "m3": 303.5
+  },
+  {
+   "a": "FAC_WinTube13",
+   "b": "居住穹顶",
+   "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube13",
+   "b": "穹顶肋_restored",
+   "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube13",
+   "b": "观察舷窗_restored",
+   "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube14",
+   "b": "居住穹顶",
+   "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube14",
+   "b": "穹顶肋_restored",
+   "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube14",
+   "b": "观察舷窗_restored",
+   "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube15",
+   "b": "居住穹顶",
+   "m3": 479.7
+  },
+  {
+   "a": "FAC_WinTube15",
+   "b": "穹顶肋_restored",
+   "m3": 479.7
+  },
+  {
+   "a": "FAC_WinTube15",
+   "b": "观察舷窗_restored",
+   "m3": 479.6
+  },
+  {
+   "a": "FAC_WinTube2",
+   "b": "居住穹顶",
+   "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube2",
+   "b": "穹顶肋_restored",
+   "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube2",
+   "b": "观察舷窗_restored",
+   "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube3",
+   "b": "居住穹顶",
+   "m3": 479.7
+  },
+  {
+   "a": "FAC_WinTube3",
+   "b": "穹顶肋_restored",
+   "m3": 479.7
+  },
+  {
+   "a": "FAC_WinTube3",
+   "b": "观察舷窗_restored",
+   "m3": 479.6
+  },
+  {
+   "a": "FAC_WinTube4",
+   "b": "居住穹顶",
+   "m3": 331.2
+  },
+  {
+   "a": "FAC_WinTube4",
+   "b": "穹顶肋_restored",
+   "m3": 331.2
+  },
+  {
+   "a": "FAC_WinTube4",
+   "b": "观察舷窗_restored",
+   "m3": 303.5
+  },
+  {
+   "a": "FAC_WinTube5",
+   "b": "居住穹顶",
+   "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube5",
+   "b": "穹顶肋_restored",
+   "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube5",
+   "b": "观察舷窗_restored",
+   "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube6",
+   "b": "居住穹顶",
+   "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube6",
+   "b": "穹顶肋_restored",
+   "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube6",
+   "b": "观察舷窗_restored",
+   "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube7",
+   "b": "居住穹顶",
+   "m3": 479.7
+  },
+  {
+   "a": "FAC_WinTube7",
+   "b": "穹顶肋_restored",
+   "m3": 479.7
+  },
+  {
+   "a": "FAC_WinTube7",
+   "b": "观察舷窗_restored",
+   "m3": 479.6
+  },
+  {
+   "a": "FAC_WinTube8",
+   "b": "居住穹顶",
+   "m3": 331.2
+  },
+  {
+   "a": "FAC_WinTube8",
+   "b": "穹顶肋_restored",
+   "m3": 331.2
+  },
+  {
+   "a": "FAC_WinTube8",
+   "b": "观察舷窗_restored",
+   "m3": 303.5
+  },
+  {
+   "a": "FAC_WinTube9",
+   "b": "居住穹顶",
+   "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube9",
+   "b": "穹顶肋_restored",
+   "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube9",
+   "b": "观察舷窗_restored",
+   "m3": 593.4
   },
   {
    "a": "加压廊道",
