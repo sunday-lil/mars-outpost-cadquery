@@ -1,0 +1,105 @@
+{
+ "sunk_fixed": [],
+ "above_ground": [
+  {
+   "name": "加压廊道",
+   "ground_clearance": 18.75
+  },
+  {
+   "name": "加速器喷管",
+   "ground_clearance": 65.0
+  },
+  {
+   "name": "压痕路径",
+   "ground_clearance": 8.75
+  },
+  {
+   "name": "发动机喷管",
+   "ground_clearance": 14.83
+  },
+  {
+   "name": "塔架",
+   "ground_clearance": 8.56
+  },
+  {
+   "name": "天线馈源臂",
+   "ground_clearance": 111.51
+  },
+  {
+   "name": "太阳能板",
+   "ground_clearance": 26.66
+  },
+  {
+   "name": "居住穹顶",
+   "ground_clearance": 8.75
+  },
+  {
+   "name": "抛物面反射器",
+   "ground_clearance": 104.61
+  },
+  {
+   "name": "推进器机身",
+   "ground_clearance": 90.0
+  },
+  {
+   "name": "散热格栅",
+   "ground_clearance": 27.5
+  },
+  {
+   "name": "机械臂",
+   "ground_clearance": 8.96
+  },
+  {
+   "name": "气象站",
+   "ground_clearance": 8.75
+  },
+  {
+   "name": "火星岩石",
+   "ground_clearance": 5.77
+  },
+  {
+   "name": "火星车体",
+   "ground_clearance": 15.63
+  },
+  {
+   "name": "相机镜片",
+   "ground_clearance": 43.25
+  },
+  {
+   "name": "着陆平台",
+   "ground_clearance": 8.75
+  },
+  {
+   "name": "科研实验舱",
+   "ground_clearance": 8.75
+  },
+  {
+   "name": "穹顶肋",
+   "ground_clearance": 45.88
+  },
+  {
+   "name": "能源边框",
+   "ground_clearance": 8.75
+  },
+  {
+   "name": "观察舷窗",
+   "ground_clearance": 52.12
+  },
+  {
+   "name": "车轮",
+   "ground_clearance": 8.75
+  },
+  {
+   "name": "车顶帆板",
+   "ground_clearance": 27.22
+  },
+  {
+   "name": "返回火箭",
+   "ground_clearance": 143.12
+  },
+  {
+   "name": "顶部信标",
+   "ground_clearance": 62.81
+  }
+ ]
+}

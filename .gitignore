@@ -13,10 +13,16 @@ renders/*
 !exports/结构仿真说明.md
 !exports/改造计划.md
 !exports/qa_report.json
+!exports/qa_deep.json
+!exports/qa_deep2.json
+!exports/qa_deep3.json
+!exports/qa_advanced.json
+!exports/qa_swatch.json
+!exports/qa_swatch_after.json
+!exports/layout_fix.json
 !exports/unit_table.json
 
 # 参赛相关材料(不上传)
-make_docs.py
 探秘火星*.txt
 
 # 本地参考与杂项

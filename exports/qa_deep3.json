@@ -1,0 +1,254 @@
+{
+ "summary": {
+  "F_孤岛翻转面": 33,
+  "G_倒角过大": 20
+ },
+ "detail": {
+  "F_孤岛翻转面": [
+   {
+    "obj": "FAC_DishStrut0",
+    "faces": 6
+   },
+   {
+    "obj": "FAC_FeedLeg0",
+    "faces": 2
+   },
+   {
+    "obj": "FAC_LabEquip0",
+    "faces": 6
+   },
+   {
+    "obj": "FAC_LabEquip1",
+    "faces": 6
+   },
+   {
+    "obj": "FAC_LabEquip2",
+    "faces": 6
+   },
+   {
+    "obj": "FAC_LabHatch",
+    "faces": 6
+   },
+   {
+    "obj": "FAC_RockFinHinge0",
+    "faces": 6
+   },
+   {
+    "obj": "FAC_RockFinHinge1",
+    "faces": 6
+   },
+   {
+    "obj": "FAC_RockFinHinge2",
+    "faces": 2
+   },
+   {
+    "obj": "FAC_RockFinHinge3",
+    "faces": 2
+   },
+   {
+    "obj": "FAC_RockRaceway",
+    "faces": 6
+   },
+   {
+    "obj": "FAC_SolarJBox0",
+    "faces": 6
+   },
+   {
+    "obj": "FAC_SolarJBox1",
+    "faces": 6
+   },
+   {
+    "obj": "FAC_SolarJBox2",
+    "faces": 6
+   },
+   {
+    "obj": "FAC_SolarJBox3",
+    "faces": 6
+   },
+   {
+    "obj": "FX_Dust",
+    "faces": 6
+   },
+   {
+    "obj": "REF_Leg0",
+    "faces": 1
+   },
+   {
+    "obj": "REF_Leg0.001",
+    "faces": 1
+   },
+   {
+    "obj": "REF_Leg1",
+    "faces": 1
+   },
+   {
+    "obj": "REF_Leg1.001",
+    "faces": 1
+   },
+   {
+    "obj": "REF_Leg2",
+    "faces": 1
+   },
+   {
+    "obj": "REF_Leg2.001",
+    "faces": 1
+   },
+   {
+    "obj": "REF_Pack0",
+    "faces": 6
+   },
+   {
+    "obj": "REF_Pack1",
+    "faces": 2
+   },
+   {
+    "obj": "REF_Pack2",
+    "faces": 2
+   },
+   {
+    "obj": "REF_Torso0",
+    "faces": 6
+   },
+   {
+    "obj": "REF_Torso1",
+    "faces": 2
+   },
+   {
+    "obj": "REF_Torso2",
+    "faces": 2
+   },
+   {
+    "obj": "REF_WPack0",
+    "faces": 2
+   },
+   {
+    "obj": "REF_WPack1",
+    "faces": 2
+   },
+   {
+    "obj": "REF_WTorso0",
+    "faces": 2
+   },
+   {
+    "obj": "REF_WTorso1",
+    "faces": 2
+   },
+   {
+    "obj": "散热格栅",
+    "faces": 14
+   }
+  ],
+  "G_倒角过大": [
+   {
+    "obj": "加压廊道",
+    "width": 0.05,
+    "min_edge": 0.062
+   },
+   {
+    "obj": "发动机喷管",
+    "width": 0.05,
+    "min_edge": 0.078
+   },
+   {
+    "obj": "塔架",
+    "width": 0.05,
+    "min_edge": 0.037
+   },
+   {
+    "obj": "天线馈源臂",
+    "width": 0.05,
+    "min_edge": 0.037
+   },
+   {
+    "obj": "居住穹顶",
+    "width": 0.05,
+    "min_edge": 0.001
+   },
+   {
+    "obj": "抛物面反射器",
+    "width": 0.05,
+    "min_edge": 0.002
+   },
+   {
+    "obj": "散热格栅",
+    "width": 0.05,
+    "min_edge": 0.156
+   },
+   {
+    "obj": "机械臂",
+    "width": 0.05,
+    "min_edge": 0.012
+   },
+   {
+    "obj": "气象站",
+    "width": 0.05,
+    "min_edge": 0.005
+   },
+   {
+    "obj": "火星岩石",
+    "width": 0.05,
+    "min_edge": 0.022
+   },
+   {
+    "obj": "火星车体",
+    "width": 0.05,
+    "min_edge": 0.031
+   },
+   {
+    "obj": "相机镜片_restored",
+    "width": 0.04,
+    "min_edge": 0.041
+   },
+   {
+    "obj": "着陆平台",
+    "width": 0.05,
+    "min_edge": 0.093
+   },
+   {
+    "obj": "科研实验舱",
+    "width": 0.05,
+    "min_edge": 0.024
+   },
+   {
+    "obj": "穹顶肋_restored",
+    "width": 0.04,
+    "min_edge": 0.022
+   },
+   {
+    "obj": "能源边框",
+    "width": 0.05,
+    "min_edge": 0.093
+   },
+   {
+    "obj": "观察舷窗_restored",
+    "width": 0.04,
+    "min_edge": 0.143
+   },
+   {
+    "obj": "车轮",
+    "width": 0.05,
+    "min_edge": 0.022
+   },
+   {
+    "obj": "返回火箭",
+    "width": 0.05,
+    "min_edge": 0.077
+   },
+   {
+    "obj": "顶部信标_restored",
+    "width": 0.04,
+    "min_edge": 0.013
+   }
+  ]
+ },
+ "fixed": {
+  "翻转面": 132,
+  "倒角收敛": 13
+ },
+ "swatches": [
+  "R2_Steel",
+  "R2_Hull",
+  "R2_Glass",
+  "R2_Dark"
+ ]
+}

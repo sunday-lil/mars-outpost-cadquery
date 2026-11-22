@@ -1,0 +1,769 @@
+{
+ "summary": {
+  "A_真自相交": 11,
+  "A_装配接口": 77,
+  "B_UV不一致": 66,
+  "B_零面积UV": 3,
+  "C_多壳体": 14,
+  "D_材质过度共享": 2,
+  "D_法线朝内偏多": 2
+ },
+ "detail": {
+  "A_装配接口": [
+   {
+    "a": "FAC_DishStrut0",
+    "b": "FAC_DishStrut1",
+    "tri_pairs": 45
+   },
+   {
+    "a": "FAC_DishStrut0",
+    "b": "FAC_DishStrut5",
+    "tri_pairs": 42
+   },
+   {
+    "a": "FAC_DishStrut1",
+    "b": "FAC_DishStrut2",
+    "tri_pairs": 44
+   },
+   {
+    "a": "FAC_DishStrut2",
+    "b": "FAC_DishStrut3",
+    "tri_pairs": 45
+   },
+   {
+    "a": "FAC_DishStrut3",
+    "b": "FAC_DishStrut4",
+    "tri_pairs": 42
+   },
+   {
+    "a": "FAC_DishStrut4",
+    "b": "FAC_DishStrut5",
+    "tri_pairs": 43
+   },
+   {
+    "a": "FAC_LabBand0",
+    "b": "火星地形",
+    "tri_pairs": 245
+   },
+   {
+    "a": "FAC_LabBand1",
+    "b": "火星地形",
+    "tri_pairs": 245
+   },
+   {
+    "a": "FAC_LabBand2",
+    "b": "火星地形",
+    "tri_pairs": 245
+   },
+   {
+    "a": "FAC_LabBand3",
+    "b": "火星地形",
+    "tri_pairs": 245
+   },
+   {
+    "a": "FAC_LabBand4",
+    "b": "火星地形",
+    "tri_pairs": 245
+   },
+   {
+    "a": "FAC_LabBand5",
+    "b": "火星地形",
+    "tri_pairs": 245
+   },
+   {
+    "a": "FAC_LabBand6",
+    "b": "火星地形",
+    "tri_pairs": 245
+   },
+   {
+    "a": "FAC_LabBand7",
+    "b": "火星地形",
+    "tri_pairs": 245
+   },
+   {
+    "a": "FAC_LabEquip0",
+    "b": "火星地形",
+    "tri_pairs": 16
+   },
+   {
+    "a": "FAC_LabEquip1",
+    "b": "火星地形",
+    "tri_pairs": 16
+   },
+   {
+    "a": "FAC_LabEquip2",
+    "b": "火星地形",
+    "tri_pairs": 16
+   },
+   {
+    "a": "FAC_LabPipe",
+    "b": "FX_Dust",
+    "tri_pairs": 32
+   },
+   {
+    "a": "FAC_PortIn0",
+    "b": "FAC_WinTube0",
+    "tri_pairs": 128
+   },
+   {
+    "a": "FAC_PortIn1",
+    "b": "FAC_WinLamp1",
+    "tri_pairs": 112
+   },
+   {
+    "a": "FAC_PortIn1",
+    "b": "FAC_WinTube1",
+    "tri_pairs": 128
+   },
+   {
+    "a": "FAC_PortIn10",
+    "b": "FAC_WinLamp10",
+    "tri_pairs": 112
+   },
+   {
+    "a": "FAC_PortIn10",
+    "b": "FAC_WinTube10",
+    "tri_pairs": 128
+   },
+   {
+    "a": "FAC_PortIn11",
+    "b": "FAC_WinLamp11",
+    "tri_pairs": 112
+   },
+   {
+    "a": "FAC_PortIn11",
+    "b": "FAC_WinTube11",
+    "tri_pairs": 129
+   },
+   {
+    "a": "FAC_PortIn12",
+    "b": "FAC_WinTube12",
+    "tri_pairs": 129
+   },
+   {
+    "a": "FAC_PortIn13",
+    "b": "FAC_WinLamp13",
+    "tri_pairs": 112
+   },
+   {
+    "a": "FAC_PortIn13",
+    "b": "FAC_WinTube13",
+    "tri_pairs": 128
+   },
+   {
+    "a": "FAC_PortIn14",
+    "b": "FAC_WinLamp14",
+    "tri_pairs": 112
+   },
+   {
+    "a": "FAC_PortIn14",
+    "b": "FAC_WinTube14",
+    "tri_pairs": 128
+   },
+   {
+    "a": "FAC_PortIn15",
+    "b": "FAC_WinLamp15",
+    "tri_pairs": 112
+   },
+   {
+    "a": "FAC_PortIn15",
+    "b": "FAC_WinTube15",
+    "tri_pairs": 128
+   },
+   {
+    "a": "FAC_PortIn2",
+    "b": "FAC_WinLamp2",
+    "tri_pairs": 112
+   },
+   {
+    "a": "FAC_PortIn2",
+    "b": "FAC_WinTube2",
+    "tri_pairs": 128
+   },
+   {
+    "a": "FAC_PortIn3",
+    "b": "FAC_WinLamp3",
+    "tri_pairs": 112
+   },
+   {
+    "a": "FAC_PortIn3",
+    "b": "FAC_WinTube3",
+    "tri_pairs": 128
+   },
+   {
+    "a": "FAC_PortIn4",
+    "b": "FAC_WinTube4",
+    "tri_pairs": 128
+   },
+   {
+    "a": "FAC_PortIn5",
+    "b": "FAC_WinLamp5",
+    "tri_pairs": 112
+   },
+   {
+    "a": "FAC_PortIn5",
+    "b": "FAC_WinTube5",
+    "tri_pairs": 128
+   },
+   {
+    "a": "FAC_PortIn6",
+    "b": "FAC_WinLamp6",
+    "tri_pairs": 112
+   },
+   {
+    "a": "FAC_PortIn6",
+    "b": "FAC_WinTube6",
+    "tri_pairs": 128
+   },
+   {
+    "a": "FAC_PortIn7",
+    "b": "FAC_WinLamp7",
+    "tri_pairs": 112
+   },
+   {
+    "a": "FAC_PortIn7",
+    "b": "FAC_WinTube7",
+    "tri_pairs": 128
+   },
+   {
+    "a": "FAC_PortIn8",
+    "b": "FAC_WinTube8",
+    "tri_pairs": 129
+   },
+   {
+    "a": "FAC_PortIn9",
+    "b": "FAC_WinLamp9",
+    "tri_pairs": 112
+   },
+   {
+    "a": "FAC_PortIn9",
+    "b": "FAC_WinTube9",
+    "tri_pairs": 128
+   },
+   {
+    "a": "FAC_PortOut1",
+    "b": "FAC_WinTube1",
+    "tri_pairs": 108
+   },
+   {
+    "a": "FAC_PortOut10",
+    "b": "FAC_WinTube10",
+    "tri_pairs": 108
+   },
+   {
+    "a": "FAC_PortOut11",
+    "b": "FAC_WinTube11",
+    "tri_pairs": 100
+   },
+   {
+    "a": "FAC_PortOut13",
+    "b": "FAC_WinTube13",
+    "tri_pairs": 108
+   },
+   {
+    "a": "FAC_PortOut14",
+    "b": "FAC_WinTube14",
+    "tri_pairs": 108
+   },
+   {
+    "a": "FAC_PortOut15",
+    "b": "FAC_WinTube15",
+    "tri_pairs": 108
+   },
+   {
+    "a": "FAC_PortOut2",
+    "b": "FAC_WinTube2",
+    "tri_pairs": 108
+   },
+   {
+    "a": "FAC_PortOut3",
+    "b": "FAC_WinTube3",
+    "tri_pairs": 108
+   },
+   {
+    "a": "FAC_PortOut5",
+    "b": "FAC_WinTube5",
+    "tri_pairs": 108
+   },
+   {
+    "a": "FAC_PortOut6",
+    "b": "FAC_WinTube6",
+    "tri_pairs": 108
+   },
+   {
+    "a": "FAC_PortOut7",
+    "b": "FAC_WinTube7",
+    "tri_pairs": 108
+   },
+   {
+    "a": "FAC_PortOut9",
+    "b": "FAC_WinTube9",
+    "tri_pairs": 108
+   },
+   {
+    "a": "FAC_RockRing0",
+    "b": "返回火箭",
+    "tri_pairs": 792
+   },
+   {
+    "a": "FAC_RockRing1",
+    "b": "返回火箭",
+    "tri_pairs": 792
+   }
+  ],
+  "A_真自相交": [
+   {
+    "a": "FX_Dust",
+    "b": "返回火箭",
+    "tri_pairs": 252
+   },
+   {
+    "a": "压痕路径_restored",
+    "b": "机械臂",
+    "tri_pairs": 624
+   },
+   {
+    "a": "压痕路径_restored",
+    "b": "气象站",
+    "tri_pairs": 1106
+   },
+   {
+    "a": "压痕路径_restored",
+    "b": "车轮",
+    "tri_pairs": 156
+   },
+   {
+    "a": "发动机喷管",
+    "b": "着陆平台",
+    "tri_pairs": 1810
+   },
+   {
+    "a": "机械臂",
+    "b": "火星地形",
+    "tri_pairs": 36
+   },
+   {
+    "a": "机械臂",
+    "b": "车轮",
+    "tri_pairs": 142
+   },
+   {
+    "a": "气象站",
+    "b": "火星地形",
+    "tri_pairs": 1168
+   },
+   {
+    "a": "火星地形",
+    "b": "火星车体",
+    "tri_pairs": 1853
+   },
+   {
+    "a": "火星地形",
+    "b": "车轮",
+    "tri_pairs": 1514
+   },
+   {
+    "a": "穹顶肋_restored",
+    "b": "观察舷窗_restored",
+    "tri_pairs": 3568
+   }
+  ],
+  "B_UV不一致": [
+   {
+    "obj": "FAC_LabPipe",
+    "flipped_faces": 17,
+    "total": 34
+   },
+   {
+    "obj": "FAC_SolarActuator",
+    "flipped_faces": 17,
+    "total": 34
+   },
+   {
+    "obj": "FAC_TunnelTrestle0",
+    "flipped_faces": 17,
+    "total": 34
+   },
+   {
+    "obj": "FAC_TunnelTrestle1",
+    "flipped_faces": 17,
+    "total": 34
+   },
+   {
+    "obj": "FAC_TunnelTrestle2",
+    "flipped_faces": 17,
+    "total": 34
+   },
+   {
+    "obj": "FAC_WinTube0",
+    "flipped_faces": 15,
+    "total": 30
+   },
+   {
+    "obj": "FAC_WinTube1",
+    "flipped_faces": 15,
+    "total": 30
+   },
+   {
+    "obj": "FAC_WinTube10",
+    "flipped_faces": 15,
+    "total": 30
+   },
+   {
+    "obj": "FAC_WinTube11",
+    "flipped_faces": 15,
+    "total": 30
+   },
+   {
+    "obj": "FAC_WinTube12",
+    "flipped_faces": 15,
+    "total": 30
+   },
+   {
+    "obj": "FAC_WinTube13",
+    "flipped_faces": 15,
+    "total": 30
+   },
+   {
+    "obj": "FAC_WinTube14",
+    "flipped_faces": 15,
+    "total": 30
+   },
+   {
+    "obj": "FAC_WinTube15",
+    "flipped_faces": 15,
+    "total": 30
+   },
+   {
+    "obj": "FAC_WinTube2",
+    "flipped_faces": 15,
+    "total": 30
+   },
+   {
+    "obj": "FAC_WinTube3",
+    "flipped_faces": 15,
+    "total": 30
+   },
+   {
+    "obj": "FAC_WinTube4",
+    "flipped_faces": 15,
+    "total": 30
+   },
+   {
+    "obj": "FAC_WinTube5",
+    "flipped_faces": 15,
+    "total": 30
+   },
+   {
+    "obj": "FAC_WinTube6",
+    "flipped_faces": 15,
+    "total": 30
+   },
+   {
+    "obj": "FAC_WinTube7",
+    "flipped_faces": 15,
+    "total": 30
+   },
+   {
+    "obj": "FAC_WinTube8",
+    "flipped_faces": 15,
+    "total": 30
+   },
+   {
+    "obj": "FAC_WinTube9",
+    "flipped_faces": 15,
+    "total": 30
+   },
+   {
+    "obj": "REF_Arm0",
+    "flipped_faces": 6,
+    "total": 12
+   },
+   {
+    "obj": "REF_Arm0.001",
+    "flipped_faces": 6,
+    "total": 12
+   },
+   {
+    "obj": "REF_Arm1",
+    "flipped_faces": 6,
+    "total": 12
+   },
+   {
+    "obj": "REF_Arm1.001",
+    "flipped_faces": 6,
+    "total": 12
+   },
+   {
+    "obj": "REF_Arm2",
+    "flipped_faces": 6,
+    "total": 12
+   },
+   {
+    "obj": "REF_Arm2.001",
+    "flipped_faces": 6,
+    "total": 12
+   },
+   {
+    "obj": "REF_Leg0",
+    "flipped_faces": 7,
+    "total": 14
+   },
+   {
+    "obj": "REF_Leg0.001",
+    "flipped_faces": 7,
+    "total": 14
+   },
+   {
+    "obj": "REF_Leg1",
+    "flipped_faces": 7,
+    "total": 14
+   },
+   {
+    "obj": "REF_Leg1.001",
+    "flipped_faces": 7,
+    "total": 14
+   },
+   {
+    "obj": "REF_Leg2",
+    "flipped_faces": 7,
+    "total": 14
+   },
+   {
+    "obj": "REF_Leg2.001",
+    "flipped_faces": 7,
+    "total": 14
+   },
+   {
+    "obj": "REF_WArm0-0",
+    "flipped_faces": 7,
+    "total": 14
+   },
+   {
+    "obj": "REF_WArm00",
+    "flipped_faces": 7,
+    "total": 14
+   },
+   {
+    "obj": "REF_WArm1-0",
+    "flipped_faces": 7,
+    "total": 14
+   },
+   {
+    "obj": "REF_WArm10",
+    "flipped_faces": 7,
+    "total": 14
+   },
+   {
+    "obj": "REF_WLeg0-0",
+    "flipped_faces": 7,
+    "total": 14
+   },
+   {
+    "obj": "REF_WLeg00",
+    "flipped_faces": 7,
+    "total": 14
+   },
+   {
+    "obj": "REF_WLeg1-0",
+    "flipped_faces": 7,
+    "total": 14
+   },
+   {
+    "obj": "REF_WLeg10",
+    "flipped_faces": 7,
+    "total": 14
+   },
+   {
+    "obj": "加压廊道",
+    "flipped_faces": 5889,
+    "total": 11354
+   },
+   {
+    "obj": "加速器喷管",
+    "flipped_faces": 2276,
+    "total": 4536
+   },
+   {
+    "obj": "压痕路径_restored",
+    "flipped_faces": 34,
+    "total": 72
+   },
+   {
+    "obj": "发动机喷管",
+    "flipped_faces": 1999,
+    "total": 4000
+   },
+   {
+    "obj": "塔架",
+    "flipped_faces": 80121,
+    "total": 160260
+   },
+   {
+    "obj": "天线馈源臂",
+    "flipped_faces": 12965,
+    "total": 26318
+   },
+   {
+    "obj": "太阳能板",
+    "flipped_faces": 960,
+    "total": 1920
+   },
+   {
+    "obj": "居住穹顶",
+    "flipped_faces": 34277,
+    "total": 69150
+   },
+   {
+    "obj": "抛物面反射器",
+    "flipped_faces": 8861,
+    "total": 22690
+   },
+   {
+    "obj": "推进器机身",
+    "flipped_faces": 250,
+    "total": 500
+   },
+   {
+    "obj": "散热格栅",
+    "flipped_faces": 1683,
+    "total": 3078
+   },
+   {
+    "obj": "机械臂",
+    "flipped_faces": 2903,
+    "total": 6262
+   },
+   {
+    "obj": "气象站",
+    "flipped_faces": 16656,
+    "total": 34106
+   },
+   {
+    "obj": "火星岩石",
+    "flipped_faces": 34621,
+    "total": 135280
+   },
+   {
+    "obj": "火星车体",
+    "flipped_faces": 1992,
+    "total": 5252
+   },
+   {
+    "obj": "相机镜片_restored",
+    "flipped_faces": 500,
+    "total": 1000
+   },
+   {
+    "obj": "着陆平台",
+    "flipped_faces": 1274,
+    "total": 5068
+   },
+   {
+    "obj": "科研实验舱",
+    "flipped_faces": 6948,
+    "total": 13310
+   },
+   {
+    "obj": "穹顶肋_restored",
+    "flipped_faces": 316459,
+    "total": 635232
+   }
+  ],
+  "B_零面积UV": [
+   {
+    "obj": "居住穹顶",
+    "faces": 9
+   },
+   {
+    "obj": "火星岩石",
+    "faces": 1137
+   },
+   {
+    "obj": "穹顶肋_restored",
+    "faces": 2315
+   }
+  ],
+  "C_多壳体": [
+   {
+    "obj": "压痕路径_restored",
+    "islands": 6
+   },
+   {
+    "obj": "发动机喷管",
+    "islands": 8
+   },
+   {
+    "obj": "塔架",
+    "islands": 8
+   },
+   {
+    "obj": "天线馈源臂",
+    "islands": 4
+   },
+   {
+    "obj": "太阳能板",
+    "islands": 160
+   },
+   {
+    "obj": "居住穹顶",
+    "islands": 2
+   },
+   {
+    "obj": "火星岩石",
+    "islands": 60
+   },
+   {
+    "obj": "火星车体",
+    "islands": 6
+   },
+   {
+    "obj": "相机镜片_restored",
+    "islands": 2
+   },
+   {
+    "obj": "穹顶肋_restored",
+    "islands": 26
+   },
+   {
+    "obj": "能源边框",
+    "islands": 12
+   },
+   {
+    "obj": "观察舷窗_restored",
+    "islands": 8
+   },
+   {
+    "obj": "车轮",
+    "islands": 13
+   },
+   {
+    "obj": "车顶帆板",
+    "islands": 2
+   }
+  ],
+  "D_材质过度共享": [
+   {
+    "mat": "R2_Steel",
+    "objects": 81
+   },
+   {
+    "mat": "R2_Hull",
+    "objects": 36
+   }
+  ],
+  "D_法线朝内偏多": [
+   {
+    "obj": "加速器喷管",
+    "inward_faces": 3150,
+    "total": 4536
+   },
+   {
+    "obj": "散热格栅",
+    "inward_faces": 1730,
+    "total": 3078
+   }
+  ]
+ },
+ "candidates": 641
+}

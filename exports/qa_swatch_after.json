@@ -1,0 +1,32 @@
+{
+ "R2_Steel": {
+  "delta_mean": 10.47,
+  "delta_max": 11.61,
+  "a": "加压廊道",
+  "b": "加速器喷管"
+ },
+ "R2_Hull": {
+  "delta_mean": 35.92,
+  "delta_max": 52.32,
+  "a": "压痕路径_restored",
+  "b": "居住穹顶"
+ },
+ "R2_Glass": {
+  "delta_mean": 48.48,
+  "delta_max": 102.37,
+  "a": "相机镜片_restored",
+  "b": "观察舷窗_restored"
+ },
+ "R2_Dark": {
+  "delta_mean": 8.15,
+  "delta_max": 15.14,
+  "a": "发动机喷管",
+  "b": "车轮"
+ },
+ "R2_Solar": {
+  "delta_mean": 21.77,
+  "delta_max": 40.3,
+  "a": "太阳能板",
+  "b": "车顶帆板"
+ }
+}
