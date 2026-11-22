@@ -1,5 +1,5 @@
 {
- "objects": 206,
+ "objects": 211,
  "deformed": [],
  "overlaps": [
   {
@@ -71,11 +71,6 @@
    "a": "FAC_RockRing3",
    "b": "返回火箭",
    "m3": 465.9
-  },
-  {
-   "a": "FAC_Track_气象站_L",
-   "b": "FAC_Track_气象站_R",
-   "m3": 215.4
   },
   {
    "a": "FAC_WinTube0",
