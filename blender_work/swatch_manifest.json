@@ -4,13 +4,13 @@
    "obj": "加压廊道",
    "file": "m1_0.png",
    "exists": true,
-   "size": 25339
+   "size": 24068
   },
   {
    "obj": "加速器喷管",
    "file": "m1_1.png",
    "exists": true,
-   "size": 27157
+   "size": 24940
   }
  ],
  "R2_Hull": [
@@ -18,13 +18,13 @@
    "obj": "压痕路径_restored",
    "file": "m2_0.png",
    "exists": true,
-   "size": 20123
+   "size": 20064
   },
   {
    "obj": "居住穹顶",
    "file": "m2_1.png",
    "exists": true,
-   "size": 26226
+   "size": 25590
   }
  ],
  "R2_Glass": [
@@ -46,13 +46,13 @@
    "obj": "发动机喷管",
    "file": "m4_0.png",
    "exists": true,
-   "size": 20331
+   "size": 19945
   },
   {
    "obj": "车轮",
    "file": "m4_1.png",
    "exists": true,
-   "size": 27700
+   "size": 26921
   }
  ],
  "R2_Solar": [
@@ -60,13 +60,13 @@
    "obj": "太阳能板",
    "file": "m5_0.png",
    "exists": true,
-   "size": 30929
+   "size": 30907
   },
   {
    "obj": "车顶帆板",
    "file": "m5_1.png",
    "exists": true,
-   "size": 21120
+   "size": 21030
   }
  ]
 }
