@@ -1,13 +1,12 @@
 {
  "summary": {
   "A_真自相交": 11,
-  "A_装配接口": 100,
-  "B_UV不一致": 46,
-  "B_缺UV": 17,
-  "B_零面积UV": 3,
-  "C_多壳体": 31,
+  "A_装配接口": 101,
+  "B_UV不一致": 68,
+  "B_零面积UV": 4,
+  "C_多壳体": 34,
   "D_材质过度共享": 1,
-  "D_法线朝内偏多": 3
+  "D_法线朝内偏多": 4
  },
  "detail": {
   "A_装配接口": [
@@ -19,7 +18,7 @@
    {
     "a": "FAC_DishStrut0",
     "b": "FAC_DishStrut5",
-    "tri_pairs": 41
+    "tri_pairs": 42
    },
    {
     "a": "FAC_DishStrut1",
@@ -371,9 +370,29 @@
   ],
   "B_UV不一致": [
    {
+    "obj": "FAC_HydroLamp",
+    "flipped_faces": 54,
+    "total": 108
+   },
+   {
+    "obj": "FAC_HydroRack",
+    "flipped_faces": 325,
+    "total": 738
+   },
+   {
+    "obj": "FAC_ISRU_Aux",
+    "flipped_faces": 69,
+    "total": 133
+   },
+   {
     "obj": "FAC_LabPipe",
     "flipped_faces": 17,
     "total": 34
+   },
+   {
+    "obj": "FAC_PipeRack",
+    "flipped_faces": 115,
+    "total": 230
    },
    {
     "obj": "FAC_SolarActuator",
@@ -476,6 +495,96 @@
     "total": 30
    },
    {
+    "obj": "REF_Geodesic_Frame",
+    "flipped_faces": 39375,
+    "total": 136250
+   },
+   {
+    "obj": "REF_Glass_Glazing",
+    "flipped_faces": 1950,
+    "total": 8504
+   },
+   {
+    "obj": "REF_Green_Crops",
+    "flipped_faces": 45943,
+    "total": 91951
+   },
+   {
+    "obj": "REF_Greenhouse_Corridor",
+    "flipped_faces": 3296,
+    "total": 6596
+   },
+   {
+    "obj": "REF_ISRU_Station",
+    "flipped_faces": 11983,
+    "total": 27998
+   },
+   {
+    "obj": "REF_LCH4_Pipe",
+    "flipped_faces": 5631,
+    "total": 24250
+   },
+   {
+    "obj": "REF_LCH4_Pipe.001",
+    "flipped_faces": 5631,
+    "total": 24250
+   },
+   {
+    "obj": "REF_LCH4_Pipe.002",
+    "flipped_faces": 5631,
+    "total": 24250
+   },
+   {
+    "obj": "REF_LOX_Pipe",
+    "flipped_faces": 5631,
+    "total": 24250
+   },
+   {
+    "obj": "REF_LOX_Pipe.001",
+    "flipped_faces": 5631,
+    "total": 24250
+   },
+   {
+    "obj": "REF_LOX_Pipe.002",
+    "flipped_faces": 5631,
+    "total": 24250
+   },
+   {
+    "obj": "REF_Pad_Dome",
+    "flipped_faces": 33,
+    "total": 66
+   },
+   {
+    "obj": "REF_Pad_ISRU",
+    "flipped_faces": 33,
+    "total": 66
+   },
+   {
+    "obj": "STR_Truss_DishBack",
+    "flipped_faces": 288,
+    "total": 588
+   },
+   {
+    "obj": "STR_Truss_Lab",
+    "flipped_faces": 312,
+    "total": 624
+   },
+   {
+    "obj": "STR_Truss_LaunchTower",
+    "flipped_faces": 716,
+    "total": 1516
+   },
+   {
+    "obj": "STR_Truss_Spokes",
+    "flipped_faces": 2059,
+    "total": 4116
+   },
+   {
+    "obj": "STR_Truss_Towers",
+    "flipped_faces": 4139,
+    "total": 8320
+   },
+   {
     "obj": "加压廊道",
     "flipped_faces": 5889,
     "total": 11354
@@ -527,7 +636,7 @@
    },
    {
     "obj": "散热格栅",
-    "flipped_faces": 1679,
+    "flipped_faces": 1683,
     "total": 3078
    },
    {
@@ -559,102 +668,13 @@
     "obj": "着陆平台",
     "flipped_faces": 1274,
     "total": 5068
-   },
-   {
-    "obj": "科研实验舱",
-    "flipped_faces": 6948,
-    "total": 13310
-   },
-   {
-    "obj": "穹顶肋_restored",
-    "flipped_faces": 316459,
-    "total": 635232
-   },
-   {
-    "obj": "能源边框",
-    "flipped_faces": 2076,
-    "total": 5560
-   },
-   {
-    "obj": "观察舷窗_restored",
-    "flipped_faces": 2000,
-    "total": 4000
-   },
-   {
-    "obj": "车轮",
-    "flipped_faces": 37060,
-    "total": 73664
-   },
-   {
-    "obj": "车顶帆板",
-    "flipped_faces": 12,
-    "total": 24
-   },
-   {
-    "obj": "返回火箭",
-    "flipped_faces": 4951,
-    "total": 11212
-   },
-   {
-    "obj": "顶部信标_restored",
-    "flipped_faces": 3205,
-    "total": 7410
-   }
-  ],
-  "B_缺UV": [
-   {
-    "obj": "FAC_PipeRack"
-   },
-   {
-    "obj": "REF_Geodesic_Frame"
-   },
-   {
-    "obj": "REF_Glass_Glazing"
-   },
-   {
-    "obj": "REF_Green_Crops"
-   },
-   {
-    "obj": "REF_Greenhouse_Corridor"
-   },
-   {
-    "obj": "REF_ISRU_Station"
-   },
-   {
-    "obj": "REF_LCH4_Pipe"
-   },
-   {
-    "obj": "REF_LCH4_Pipe.001"
-   },
-   {
-    "obj": "REF_LCH4_Pipe.002"
-   },
-   {
-    "obj": "REF_LOX_Pipe"
-   },
-   {
-    "obj": "REF_LOX_Pipe.001"
-   },
-   {
-    "obj": "REF_LOX_Pipe.002"
-   },
-   {
-    "obj": "STR_Truss_DishBack"
-   },
-   {
-    "obj": "STR_Truss_Lab"
-   },
-   {
-    "obj": "STR_Truss_LaunchTower"
-   },
-   {
-    "obj": "STR_Truss_Spokes"
-   },
-   {
-    "obj": "STR_Truss_Towers"
    }
   ],
   "B_零面积UV": [
+   {
+    "obj": "STR_Truss_LaunchTower",
+    "faces": 84
+   },
    {
     "obj": "居住穹顶",
     "faces": 9
@@ -669,6 +689,18 @@
    }
   ],
   "C_多壳体": [
+   {
+    "obj": "FAC_HydroLamp",
+    "islands": 18
+   },
+   {
+    "obj": "FAC_HydroRack",
+    "islands": 108
+   },
+   {
+    "obj": "FAC_ISRU_Aux",
+    "islands": 18
+   },
    {
     "obj": "FAC_PipeRack",
     "islands": 35
@@ -797,14 +829,19 @@
   "D_材质过度共享": [
    {
     "mat": "R2_Steel",
-    "objects": 89
+    "objects": 92
    }
   ],
   "D_法线朝内偏多": [
    {
-    "obj": "REF_Glass_Glazing",
-    "inward_faces": 4380,
-    "total": 8506
+    "obj": "FAC_HydroRack",
+    "inward_faces": 408,
+    "total": 738
+   },
+   {
+    "obj": "FAC_ISRU_Aux",
+    "inward_faces": 69,
+    "total": 133
    },
    {
     "obj": "加速器喷管",
@@ -813,10 +850,10 @@
    },
    {
     "obj": "散热格栅",
-    "inward_faces": 1744,
+    "inward_faces": 1730,
     "total": 3078
    }
   ]
  },
- "candidates": 735
+ "candidates": 759
 }

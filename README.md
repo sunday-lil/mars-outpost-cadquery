@@ -101,14 +101,14 @@ python mars_outpost.py
 
 | 项 | 数值 |
 |---|---|
-| 物体总数 | **189**（原始 26 件全部保留 + 桁架与设施细节 + 吸收模块） |
+| 物体总数 | **194**（原始 26 件全部保留 + 桁架与设施细节 + 吸收模块） |
 | 集合分组 | `00_ENV_环境` / `01_CORE_原始设施` / `02_STR_结构件` / `03_FAC_设施细节` / `04_REF_人物参照` / `05_TCK_车辙道路` |
-| 多边形量级 | GLB 83.8 MB（含测地线穹顶 13.6 万面、作物 9.2 万面） |
+| 多边形量级 | GLB 84.4 MB（含测地线穹顶 13.6 万面、作物 9.2 万面） |
 | 地形 | 1200 × 1200 m，400×400 段，4 层噪声 + 54 个撞击坑 + 风蚀波纹/砾石材质 |
 | 人物比例尺 | 5 名 1.8 m 宇航员（3 站姿 + 2 走姿） |
 | 舷窗 | 16 个真挖孔，含内筒（Ø4.4×13 m）与内端自发光灯环 |
 | 桁架体系 | 4 座格构塔（Ø1400 主肢/λ=167/σ_cr=74 MPa）、6 根辐条桁架、发射服务塔、实验舱外挂桁架、天线背架 |
-| 新增功能区 | 测地线穹顶温室（Ø76 m + 作物）、ISRU 制氧站（Ø80 m）、6 段低温管路 |
+| 新增功能区 | 测地线穹顶温室（Ø76 m + 三层水培架 + 作物）、ISRU 制氧站（Ø80 m + 散热/放空/管桥）、6 段低温管路 |
 
 ## 质量检查（三轮，脚本可复跑）
 
@@ -133,15 +133,35 @@ python mars_outpost.py
 | `exports/提交清单.md` | 提交材料清单与提交前检查表 |
 | `exports/演示视频脚本.md` | 演示视频分镜脚本 |
 
-复现流程（需要 Blender 5.3）：
+复现流程（需要 Blender 5.3，脚本均在 `blender_work/`）：
 
 ```bash
-blender -b -P blender_work/v3_stage1.py      # 单位 u=3.125 + 布局体检 + 地形
-blender -b habitat_v3_s1.blend -P blender_work/v3_stage3.py   # 环体细节 + 布光
-blender -b habitat_v3_s5.blend -P blender_work/v3_stage6.py   # 地形风蚀 + 舷窗内景 + 人物
-blender -b habitat_v3_s6.blend -P blender_work/v3_stage7.py   # 车辙 + 天空
-blender -b habitat_v3_s7.blend -P blender_work/v3_stage8.py   # 辙带接门口 + 集合分组
-blender -b habitat_v3_s8.blend -P blender_work/bug_hunt.py    # 缺陷扫描与修复
+# ① 基准：单位 u=3.125 + 布局体检 + 地形场平
+blender -b -P blender_work/v3_stage1.py
+# ② 环体细节 + 三点布光
+blender -b blender_work/habitat_v3_s1.blend -P blender_work/v3_stage3.py
+# ③ 材质 + 设施细节 + 尘暴体积光
+blender -b blender_work/habitat_v3_s5.blend -P blender_work/v3_stage5.py
+# ④ 地形风蚀 + 舷窗内景 + 人物比例尺
+blender -b blender_work/habitat_v3_s6.blend -P blender_work/v3_stage6.py
+# ⑤ 车辙 + 手写火星天空 + 走姿人物
+blender -b blender_work/habitat_v3_s7.blend -P blender_work/v3_stage7.py
+# ⑥ 辙带接门口 + 集合分组
+blender -b blender_work/habitat_v3_s8.blend -P blender_work/v3_stage8.py
+# ⑦ 桁架体系 + 资料模块吸收 + 细化 + 轮毂承台
+blender -b blender_work/habitat_final.blend -P blender_work/truss_build.py
+blender -b blender_work/habitat_final.blend -P blender_work/ref_import.py
+blender -b blender_work/habitat_final.blend -P blender_work/detail_pass2.py
+blender -b blender_work/habitat_final.blend -P blender_work/hub_pedestal.py
+# ⑧ 三轮缺陷扫描 + 定点修复 + 导出
+blender -b blender_work/habitat_final.blend -P blender_work/bug_hunt.py
+blender -b blender_work/habitat_final.blend -P blender_work/bug_hunt2.py
+blender -b blender_work/habitat_final.blend -P blender_work/bug_hunt3.py
+blender -b blender_work/habitat_final.blend -P blender_work/fix_round2.py
+blender -b blender_work/habitat_final.blend -P blender_work/qa3.py
+# ⑨ 出图
+blender -b blender_work/habitat_final.blend -P blender_work/shots_v3c.py
+blender -b blender_work/habitat_final.blend -P blender_work/shots_v4.py
 ```
 
 ## 参赛信息

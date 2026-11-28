@@ -1,6 +1,6 @@
 {
  "summary": {
-  "F_孤岛翻转面": 33,
+  "F_孤岛翻转面": 25,
   "G_倒角过大": 20
  },
  "detail": {
@@ -12,6 +12,18 @@
    {
     "obj": "FAC_FeedLeg0",
     "faces": 2
+   },
+   {
+    "obj": "FAC_HydroLamp",
+    "faces": 39
+   },
+   {
+    "obj": "FAC_HydroRack",
+    "faces": 125
+   },
+   {
+    "obj": "FAC_ISRU_Aux",
+    "faces": 60
    },
    {
     "obj": "FAC_LabEquip0",
@@ -28,6 +40,10 @@
    {
     "obj": "FAC_LabHatch",
     "faces": 6
+   },
+   {
+    "obj": "FAC_PipeRack",
+    "faces": 180
    },
    {
     "obj": "FAC_RockFinHinge0",
@@ -70,72 +86,24 @@
     "faces": 6
    },
    {
-    "obj": "REF_Leg0",
-    "faces": 1
-   },
-   {
-    "obj": "REF_Leg0.001",
-    "faces": 1
-   },
-   {
-    "obj": "REF_Leg1",
-    "faces": 1
-   },
-   {
-    "obj": "REF_Leg1.001",
-    "faces": 1
-   },
-   {
-    "obj": "REF_Leg2",
-    "faces": 1
-   },
-   {
-    "obj": "REF_Leg2.001",
-    "faces": 1
-   },
-   {
-    "obj": "REF_Pack0",
-    "faces": 6
-   },
-   {
-    "obj": "REF_Pack1",
+    "obj": "STR_Truss_DishBack",
     "faces": 2
    },
    {
-    "obj": "REF_Pack2",
-    "faces": 2
+    "obj": "STR_Truss_Lab",
+    "faces": 96
    },
    {
-    "obj": "REF_Torso0",
-    "faces": 6
+    "obj": "STR_Truss_LaunchTower",
+    "faces": 522
    },
    {
-    "obj": "REF_Torso1",
-    "faces": 2
+    "obj": "STR_Truss_Spokes",
+    "faces": 80
    },
    {
-    "obj": "REF_Torso2",
-    "faces": 2
-   },
-   {
-    "obj": "REF_WPack0",
-    "faces": 2
-   },
-   {
-    "obj": "REF_WPack1",
-    "faces": 2
-   },
-   {
-    "obj": "REF_WTorso0",
-    "faces": 2
-   },
-   {
-    "obj": "REF_WTorso1",
-    "faces": 2
-   },
-   {
-    "obj": "散热格栅",
-    "faces": 14
+    "obj": "STR_Truss_Towers",
+    "faces": 1021
    }
   ],
   "G_倒角过大": [
@@ -151,22 +119,22 @@
    },
    {
     "obj": "塔架",
-    "width": 0.05,
+    "width": 0.015,
     "min_edge": 0.037
    },
    {
     "obj": "天线馈源臂",
-    "width": 0.05,
+    "width": 0.015,
     "min_edge": 0.037
    },
    {
     "obj": "居住穹顶",
-    "width": 0.05,
+    "width": 0.001,
     "min_edge": 0.001
    },
    {
     "obj": "抛物面反射器",
-    "width": 0.05,
+    "width": 0.001,
     "min_edge": 0.002
    },
    {
@@ -176,27 +144,27 @@
    },
    {
     "obj": "机械臂",
-    "width": 0.05,
+    "width": 0.005,
     "min_edge": 0.012
    },
    {
     "obj": "气象站",
-    "width": 0.05,
+    "width": 0.002,
     "min_edge": 0.005
    },
    {
     "obj": "火星岩石",
-    "width": 0.05,
+    "width": 0.009,
     "min_edge": 0.022
    },
    {
     "obj": "火星车体",
-    "width": 0.05,
+    "width": 0.012,
     "min_edge": 0.031
    },
    {
     "obj": "相机镜片_restored",
-    "width": 0.04,
+    "width": 0.016,
     "min_edge": 0.041
    },
    {
@@ -206,12 +174,12 @@
    },
    {
     "obj": "科研实验舱",
-    "width": 0.05,
+    "width": 0.01,
     "min_edge": 0.024
    },
    {
     "obj": "穹顶肋_restored",
-    "width": 0.04,
+    "width": 0.009,
     "min_edge": 0.022
    },
    {
@@ -226,7 +194,7 @@
    },
    {
     "obj": "车轮",
-    "width": 0.05,
+    "width": 0.009,
     "min_edge": 0.022
    },
    {
@@ -236,19 +204,18 @@
    },
    {
     "obj": "顶部信标_restored",
-    "width": 0.04,
+    "width": 0.005,
     "min_edge": 0.013
    }
   ]
  },
  "fixed": {
-  "翻转面": 132,
-  "倒角收敛": 13
+  "翻转面": 2209
  },
  "swatches": [
   "R2_Steel",
-  "R2_Hull",
+  "R2_Dark",
   "R2_Glass",
-  "R2_Dark"
+  "R2_Hull"
  ]
 }
