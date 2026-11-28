@@ -1,71 +1,91 @@
 {
- "objects": 194,
+ "objects": 193,
  "deformed": [],
  "overlaps": [
   {
+   "a": "FAC_GreenhouseSoil",
+   "b": "REF_Geodesic_Frame",
+   "m3": 1213.7
+  },
+  {
+   "a": "FAC_GreenhouseSoil",
+   "b": "REF_Glass_Glazing",
+   "m3": 1213.7
+  },
+  {
+   "a": "FAC_GreenhouseSoil",
+   "b": "REF_Pad_Dome",
+   "m3": 1681.6
+  },
+  {
+   "a": "FAC_GreenhouseSoil",
+   "b": "火星地形",
+   "m3": 2427.5
+  },
+  {
+   "a": "FAC_GreenhouseSoil",
+   "b": "火星岩石",
+   "m3": 1583.5
+  },
+  {
    "a": "FAC_HydroLamp",
    "b": "FAC_HydroRack",
-   "m3": 25939.1
+   "m3": 20566.7
   },
   {
    "a": "FAC_HydroLamp",
    "b": "REF_Geodesic_Frame",
-   "m3": 25939.1
+   "m3": 23288.2
   },
   {
    "a": "FAC_HydroLamp",
    "b": "REF_Glass_Glazing",
-   "m3": 25939.1
+   "m3": 23288.2
   },
   {
    "a": "FAC_HydroLamp",
    "b": "REF_Green_Crops",
-   "m3": 8176.5
-  },
-  {
-   "a": "FAC_HydroLamp",
-   "b": "REF_Greenhouse_Corridor",
-   "m3": 235.5
+   "m3": 19396.8
   },
   {
    "a": "FAC_HydroLamp",
    "b": "火星地形",
-   "m3": 19207.4
+   "m3": 23288.2
   },
   {
    "a": "FAC_HydroLamp",
    "b": "火星岩石",
-   "m3": 14290.3
+   "m3": 13353.4
   },
   {
    "a": "FAC_HydroRack",
    "b": "REF_Geodesic_Frame",
-   "m3": 41195.0
+   "m3": 28756.0
   },
   {
    "a": "FAC_HydroRack",
    "b": "REF_Glass_Glazing",
-   "m3": 41195.0
+   "m3": 28756.0
   },
   {
    "a": "FAC_HydroRack",
    "b": "REF_Green_Crops",
-   "m3": 10387.2
+   "m3": 21155.0
   },
   {
    "a": "FAC_HydroRack",
    "b": "REF_Greenhouse_Corridor",
-   "m3": 644.4
+   "m3": 281.5
   },
   {
    "a": "FAC_HydroRack",
    "b": "火星地形",
-   "m3": 25525.9
+   "m3": 28756.0
   },
   {
    "a": "FAC_HydroRack",
    "b": "火星岩石",
-   "m3": 18251.0
+   "m3": 18458.8
   },
   {
    "a": "FAC_ISRU_Aux",
@@ -465,62 +485,62 @@
   {
    "a": "REF_Geodesic_Frame",
    "b": "REF_Green_Crops",
-   "m3": 14398.5
+   "m3": 22703.0
   },
   {
    "a": "REF_Geodesic_Frame",
    "b": "REF_Greenhouse_Corridor",
-   "m3": 5371.0
+   "m3": 2463.8
+  },
+  {
+   "a": "REF_Geodesic_Frame",
+   "b": "REF_Pad_Dome",
+   "m3": 915.4
   },
   {
    "a": "REF_Geodesic_Frame",
    "b": "火星地形",
-   "m3": 54040.4
+   "m3": 101078.6
   },
   {
    "a": "REF_Geodesic_Frame",
    "b": "火星岩石",
-   "m3": 30630.9
+   "m3": 28315.1
   },
   {
    "a": "REF_Glass_Glazing",
    "b": "REF_Green_Crops",
-   "m3": 12993.7
+   "m3": 22703.0
   },
   {
    "a": "REF_Glass_Glazing",
    "b": "REF_Greenhouse_Corridor",
-   "m3": 4603.5
+   "m3": 2207.2
   },
   {
    "a": "REF_Glass_Glazing",
-   "b": "火星地形",
-   "m3": 45663.1
-  },
-  {
-   "a": "REF_Glass_Glazing",
-   "b": "火星岩石",
-   "m3": 27256.4
-  },
-  {
-   "a": "REF_Green_Crops",
-   "b": "REF_Greenhouse_Corridor",
-   "m3": 2566.1
-  },
-  {
-   "a": "REF_Green_Crops",
    "b": "REF_Pad_Dome",
-   "m3": 1431.5
+   "m3": 880.4
+  },
+  {
+   "a": "REF_Glass_Glazing",
+   "b": "火星地形",
+   "m3": 94826.1
+  },
+  {
+   "a": "REF_Glass_Glazing",
+   "b": "火星岩石",
+   "m3": 27138.9
   },
   {
    "a": "REF_Green_Crops",
    "b": "火星地形",
-   "m3": 27534.3
+   "m3": 22703.0
   },
   {
    "a": "REF_Green_Crops",
    "b": "火星岩石",
-   "m3": 5833.4
+   "m3": 14717.3
   },
   {
    "a": "REF_Greenhouse_Corridor",
@@ -530,7 +550,7 @@
   {
    "a": "REF_Greenhouse_Corridor",
    "b": "火星地形",
-   "m3": 14496.7
+   "m3": 8405.7
   },
   {
    "a": "REF_ISRU_Station",
@@ -560,7 +580,7 @@
   {
    "a": "REF_LCH4_Pipe",
    "b": "火星岩石",
-   "m3": 490.4
+   "m3": 762.9
   },
   {
    "a": "REF_LCH4_Pipe.001",
@@ -570,17 +590,7 @@
   {
    "a": "REF_LCH4_Pipe.001",
    "b": "火星岩石",
-   "m3": 490.4
-  },
-  {
-   "a": "REF_LCH4_Pipe.002",
-   "b": "REF_LOX_Pipe.002",
-   "m3": 1230.4
-  },
-  {
-   "a": "REF_LCH4_Pipe.002",
-   "b": "火星地形",
-   "m3": 1230.4
+   "m3": 762.9
   },
   {
    "a": "REF_LOX_Pipe",
@@ -590,7 +600,7 @@
   {
    "a": "REF_LOX_Pipe",
    "b": "火星岩石",
-   "m3": 490.4
+   "m3": 762.9
   },
   {
    "a": "REF_LOX_Pipe.001",
@@ -600,17 +610,17 @@
   {
    "a": "REF_LOX_Pipe.001",
    "b": "火星岩石",
-   "m3": 490.4
-  },
-  {
-   "a": "REF_LOX_Pipe.002",
-   "b": "火星地形",
-   "m3": 1230.4
+   "m3": 762.9
   },
   {
    "a": "REF_Pad_Dome",
    "b": "火星地形",
    "m3": 6969.6
+  },
+  {
+   "a": "REF_Pad_Dome",
+   "b": "火星岩石",
+   "m3": 1710.9
   },
   {
    "a": "REF_Pad_ISRU",
@@ -621,6 +631,11 @@
    "a": "REF_Pad_ISRU",
    "b": "火星地形",
    "m3": 6350.4
+  },
+  {
+   "a": "REF_Pad_ISRU",
+   "b": "火星岩石",
+   "m3": 2069.6
   },
   {
    "a": "STR_HubPad",
@@ -643,6 +658,11 @@
    "m3": 1254.4
   },
   {
+   "a": "STR_HubPad",
+   "b": "火星岩石",
+   "m3": 1254.2
+  },
+  {
    "a": "STR_HubPedestal",
    "b": "STR_Truss_Towers",
    "m3": 3029.4
@@ -660,7 +680,7 @@
   {
    "a": "STR_HubPedestal",
    "b": "火星岩石",
-   "m3": 1061.4
+   "m3": 1928.5
   },
   {
    "a": "STR_Truss_DishBack",
@@ -686,11 +706,6 @@
    "a": "STR_Truss_Lab",
    "b": "火星地形",
    "m3": 16243.6
-  },
-  {
-   "a": "STR_Truss_Lab",
-   "b": "火星岩石",
-   "m3": 17186.6
   },
   {
    "a": "STR_Truss_Lab",
@@ -779,6 +794,11 @@
   },
   {
    "a": "压痕路径_restored",
+   "b": "火星岩石",
+   "m3": 30316.8
+  },
+  {
+   "a": "压痕路径_restored",
    "b": "车轮",
    "m3": 767.3
   },
@@ -828,11 +848,6 @@
    "m3": 3174.3
   },
   {
-   "a": "塔架",
-   "b": "火星岩石",
-   "m3": 3371.9
-  },
-  {
    "a": "天线馈源臂",
    "b": "抛物面反射器",
    "m3": 133432.8
@@ -846,11 +861,6 @@
    "a": "居住穹顶",
    "b": "火星地形",
    "m3": 18417.0
-  },
-  {
-   "a": "居住穹顶",
-   "b": "火星岩石",
-   "m3": 19640.5
   },
   {
    "a": "居住穹顶",
@@ -870,7 +880,7 @@
   {
    "a": "机械臂",
    "b": "火星岩石",
-   "m3": 1020.4
+   "m3": 984.6
   },
   {
    "a": "机械臂",
@@ -895,7 +905,7 @@
   {
    "a": "火星地形",
    "b": "火星岩石",
-   "m3": 597847.2
+   "m3": 617067.0
   },
   {
    "a": "火星地形",
@@ -921,26 +931,6 @@
    "a": "火星地形",
    "b": "车轮",
    "m3": 14167.8
-  },
-  {
-   "a": "火星岩石",
-   "b": "火星车体",
-   "m3": 4740.3
-  },
-  {
-   "a": "火星岩石",
-   "b": "着陆平台",
-   "m3": 19646.0
-  },
-  {
-   "a": "火星岩石",
-   "b": "科研实验舱",
-   "m3": 14756.2
-  },
-  {
-   "a": "火星岩石",
-   "b": "能源边框",
-   "m3": 11674.4
   },
   {
    "a": "火星岩石",
