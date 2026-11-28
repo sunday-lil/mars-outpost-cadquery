@@ -1,5 +1,5 @@
 {
- "objects": 194,
+ "objects": 198,
  "deformed": [],
  "overlaps": [
   {
@@ -254,18 +254,8 @@
   },
   {
    "a": "FAC_RockRing0",
-   "b": "发动机喷管",
-   "m3": 486.2
-  },
-  {
-   "a": "FAC_RockRing0",
    "b": "返回火箭",
    "m3": 465.9
-  },
-  {
-   "a": "FAC_RockRing1",
-   "b": "发动机喷管",
-   "m3": 486.2
   },
   {
    "a": "FAC_RockRing1",
@@ -284,6 +274,16 @@
   },
   {
    "a": "FAC_WinTube0",
+   "b": "STR_Rollers",
+   "m3": 331.2
+  },
+  {
+   "a": "FAC_WinTube0",
+   "b": "STR_Yoke",
+   "m3": 331.2
+  },
+  {
+   "a": "FAC_WinTube0",
    "b": "居住穹顶",
    "m3": 331.2
   },
@@ -299,6 +299,16 @@
   },
   {
    "a": "FAC_WinTube1",
+   "b": "STR_Rollers",
+   "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube1",
+   "b": "STR_Yoke",
+   "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube1",
    "b": "居住穹顶",
    "m3": 593.4
   },
@@ -314,8 +324,18 @@
   },
   {
    "a": "FAC_WinTube10",
+   "b": "STR_Rollers",
+   "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube10",
    "b": "STR_Truss_Spokes",
    "m3": 239.8
+  },
+  {
+   "a": "FAC_WinTube10",
+   "b": "STR_Yoke",
+   "m3": 654.9
   },
   {
    "a": "FAC_WinTube10",
@@ -334,6 +354,16 @@
   },
   {
    "a": "FAC_WinTube11",
+   "b": "STR_Rollers",
+   "m3": 479.7
+  },
+  {
+   "a": "FAC_WinTube11",
+   "b": "STR_Yoke",
+   "m3": 479.7
+  },
+  {
+   "a": "FAC_WinTube11",
    "b": "居住穹顶",
    "m3": 479.7
   },
@@ -349,6 +379,16 @@
   },
   {
    "a": "FAC_WinTube12",
+   "b": "STR_Rollers",
+   "m3": 331.2
+  },
+  {
+   "a": "FAC_WinTube12",
+   "b": "STR_Yoke",
+   "m3": 331.2
+  },
+  {
+   "a": "FAC_WinTube12",
    "b": "居住穹顶",
    "m3": 331.2
   },
@@ -364,6 +404,16 @@
   },
   {
    "a": "FAC_WinTube13",
+   "b": "STR_Rollers",
+   "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube13",
+   "b": "STR_Yoke",
+   "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube13",
    "b": "居住穹顶",
    "m3": 593.4
   },
@@ -376,6 +426,11 @@
    "a": "FAC_WinTube13",
    "b": "观察舷窗_restored",
    "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube14",
+   "b": "STR_Rollers",
+   "m3": 654.9
   },
   {
    "a": "FAC_WinTube14",
@@ -384,6 +439,11 @@
   },
   {
    "a": "FAC_WinTube14",
+   "b": "STR_Yoke",
+   "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube14",
    "b": "居住穹顶",
    "m3": 654.9
   },
@@ -396,6 +456,16 @@
    "a": "FAC_WinTube14",
    "b": "观察舷窗_restored",
    "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube15",
+   "b": "STR_Rollers",
+   "m3": 479.7
+  },
+  {
+   "a": "FAC_WinTube15",
+   "b": "STR_Yoke",
+   "m3": 479.7
   },
   {
    "a": "FAC_WinTube15",
@@ -414,8 +484,18 @@
   },
   {
    "a": "FAC_WinTube2",
+   "b": "STR_Rollers",
+   "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube2",
    "b": "STR_Truss_Spokes",
    "m3": 239.8
+  },
+  {
+   "a": "FAC_WinTube2",
+   "b": "STR_Yoke",
+   "m3": 654.9
   },
   {
    "a": "FAC_WinTube2",
@@ -431,6 +511,16 @@
    "a": "FAC_WinTube2",
    "b": "观察舷窗_restored",
    "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube3",
+   "b": "STR_Rollers",
+   "m3": 479.7
+  },
+  {
+   "a": "FAC_WinTube3",
+   "b": "STR_Yoke",
+   "m3": 479.7
   },
   {
    "a": "FAC_WinTube3",
@@ -446,6 +536,16 @@
    "a": "FAC_WinTube3",
    "b": "观察舷窗_restored",
    "m3": 479.6
+  },
+  {
+   "a": "FAC_WinTube4",
+   "b": "STR_Rollers",
+   "m3": 331.2
+  },
+  {
+   "a": "FAC_WinTube4",
+   "b": "STR_Yoke",
+   "m3": 331.2
   },
   {
    "a": "FAC_WinTube4",
@@ -464,6 +564,16 @@
   },
   {
    "a": "FAC_WinTube5",
+   "b": "STR_Rollers",
+   "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube5",
+   "b": "STR_Yoke",
+   "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube5",
    "b": "居住穹顶",
    "m3": 593.4
   },
@@ -476,6 +586,11 @@
    "a": "FAC_WinTube5",
    "b": "观察舷窗_restored",
    "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube6",
+   "b": "STR_Rollers",
+   "m3": 654.9
   },
   {
    "a": "FAC_WinTube6",
@@ -484,6 +599,11 @@
   },
   {
    "a": "FAC_WinTube6",
+   "b": "STR_Yoke",
+   "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube6",
    "b": "居住穹顶",
    "m3": 654.9
   },
@@ -496,6 +616,16 @@
    "a": "FAC_WinTube6",
    "b": "观察舷窗_restored",
    "m3": 654.9
+  },
+  {
+   "a": "FAC_WinTube7",
+   "b": "STR_Rollers",
+   "m3": 479.7
+  },
+  {
+   "a": "FAC_WinTube7",
+   "b": "STR_Yoke",
+   "m3": 479.7
   },
   {
    "a": "FAC_WinTube7",
@@ -514,6 +644,16 @@
   },
   {
    "a": "FAC_WinTube8",
+   "b": "STR_Rollers",
+   "m3": 331.2
+  },
+  {
+   "a": "FAC_WinTube8",
+   "b": "STR_Yoke",
+   "m3": 331.2
+  },
+  {
+   "a": "FAC_WinTube8",
    "b": "居住穹顶",
    "m3": 331.2
   },
@@ -526,6 +666,16 @@
    "a": "FAC_WinTube8",
    "b": "观察舷窗_restored",
    "m3": 303.5
+  },
+  {
+   "a": "FAC_WinTube9",
+   "b": "STR_Rollers",
+   "m3": 593.4
+  },
+  {
+   "a": "FAC_WinTube9",
+   "b": "STR_Yoke",
+   "m3": 593.4
   },
   {
    "a": "FAC_WinTube9",
@@ -683,13 +833,78 @@
    "m3": 2069.6
   },
   {
+   "a": "STR_Airlock",
+   "b": "STR_Bearing",
+   "m3": 862.4
+  },
+  {
+   "a": "STR_Airlock",
+   "b": "STR_Yoke",
+   "m3": 862.4
+  },
+  {
+   "a": "STR_Airlock",
+   "b": "加压廊道",
+   "m3": 744.8
+  },
+  {
+   "a": "STR_Airlock",
+   "b": "居住穹顶",
+   "m3": 862.4
+  },
+  {
+   "a": "STR_Bearing",
+   "b": "STR_HubPad",
+   "m3": 1081.6
+  },
+  {
+   "a": "STR_Bearing",
+   "b": "STR_HubPedestal",
+   "m3": 2932.2
+  },
+  {
+   "a": "STR_Bearing",
+   "b": "STR_Yoke",
+   "m3": 31227.2
+  },
+  {
+   "a": "STR_Bearing",
+   "b": "加压廊道",
+   "m3": 4936.2
+  },
+  {
+   "a": "STR_Bearing",
+   "b": "压痕路径_restored",
+   "m3": 422.5
+  },
+  {
+   "a": "STR_Bearing",
+   "b": "居住穹顶",
+   "m3": 25312.2
+  },
+  {
+   "a": "STR_Bearing",
+   "b": "火星地形",
+   "m3": 7801.5
+  },
+  {
+   "a": "STR_Bearing",
+   "b": "火星岩石",
+   "m3": 4023.6
+  },
+  {
+   "a": "STR_Bearing",
+   "b": "穹顶肋_restored",
+   "m3": 215.7
+  },
+  {
    "a": "STR_HubPad",
    "b": "STR_HubPedestal",
    "m3": 518.4
   },
   {
    "a": "STR_HubPad",
-   "b": "STR_Truss_Towers",
+   "b": "STR_Yoke",
    "m3": 1254.4
   },
   {
@@ -709,7 +924,7 @@
   },
   {
    "a": "STR_HubPedestal",
-   "b": "STR_Truss_Towers",
+   "b": "STR_Yoke",
    "m3": 3029.4
   },
   {
@@ -728,9 +943,49 @@
    "m3": 1928.5
   },
   {
-   "a": "STR_Truss_DishBack",
-   "b": "发动机喷管",
-   "m3": 312.6
+   "a": "STR_Rollers",
+   "b": "STR_Truss_Spokes",
+   "m3": 9741.8
+  },
+  {
+   "a": "STR_Rollers",
+   "b": "STR_Yoke",
+   "m3": 61736.4
+  },
+  {
+   "a": "STR_Rollers",
+   "b": "居住穹顶",
+   "m3": 48315.2
+  },
+  {
+   "a": "STR_Rollers",
+   "b": "穹顶肋_restored",
+   "m3": 50731.9
+  },
+  {
+   "a": "STR_Rollers",
+   "b": "观察舷窗_restored",
+   "m3": 34942.8
+  },
+  {
+   "a": "STR_SolarFrame",
+   "b": "太阳能板",
+   "m3": 4583.9
+  },
+  {
+   "a": "STR_SolarFrame",
+   "b": "火星地形",
+   "m3": 3368.5
+  },
+  {
+   "a": "STR_SolarFrame",
+   "b": "火星岩石",
+   "m3": 1711.2
+  },
+  {
+   "a": "STR_SolarFrame",
+   "b": "能源边框",
+   "m3": 9735.3
   },
   {
    "a": "STR_Truss_DishBack",
@@ -759,18 +1014,28 @@
   },
   {
    "a": "STR_Truss_LaunchTower",
+   "b": "散热格栅",
+   "m3": 203.8
+  },
+  {
+   "a": "STR_Truss_LaunchTower",
    "b": "火星地形",
-   "m3": 605.2
+   "m3": 643.2
   },
   {
    "a": "STR_Truss_LaunchTower",
    "b": "火星岩石",
-   "m3": 310.5
+   "m3": 329.5
   },
   {
    "a": "STR_Truss_LaunchTower",
    "b": "着陆平台",
-   "m3": 391.2
+   "m3": 415.1
+  },
+  {
+   "a": "STR_Truss_Spokes",
+   "b": "STR_Yoke",
+   "m3": 9741.8
   },
   {
    "a": "STR_Truss_Spokes",
@@ -788,34 +1053,39 @@
    "m3": 9741.8
   },
   {
-   "a": "STR_Truss_Towers",
+   "a": "STR_Yoke",
    "b": "加压廊道",
-   "m3": 14928.1
+   "m3": 21931.8
   },
   {
-   "a": "STR_Truss_Towers",
+   "a": "STR_Yoke",
    "b": "压痕路径_restored",
-   "m3": 2720.8
+   "m3": 5520.6
   },
   {
-   "a": "STR_Truss_Towers",
+   "a": "STR_Yoke",
    "b": "居住穹顶",
-   "m3": 171011.2
+   "m3": 344656.1
   },
   {
-   "a": "STR_Truss_Towers",
+   "a": "STR_Yoke",
    "b": "火星地形",
-   "m3": 52034.0
+   "m3": 105643.8
   },
   {
-   "a": "STR_Truss_Towers",
+   "a": "STR_Yoke",
    "b": "火星岩石",
-   "m3": 25910.7
+   "m3": 52573.6
   },
   {
-   "a": "STR_Truss_Towers",
+   "a": "STR_Yoke",
    "b": "穹顶肋_restored",
-   "m3": 9398.6
+   "m3": 104633.7
+  },
+  {
+   "a": "STR_Yoke",
+   "b": "观察舷窗_restored",
+   "m3": 34942.8
   },
   {
    "a": "加压廊道",
@@ -826,11 +1096,6 @@
    "a": "加压廊道",
    "b": "科研实验舱",
    "m3": 2000.4
-  },
-  {
-   "a": "加速器喷管",
-   "b": "发动机喷管",
-   "m3": 12601.3
   },
   {
    "a": "压痕路径_restored",
@@ -850,32 +1115,17 @@
   {
    "a": "发动机喷管",
    "b": "天线馈源臂",
-   "m3": 5528.7
+   "m3": 2702.0
   },
   {
    "a": "发动机喷管",
    "b": "抛物面反射器",
-   "m3": 14364.0
+   "m3": 5753.1
   },
   {
    "a": "发动机喷管",
    "b": "推进器机身",
-   "m3": 65057.9
-  },
-  {
-   "a": "发动机喷管",
-   "b": "散热格栅",
-   "m3": 103356.6
-  },
-  {
-   "a": "发动机喷管",
-   "b": "着陆平台",
-   "m3": 5431.2
-  },
-  {
-   "a": "发动机喷管",
-   "b": "返回火箭",
-   "m3": 76719.9
+   "m3": 26941.6
   },
   {
    "a": "塔架",
