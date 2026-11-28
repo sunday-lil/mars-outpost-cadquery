@@ -1,15 +1,30 @@
 {
  "summary": {
   "A_真自相交": 11,
-  "A_装配接口": 101,
-  "B_UV不一致": 68,
+  "A_装配接口": 108,
+  "B_UV不一致": 67,
   "B_零面积UV": 4,
-  "C_多壳体": 34,
+  "C_多壳体": 33,
   "D_材质过度共享": 1,
   "D_法线朝内偏多": 4
  },
  "detail": {
   "A_装配接口": [
+   {
+    "a": "FAC_Crops",
+    "b": "FAC_HydroLamp",
+    "tri_pairs": 50
+   },
+   {
+    "a": "FAC_Crops",
+    "b": "FAC_HydroRack",
+    "tri_pairs": 39352
+   },
+   {
+    "a": "FAC_Crops",
+    "b": "FAC_Irrigation",
+    "tri_pairs": 30441
+   },
    {
     "a": "FAC_DishStrut0",
     "b": "FAC_DishStrut1",
@@ -18,7 +33,7 @@
    {
     "a": "FAC_DishStrut0",
     "b": "FAC_DishStrut5",
-    "tri_pairs": 42
+    "tri_pairs": 41
    },
    {
     "a": "FAC_DishStrut1",
@@ -39,6 +54,26 @@
     "a": "FAC_DishStrut4",
     "b": "FAC_DishStrut5",
     "tri_pairs": 43
+   },
+   {
+    "a": "FAC_GreenhouseSoil",
+    "b": "REF_Geodesic_Frame",
+    "tri_pairs": 2338
+   },
+   {
+    "a": "FAC_GreenhouseSoil",
+    "b": "REF_Greenhouse_Corridor",
+    "tri_pairs": 252
+   },
+   {
+    "a": "FAC_GreenhouseSoil",
+    "b": "火星地形",
+    "tri_pairs": 160
+   },
+   {
+    "a": "FAC_HydroRack",
+    "b": "FAC_Irrigation",
+    "tri_pairs": 3756
    },
    {
     "a": "FAC_LabBand0",
@@ -274,41 +309,6 @@
     "a": "FAC_PortOut2",
     "b": "FAC_WinTube2",
     "tri_pairs": 108
-   },
-   {
-    "a": "FAC_PortOut3",
-    "b": "FAC_WinTube3",
-    "tri_pairs": 108
-   },
-   {
-    "a": "FAC_PortOut5",
-    "b": "FAC_WinTube5",
-    "tri_pairs": 108
-   },
-   {
-    "a": "FAC_PortOut6",
-    "b": "FAC_WinTube6",
-    "tri_pairs": 108
-   },
-   {
-    "a": "FAC_PortOut7",
-    "b": "FAC_WinTube7",
-    "tri_pairs": 108
-   },
-   {
-    "a": "FAC_PortOut9",
-    "b": "FAC_WinTube9",
-    "tri_pairs": 108
-   },
-   {
-    "a": "FAC_RockRing0",
-    "b": "返回火箭",
-    "tri_pairs": 792
-   },
-   {
-    "a": "FAC_RockRing1",
-    "b": "返回火箭",
-    "tri_pairs": 792
    }
   ],
   "A_真自相交": [
@@ -370,18 +370,28 @@
   ],
   "B_UV不一致": [
    {
+    "obj": "FAC_Crops",
+    "flipped_faces": 28996,
+    "total": 37708
+   },
+   {
     "obj": "FAC_HydroLamp",
     "flipped_faces": 54,
     "total": 108
    },
    {
     "obj": "FAC_HydroRack",
-    "flipped_faces": 325,
+    "flipped_faces": 315,
     "total": 738
    },
    {
+    "obj": "FAC_Irrigation",
+    "flipped_faces": 1110,
+    "total": 2088
+   },
+   {
     "obj": "FAC_ISRU_Aux",
-    "flipped_faces": 69,
+    "flipped_faces": 63,
     "total": 133
    },
    {
@@ -505,11 +515,6 @@
     "total": 8504
    },
    {
-    "obj": "REF_Green_Crops",
-    "flipped_faces": 45943,
-    "total": 91951
-   },
-   {
     "obj": "REF_Greenhouse_Corridor",
     "flipped_faces": 3296,
     "total": 6596
@@ -520,32 +525,22 @@
     "total": 27998
    },
    {
-    "obj": "REF_LCH4_Pipe",
+    "obj": "REF_LCH4_Pipe_A",
     "flipped_faces": 5631,
     "total": 24250
    },
    {
-    "obj": "REF_LCH4_Pipe.001",
+    "obj": "REF_LCH4_Pipe_B",
     "flipped_faces": 5631,
     "total": 24250
    },
    {
-    "obj": "REF_LCH4_Pipe.002",
+    "obj": "REF_LOX_Pipe_A",
     "flipped_faces": 5631,
     "total": 24250
    },
    {
-    "obj": "REF_LOX_Pipe",
-    "flipped_faces": 5631,
-    "total": 24250
-   },
-   {
-    "obj": "REF_LOX_Pipe.001",
-    "flipped_faces": 5631,
-    "total": 24250
-   },
-   {
-    "obj": "REF_LOX_Pipe.002",
+    "obj": "REF_LOX_Pipe_B",
     "flipped_faces": 5631,
     "total": 24250
    },
@@ -581,7 +576,7 @@
    },
    {
     "obj": "STR_Truss_Towers",
-    "flipped_faces": 4139,
+    "flipped_faces": 4140,
     "total": 8320
    },
    {
@@ -636,7 +631,7 @@
    },
    {
     "obj": "散热格栅",
-    "flipped_faces": 1683,
+    "flipped_faces": 1679,
     "total": 3078
    },
    {
@@ -668,6 +663,11 @@
     "obj": "着陆平台",
     "flipped_faces": 1274,
     "total": 5068
+   },
+   {
+    "obj": "科研实验舱",
+    "flipped_faces": 6948,
+    "total": 13310
    }
   ],
   "B_零面积UV": [
@@ -690,12 +690,20 @@
   ],
   "C_多壳体": [
    {
+    "obj": "FAC_Crops",
+    "islands": 24244
+   },
+   {
     "obj": "FAC_HydroLamp",
     "islands": 18
    },
    {
     "obj": "FAC_HydroRack",
     "islands": 108
+   },
+   {
+    "obj": "FAC_Irrigation",
+    "islands": 306
    },
    {
     "obj": "FAC_ISRU_Aux",
@@ -714,10 +722,6 @@
     "islands": 3
    },
    {
-    "obj": "REF_Green_Crops",
-    "islands": 5616
-   },
-   {
     "obj": "REF_Greenhouse_Corridor",
     "islands": 41
    },
@@ -726,27 +730,19 @@
     "islands": 63
    },
    {
-    "obj": "REF_LCH4_Pipe",
+    "obj": "REF_LCH4_Pipe_A",
     "islands": 28
    },
    {
-    "obj": "REF_LCH4_Pipe.001",
+    "obj": "REF_LCH4_Pipe_B",
     "islands": 28
    },
    {
-    "obj": "REF_LCH4_Pipe.002",
+    "obj": "REF_LOX_Pipe_A",
     "islands": 28
    },
    {
-    "obj": "REF_LOX_Pipe",
-    "islands": 28
-   },
-   {
-    "obj": "REF_LOX_Pipe.001",
-    "islands": 28
-   },
-   {
-    "obj": "REF_LOX_Pipe.002",
+    "obj": "REF_LOX_Pipe_B",
     "islands": 28
    },
    {
@@ -834,14 +830,14 @@
   ],
   "D_法线朝内偏多": [
    {
+    "obj": "FAC_Crops",
+    "inward_faces": 19468,
+    "total": 37708
+   },
+   {
     "obj": "FAC_HydroRack",
     "inward_faces": 408,
     "total": 738
-   },
-   {
-    "obj": "FAC_ISRU_Aux",
-    "inward_faces": 69,
-    "total": 133
    },
    {
     "obj": "加速器喷管",
@@ -850,10 +846,10 @@
    },
    {
     "obj": "散热格栅",
-    "inward_faces": 1730,
+    "inward_faces": 1744,
     "total": 3078
    }
   ]
  },
- "candidates": 759
+ "candidates": 754
 }

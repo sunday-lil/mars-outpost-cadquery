@@ -1,18 +1,17 @@
 {
  "summary": {
-  "G2_重复顶点": 16,
-  "G6_非流形边": 44,
-  "M1_空材质槽": 1,
-  "M2_多余材质槽": 1,
-  "N1_名称带序号": 4,
-  "N2_重名基名": 2,
+  "G2_重复顶点": 14,
+  "G4_法线朝内": 19,
+  "G6_非流形边": 42,
   "S2_悬空": 9,
-  "S4_完全重叠": 1,
-  "T1_未应用缩放": 5,
   "T2_原点远离": 9
  },
  "detail": {
   "G2_重复顶点": [
+   {
+    "obj": "FAC_Crops",
+    "n": 35178
+   },
    {
     "obj": "FAC_HydroRack",
     "n": 480
@@ -26,10 +25,6 @@
     "n": 316
    },
    {
-    "obj": "REF_Green_Crops",
-    "n": 572
-   },
-   {
     "obj": "REF_Greenhouse_Corridor",
     "n": 3358
    },
@@ -38,27 +33,19 @@
     "n": 7277
    },
    {
-    "obj": "REF_LCH4_Pipe",
+    "obj": "REF_LCH4_Pipe_A",
     "n": 2949
    },
    {
-    "obj": "REF_LCH4_Pipe.001",
+    "obj": "REF_LCH4_Pipe_B",
     "n": 2949
    },
    {
-    "obj": "REF_LCH4_Pipe.002",
+    "obj": "REF_LOX_Pipe_A",
     "n": 2949
    },
    {
-    "obj": "REF_LOX_Pipe",
-    "n": 2949
-   },
-   {
-    "obj": "REF_LOX_Pipe.001",
-    "n": 2949
-   },
-   {
-    "obj": "REF_LOX_Pipe.002",
+    "obj": "REF_LOX_Pipe_B",
     "n": 2949
    },
    {
@@ -79,6 +66,10 @@
    }
   ],
   "G6_非流形边": [
+   {
+    "obj": "FAC_Crops",
+    "n": 93808
+   },
    {
     "obj": "FAC_PortGlass0",
     "n": 36
@@ -152,10 +143,6 @@
     "n": 632
    },
    {
-    "obj": "REF_Green_Crops",
-    "n": 52001
-   },
-   {
     "obj": "REF_Greenhouse_Corridor",
     "n": 6658
    },
@@ -164,27 +151,19 @@
     "n": 14476
    },
    {
-    "obj": "REF_LCH4_Pipe",
+    "obj": "REF_LCH4_Pipe_A",
     "n": 4616
    },
    {
-    "obj": "REF_LCH4_Pipe.001",
+    "obj": "REF_LCH4_Pipe_B",
     "n": 4616
    },
    {
-    "obj": "REF_LCH4_Pipe.002",
+    "obj": "REF_LOX_Pipe_A",
     "n": 4616
    },
    {
-    "obj": "REF_LOX_Pipe",
-    "n": 4616
-   },
-   {
-    "obj": "REF_LOX_Pipe.001",
-    "n": 4616
-   },
-   {
-    "obj": "REF_LOX_Pipe.002",
+    "obj": "REF_LOX_Pipe_B",
     "n": 4616
    },
    {
@@ -238,86 +217,130 @@
    {
     "obj": "TCK_科研实验舱_R",
     "n": 18
+   },
+   {
+    "obj": "TCK_返回火箭_L",
+    "n": 18
+   },
+   {
+    "obj": "TCK_返回火箭_R",
+    "n": 18
+   }
+  ],
+  "G4_法线朝内": [
+   {
+    "obj": "FAC_DishStrut0",
+    "volume": -4.55
+   },
+   {
+    "obj": "FAC_HydroRack",
+    "volume": -2965.26
+   },
+   {
+    "obj": "FAC_ISRU_Aux",
+    "volume": -1000.11
+   },
+   {
+    "obj": "FAC_LabEquip0",
+    "volume": -14.4
+   },
+   {
+    "obj": "FAC_LabEquip1",
+    "volume": -14.4
+   },
+   {
+    "obj": "FAC_LabEquip2",
+    "volume": -14.4
+   },
+   {
+    "obj": "FAC_LabHatch",
+    "volume": -15.0
+   },
+   {
+    "obj": "FAC_PipeRack",
+    "volume": -0.75
+   },
+   {
+    "obj": "FAC_RockFinHinge0",
+    "volume": -2.3
+   },
+   {
+    "obj": "FAC_RockFinHinge1",
+    "volume": -2.3
+   },
+   {
+    "obj": "FAC_RockRaceway",
+    "volume": -69.3
+   },
+   {
+    "obj": "FAC_SolarJBox0",
+    "volume": -2.04
+   },
+   {
+    "obj": "FAC_SolarJBox1",
+    "volume": -2.04
+   },
+   {
+    "obj": "FAC_SolarJBox2",
+    "volume": -2.04
+   },
+   {
+    "obj": "FAC_SolarJBox3",
+    "volume": -2.04
+   },
+   {
+    "obj": "FX_Dust",
+    "volume": -1331200000.0
+   },
+   {
+    "obj": "STR_Truss_DishBack",
+    "volume": -2.22
+   },
+   {
+    "obj": "STR_Truss_LaunchTower",
+    "volume": -12.31
+   },
+   {
+    "obj": "STR_Truss_Towers",
+    "volume": -398.63
    }
   ],
   "T2_原点远离": [
    {
+    "obj": "FAC_Crops",
+    "dist": 194.8
+   },
+   {
     "obj": "FAC_HydroLamp",
-    "dist": 195.1
+    "dist": 194.9
    },
    {
     "obj": "FAC_HydroRack",
-    "dist": 195.1
+    "dist": 194.9
+   },
+   {
+    "obj": "FAC_Irrigation",
+    "dist": 194.9
    },
    {
     "obj": "FAC_ISRU_Aux",
     "dist": 184.4
    },
    {
-    "obj": "REF_LCH4_Pipe",
+    "obj": "REF_LCH4_Pipe_A",
     "dist": 155.3
    },
    {
-    "obj": "REF_LCH4_Pipe.001",
+    "obj": "REF_LCH4_Pipe_B",
     "dist": 155.3
    },
    {
-    "obj": "REF_LCH4_Pipe.002",
-    "dist": 155.3
-   },
-   {
-    "obj": "REF_LOX_Pipe",
+    "obj": "REF_LOX_Pipe_A",
     "dist": 156.3
    },
    {
-    "obj": "REF_LOX_Pipe.001",
+    "obj": "REF_LOX_Pipe_B",
     "dist": 156.3
-   },
-   {
-    "obj": "REF_LOX_Pipe.002",
-    "dist": 156.3
-   }
-  ],
-  "T1_未应用缩放": [
-   {
-    "obj": "REF_Geodesic_Frame",
-    "scale": [
-     1.55,
-     1.55,
-     1.55
-    ]
-   },
-   {
-    "obj": "REF_Glass_Glazing",
-    "scale": [
-     1.55,
-     1.55,
-     1.55
-    ]
-   },
-   {
-    "obj": "REF_Green_Crops",
-    "scale": [
-     1.55,
-     1.55,
-     1.55
-    ]
-   },
-   {
-    "obj": "REF_Greenhouse_Corridor",
-    "scale": [
-     1.55,
-     1.55,
-     1.55
-    ]
-   },
-   {
-    "obj": "REF_ISRU_Station",
-    "scale": [
-     1.25,
-     1.25,
-     1.25
-    ]
    }
   ],
   "S2_悬空": [
@@ -357,56 +380,11 @@
     "obj": "能源边框",
     "gap": 8.75
    }
-  ],
-  "S4_完全重叠": [
-   {
-    "a": "REF_LCH4_Pipe.002",
-    "b": "REF_LOX_Pipe.002"
-   }
-  ],
-  "M1_空材质槽": [
-   {
-    "obj": "居住穹顶",
-    "slots": [
-     1
-    ]
-   }
-  ],
-  "M2_多余材质槽": [
-   {
-    "obj": "居住穹顶",
-    "slots": 2
-   }
-  ],
-  "N1_名称带序号": [
-   {
-    "obj": "REF_LCH4_Pipe.001"
-   },
-   {
-    "obj": "REF_LCH4_Pipe.002"
-   },
-   {
-    "obj": "REF_LOX_Pipe.001"
-   },
-   {
-    "obj": "REF_LOX_Pipe.002"
-   }
-  ],
-  "N2_重名基名": [
-   {
-    "base": "REF_LCH4_Pipe",
-    "count": 3
-   },
-   {
-    "base": "REF_LOX_Pipe",
-    "count": 3
-   }
   ]
  },
  "fixed": {
-  "几何": 16,
-  "原点": 9,
-  "缩放": 5
+  "几何": 29,
+  "原点": 9
  },
- "total": 92
+ "total": 93
 }

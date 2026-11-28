@@ -1,6 +1,6 @@
 {
  "summary": {
-  "F_孤岛翻转面": 25,
+  "F_孤岛翻转面": 27,
   "G_倒角过大": 20
  },
  "detail": {
@@ -15,11 +15,15 @@
    },
    {
     "obj": "FAC_HydroLamp",
-    "faces": 39
+    "faces": 36
    },
    {
     "obj": "FAC_HydroRack",
-    "faces": 125
+    "faces": 177
+   },
+   {
+    "obj": "FAC_Irrigation",
+    "faces": 510
    },
    {
     "obj": "FAC_ISRU_Aux",
@@ -104,6 +108,10 @@
    {
     "obj": "STR_Truss_Towers",
     "faces": 1021
+   },
+   {
+    "obj": "散热格栅",
+    "faces": 14
    }
   ],
   "G_倒角过大": [
@@ -210,7 +218,7 @@
   ]
  },
  "fixed": {
-  "翻转面": 2209
+  "翻转面": 2782
  },
  "swatches": [
   "R2_Steel",
