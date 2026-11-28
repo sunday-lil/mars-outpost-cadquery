@@ -3,6 +3,41 @@
  "deformed": [],
  "overlaps": [
   {
+   "a": "FAC_Crops",
+   "b": "FAC_HydroLamp",
+   "m3": 23288.2
+  },
+  {
+   "a": "FAC_Crops",
+   "b": "FAC_HydroRack",
+   "m3": 26838.8
+  },
+  {
+   "a": "FAC_Crops",
+   "b": "REF_Geodesic_Frame",
+   "m3": 34433.5
+  },
+  {
+   "a": "FAC_Crops",
+   "b": "REF_Glass_Glazing",
+   "m3": 34433.5
+  },
+  {
+   "a": "FAC_Crops",
+   "b": "REF_Greenhouse_Corridor",
+   "m3": 353.2
+  },
+  {
+   "a": "FAC_Crops",
+   "b": "火星地形",
+   "m3": 34433.5
+  },
+  {
+   "a": "FAC_Crops",
+   "b": "火星岩石",
+   "m3": 17359.7
+  },
+  {
    "a": "FAC_GreenhouseSoil",
    "b": "REF_Geodesic_Frame",
    "m3": 1213.7
@@ -44,11 +79,6 @@
   },
   {
    "a": "FAC_HydroLamp",
-   "b": "REF_Green_Crops",
-   "m3": 19396.8
-  },
-  {
-   "a": "FAC_HydroLamp",
    "b": "火星地形",
    "m3": 23288.2
   },
@@ -66,11 +96,6 @@
    "a": "FAC_HydroRack",
    "b": "REF_Glass_Glazing",
    "m3": 28756.0
-  },
-  {
-   "a": "FAC_HydroRack",
-   "b": "REF_Green_Crops",
-   "m3": 21155.0
   },
   {
    "a": "FAC_HydroRack",
@@ -484,11 +509,6 @@
   },
   {
    "a": "REF_Geodesic_Frame",
-   "b": "REF_Green_Crops",
-   "m3": 22703.0
-  },
-  {
-   "a": "REF_Geodesic_Frame",
    "b": "REF_Greenhouse_Corridor",
    "m3": 2463.8
   },
@@ -509,11 +529,6 @@
   },
   {
    "a": "REF_Glass_Glazing",
-   "b": "REF_Green_Crops",
-   "m3": 22703.0
-  },
-  {
-   "a": "REF_Glass_Glazing",
    "b": "REF_Greenhouse_Corridor",
    "m3": 2207.2
   },
@@ -531,16 +546,6 @@
    "a": "REF_Glass_Glazing",
    "b": "火星岩石",
    "m3": 27138.9
-  },
-  {
-   "a": "REF_Green_Crops",
-   "b": "火星地形",
-   "m3": 22703.0
-  },
-  {
-   "a": "REF_Green_Crops",
-   "b": "火星岩石",
-   "m3": 14717.3
   },
   {
    "a": "REF_Greenhouse_Corridor",
